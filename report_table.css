@@ -1,0 +1,55 @@
+table.reportTable {
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  font-size: 10px;   
+  width: 100%;
+  /* border: 1px solid #CCCCCC; */
+  border-collapse: separate;
+  border-spacing: 3px;
+  table-layout: fixed;
+}
+
+table.reportTable th {
+  /* border: 1px solid #CCCCCC; */
+  border-bottom: 1px solid #000000 !important;
+  /* font-size: 10px;  */
+  /* height: 25px; */
+  padding: 5px;
+
+  max-width: 0px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+table.reportTable td {
+  vertical-align: super;
+  padding-left: 5px;
+  /*background: #FFFFFF;*/
+  /* border: 1px solid #CCCCCC; */
+
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.left {
+  text-align: left;
+}
+
+.right {
+  text-align: right !important;
+}
+
+.indent {
+  padding-left: 15px !important;
+}
+
+.total {
+  border-top: 2px solid #000000 !important;
+  font-weight: bold !important;
+}
+
+.red {
+  color: red;
+}
