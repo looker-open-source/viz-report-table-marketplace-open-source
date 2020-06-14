@@ -1,7 +1,7 @@
-/* https://raw.githack.com/ContrastingSounds/Looker-Custom-Vis/master/report_table/report_table.js */
-/* Dependency: https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.min.js */
+const { LookerDataTable } = require('vis-tools') 
+const d3 = require('d3')
 
-const formatter = d3.format(',.2f')
+// import './report_table.css'
 
 
 const options = {
@@ -310,7 +310,7 @@ looker.plugins.visualizations.add({
   options: options,
 
   create: function(element, config) {
-    loadStylesheets();
+    
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
