@@ -223,7 +223,6 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       .selectAll('th')
       .data(function(level, i) { 
         return lookerDataTable.getColumnsToDisplay(i).map(function(column) {
-          console.log('buildReportTable() level, i, column', level, i, column)
           var header = {
             'id': column.id,
             'text': '',
