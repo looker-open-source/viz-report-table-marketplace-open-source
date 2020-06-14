@@ -221,31 +221,37 @@ const buildReportTable = function(config, lookerData, callback) {
   var drag = d3.drag()
     .on('start', (source, idx) => {
       // console.log('drag start', source, idx)
+      if (!lookerData.has_pivots) {
+        var xPosition = parseFloat(d3.event.x);
+        var yPosition = parseFloat(d3.event.y);
 
-      var xPosition = parseFloat(d3.event.x);
-      var yPosition = parseFloat(d3.event.y);
-
-      d3.select("#tooltip")
-          .style("left", xPosition + "px")
-          .style("top", yPosition + "px")                     
-          .html();
- 
-      d3.select("#tooltip").classed("hidden", false);
+        d3.select("#tooltip")
+            .style("left", xPosition + "px")
+            .style("top", yPosition + "px")                     
+            .html();
+   
+        d3.select("#tooltip").classed("hidden", false);        
+      }
     })
     .on('drag', (source, idx) => {
       // console.log('drag drag', source, idx, d3.event.x, d3.event.y)
-      d3.select("#tooltip") 
-        .style("left", d3.event.x + "px")
-        .style("top", d3.event.y + "px")  
+      if (!lookerData.has_pivots) {
+        d3.select("#tooltip") 
+          .style("left", d3.event.x + "px")
+          .style("top", d3.event.y + "px")  
+      }
+      
     })
     .on('end', (source, idx) => {
-      d3.select("#tooltip").classed("hidden", true);
-      var movingColumn = lookerData.getColumnById(source.id)
-      var targetColumn = lookerData.getColumnById(dropTarget.id)
-      var movingIdx = Math.floor(movingColumn.pos/10) * 10
-      var targetIdx = Math.floor(targetColumn.pos/10) * 10
-      console.log('DRAG FROM', movingColumn, movingIdx, 'to', targetColumn, targetIdx)
-      lookerData.moveColumns(config, movingIdx, targetIdx, callback)
+      if (!lookerData.has_pivots) {
+        d3.select("#tooltip").classed("hidden", true);
+        var movingColumn = lookerData.getColumnById(source.id)
+        var targetColumn = lookerData.getColumnById(dropTarget.id)
+        var movingIdx = Math.floor(movingColumn.pos/10) * 10
+        var targetIdx = Math.floor(targetColumn.pos/10) * 10
+        console.log('DRAG FROM', movingColumn, movingIdx, 'to', targetColumn, targetIdx)
+        lookerData.moveColumns(config, movingIdx, targetIdx, callback)
+      }
     })
 
   table.append('thead')
