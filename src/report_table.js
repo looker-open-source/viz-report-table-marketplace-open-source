@@ -58,50 +58,6 @@ const options = {
     display_size: 'half',
     default: "true",
   },
-  // my_object_list: {
-  //   type: 'object_list',
-  //   label: 'My cool object list',
-  //   newItem: {
-  //     my_color: '#F0000D',
-  //     label_position: 'right',
-  //     my_number: 7,
-  //     my_dropdown: 'three',
-  //     show_label: true
-  //   },
-  //   options: {
-  //     my_dropdown: {
-  //       label: 'Dropdown stuff',
-  //       type: 'string',
-  //       display: 'select',
-  //       values: [
-  //         { One: 'one' },
-  //         { Two: 'two' },
-  //         { Three: 'three' },
-  //         { Four: 'four' }
-  //       ],
-  //       order: 3
-  //     },
-  //     my_number: {
-  //       label: 'A number',
-  //       type: 'number',
-  //       default: 7,
-  //       placeholder: 'Positive integer (1,2,3...)',
-  //       step: 1,
-  //       min: 1,
-  //       order: 4,
-  //     },
-  //     my_color: {
-  //       type: 'string',
-  //       display: 'color',
-  //       label: 'Color'
-  //     },
-  //     my_boolean: {
-  //       type: 'boolean',
-  //       label: 'Hide or show a thing',
-  //       order: 9
-  //     },
-  //   }
-  // }
 }
 
 /**
@@ -211,7 +167,7 @@ const getNewConfigOptions = function(table) {
   return newOptions
 }
 
-const buildReportTable = function(config, lookerData, callback) {
+const buildReportTable = function(config, lookerDataTable, callback) {
   var dropTarget = null;
   
   var table = d3.select('#visContainer')
@@ -221,7 +177,7 @@ const buildReportTable = function(config, lookerData, callback) {
   var drag = d3.drag()
     .on('start', (source, idx) => {
       // console.log('drag start', source, idx)
-      if (!lookerData.has_pivots) {
+      if (!lookerDataTable.has_pivots) {
         var xPosition = parseFloat(d3.event.x);
         var yPosition = parseFloat(d3.event.y);
 
@@ -235,7 +191,7 @@ const buildReportTable = function(config, lookerData, callback) {
     })
     .on('drag', (source, idx) => {
       // console.log('drag drag', source, idx, d3.event.x, d3.event.y)
-      if (!lookerData.has_pivots) {
+      if (!lookerDataTable.has_pivots) {
         d3.select("#tooltip") 
           .style("left", d3.event.x + "px")
           .style("top", d3.event.y + "px")  
@@ -243,31 +199,31 @@ const buildReportTable = function(config, lookerData, callback) {
       
     })
     .on('end', (source, idx) => {
-      if (!lookerData.has_pivots) {
+      if (!lookerDataTable.has_pivots) {
         d3.select("#tooltip").classed("hidden", true);
         var movingColumn = lookerData.getColumnById(source.id)
         var targetColumn = lookerData.getColumnById(dropTarget.id)
         var movingIdx = Math.floor(movingColumn.pos/10) * 10
         var targetIdx = Math.floor(targetColumn.pos/10) * 10
         console.log('DRAG FROM', movingColumn, movingIdx, 'to', targetColumn, targetIdx)
-        lookerData.moveColumns(config, movingIdx, targetIdx, callback)
+        lookerDataTable.moveColumns(config, movingIdx, targetIdx, callback)
       }
     })
 
   table.append('thead')
     .selectAll('tr')
-    .data(lookerData.getLevels()).enter() 
+    .data(lookerDataTable.getLevels()).enter() 
       .append('tr')
       .selectAll('th')
       .data(function(level, i) { 
-        return lookerData.getColumnsToDisplay(i).map(function(column) {
+        return lookerDataTable.getColumnsToDisplay(i).map(function(column) {
           var header = {
             'id': column.id,
             'text': '',
             'align': column.align,
             'colspan': column.colspans[i]
           }
-          if (lookerData.sortColsBy == 'getSortByPivots') {
+          if (lookerDataTable.sortColsBy == 'getSortByPivots') {
             if (i < column.levels.length && column.pivoted) {
               header.text = column.levels[i]
             } else if (i === column.levels.length) {
@@ -301,11 +257,11 @@ const buildReportTable = function(config, lookerData, callback) {
   
   table.append('tbody')
     .selectAll('tr')
-    .data(lookerData.data).enter()
+    .data(lookerDataTable.data).enter()
       .append('tr')
       .selectAll('td')
       .data(function(row) {  
-        return lookerData.getRow(row).map(function(column) {
+        return lookerDataTable.getRow(row).map(function(column) {
           var cell = row.data[column.id]
           cell.rowspan = column.rowspan
           cell.align = column.align
@@ -323,8 +279,6 @@ const buildReportTable = function(config, lookerData, callback) {
             }
             return classes.join(' ')
           })
-
-  console.log(table)
 }
 
 looker.plugins.visualizations.add({
@@ -345,9 +299,9 @@ looker.plugins.visualizations.add({
 
     this.clearErrors();
 
-    console.log('data', data)
-    console.log('config', config)
-    console.log('queryResponse', queryResponse)
+    // console.log('data', data)
+    // console.log('config', config)
+    // console.log('queryResponse', queryResponse)
 
     if (queryResponse.fields.pivots.length > 2) {
       this.addError({
