@@ -1,3 +1,31 @@
+#tooltip {
+    position: absolute;
+    width: auto;
+    height: auto;
+    padding: 5px;
+    background-color: white;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+#tooltip.hidden {
+    display: none;
+}
+
+#tooltip p {
+    margin: 0;
+    font-family: sans-serif;
+    font-size: 12px;
+    line-height: 15px;
+}
+
 table.reportTable {
   font-family: Open Sans,Helvetica,Arial,sans-serif;
   font-size: 10px;   

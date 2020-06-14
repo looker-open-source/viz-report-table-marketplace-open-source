@@ -1,4 +1,5 @@
-const { LookerDataTable } = require('vis-tools') 
+// const { LookerDataTable } = require('vis-tools') 
+const { LookerDataTable } = require('../../vis-tools/looker_data_table.js')
 const d3 = require('d3')
 
 import './report_table.css';
@@ -220,15 +221,29 @@ const buildReportTable = function(config, lookerData, callback) {
   var drag = d3.drag()
     .on('start', (source, idx) => {
       // console.log('drag start', source, idx)
+
+      var xPosition = parseFloat(d3.event.x);
+      var yPosition = parseFloat(d3.event.y);
+
+      d3.select("#tooltip")
+          .style("left", xPosition + "px")
+          .style("top", yPosition + "px")                     
+          .html();
+ 
+      d3.select("#tooltip").classed("hidden", false);
     })
-    // .on('drag', (source, idx) => {
-    //   console.log('drag drag', source, idx, d3.event.x, d3.event.y)
-    // })
+    .on('drag', (source, idx) => {
+      // console.log('drag drag', source, idx, d3.event.x, d3.event.y)
+      d3.select("#tooltip") 
+        .style("left", d3.event.x + "px")
+        .style("top", d3.event.y + "px")  
+    })
     .on('end', (source, idx) => {
-      movingColumn = lookerData.getColumnById(source.id)
-      targetColumn = lookerData.getColumnById(dropTarget.id)
-      movingIdx = Math.floor(movingColumn.pos/10) * 10
-      targetIdx = Math.floor(targetColumn.pos/10) * 10
+      d3.select("#tooltip").classed("hidden", true);
+      var movingColumn = lookerData.getColumnById(source.id)
+      var targetColumn = lookerData.getColumnById(dropTarget.id)
+      var movingIdx = Math.floor(movingColumn.pos/10) * 10
+      var targetIdx = Math.floor(targetColumn.pos/10) * 10
       console.log('DRAG FROM', movingColumn, movingIdx, 'to', targetColumn, targetIdx)
       lookerData.moveColumns(config, movingIdx, targetIdx, callback)
     })
@@ -310,7 +325,10 @@ looker.plugins.visualizations.add({
   options: options,
 
   create: function(element, config) {
-    
+    this.tooltip = d3.select(element)
+        .append("div")
+        .attr("class", "hidden")
+        .attr("id", "tooltip")
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
