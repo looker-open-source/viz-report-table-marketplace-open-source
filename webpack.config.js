@@ -6,6 +6,7 @@ module.exports = {
     filename: 'report_table.js',
     path: path.resolve(__dirname),
   },
+  devtool: 'source-map',
   module: {
     rules: [
       {

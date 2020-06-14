@@ -1,7 +1,7 @@
 const { LookerDataTable } = require('vis-tools') 
 const d3 = require('d3')
 
-// import './report_table.css'
+import './report_table.css';
 
 
 const options = {
@@ -108,7 +108,7 @@ const options = {
  * @param {*} table 
  */
 const getNewConfigOptions = function(table) {
-  newOptions = options;
+  var newOptions = options;
 
   for (var i = 0; i < table.dimensions.length; i++) {
     newOptions['label|' + table.dimensions[i].name] = {
@@ -150,10 +150,10 @@ const getNewConfigOptions = function(table) {
       order: 100 + i * 10 + 2
     }
 
-    comparisonOptions = []
+    var comparisonOptions = []
     // pivoted measures
     if (table.measures[i].can_pivot) {
-      pivotComparisons = []
+      var pivotComparisons = []
       for (var p = 0; p < table.pivot_fields.length; p++) {
         var option = {}
         option['By ' + table.pivot_fields[p]] = table.pivot_fields[p]
@@ -345,10 +345,10 @@ looker.plugins.visualizations.add({
     if (typeof config.columnOrder === 'undefined') {
       this.trigger('updateConfig', [{ columnOrder: {} }])
     }
-    lookerDataTable = new LookerDataTable(data, queryResponse, config)
+    var lookerDataTable = new LookerDataTable(data, queryResponse, config)
     console.log(lookerDataTable)
 
-    new_options = getNewConfigOptions(lookerDataTable)
+    var new_options = getNewConfigOptions(lookerDataTable)
     this.trigger('registerOptions', new_options)
 
     buildReportTable(config, lookerDataTable, updateColumnOrder)
