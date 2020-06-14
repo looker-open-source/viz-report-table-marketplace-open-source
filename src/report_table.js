@@ -19,6 +19,12 @@ const options = {
     label: "Use Index Dimension",
     default: "false",
   },
+  useHeadings: {
+    section: "Table",
+    type: "boolean",
+    label: "Use Headings from field tags",
+    default: "false",
+  },
   sortColumnsBy: {
     section: "Table",
     type: "string",
@@ -201,8 +207,8 @@ const buildReportTable = function(config, lookerDataTable, callback) {
     .on('end', (source, idx) => {
       if (!lookerDataTable.has_pivots) {
         d3.select("#tooltip").classed("hidden", true);
-        var movingColumn = lookerData.getColumnById(source.id)
-        var targetColumn = lookerData.getColumnById(dropTarget.id)
+        var movingColumn = lookerDataTable.getColumnById(source.id)
+        var targetColumn = lookerDataTable.getColumnById(dropTarget.id)
         var movingIdx = Math.floor(movingColumn.pos/10) * 10
         var targetIdx = Math.floor(targetColumn.pos/10) * 10
         console.log('DRAG FROM', movingColumn, movingIdx, 'to', targetColumn, targetIdx)
@@ -217,27 +223,38 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       .selectAll('th')
       .data(function(level, i) { 
         return lookerDataTable.getColumnsToDisplay(i).map(function(column) {
+          console.log('buildReportTable() level, i, column', level, i, column)
           var header = {
             'id': column.id,
             'text': '',
             'align': column.align,
             'colspan': column.colspans[i]
           }
-          if (lookerDataTable.sortColsBy == 'getSortByPivots') {
-            if (i < column.levels.length && column.pivoted) {
-              header.text = column.levels[i]
-            } else if (i === column.levels.length) {
-              header.text = column.getLabel()
+          if (lookerDataTable.useHeadings && !lookerDataTable.has_pivots) {
+            if (i == 0) {
+              header.text = column.heading
+              header.align  = 'center'
             } else {
-              header.text = ''
+              header.text = column.short_name || column.getLabel()
             }
           } else {
-            if (i == 0) {
-              header.text = column.getLabel()
+            if (lookerDataTable.sortColsBy == 'getSortByPivots') {
+              if (i < column.levels.length && column.pivoted) {
+                header.text = column.levels[i]
+              } else if (i === column.levels.length) {
+                header.text = column.getLabel()
+              } else {
+                header.text = ''
+              }
             } else {
-              header.text = column.levels[i - 1]
+              if (i == 0) {
+                header.text = column.getLabel()
+              } else {
+                header.text = column.levels[i - 1]
+              }
             }
           }
+          
           return header
         })
       }).enter()
