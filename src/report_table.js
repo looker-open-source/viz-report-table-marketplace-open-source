@@ -315,10 +315,6 @@ looker.plugins.visualizations.add({
 
     this.clearErrors();
 
-    // console.log('data', data)
-    console.log('config', config)
-    // console.log('queryResponse', queryResponse)
-
     if (queryResponse.fields.pivots.length > 2) {
       this.addError({
         title: 'Max Two Pivots',
@@ -340,6 +336,7 @@ looker.plugins.visualizations.add({
       this.trigger('updateConfig', [{ columnOrder: {} }])
     }
     var lookerDataTable = new LookerDataTable(data, queryResponse, config)
+    console.log(config)
     console.log(lookerDataTable)
 
     var new_options = getNewConfigOptions(lookerDataTable)
