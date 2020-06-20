@@ -88,16 +88,22 @@ const buildReportTable = function(config, lookerDataTable, callback) {
           .on('mouseover', cell => dropTarget = cell)
           .on('mouseout', () => dropTarget = null)
   
+  console.log('+++++++++++++')
+  console.log('=============')
+
   table.append('tbody')
     .selectAll('tr')
     .data(lookerDataTable.data).enter()
       .append('tr')
       .selectAll('td')
       .data(function(row) {  
-        return lookerDataTable.getRow(row).map(function(column) {
+        console.log('=============')
+        console.log('buildReportTable row', row)
+        return lookerDataTable.getRow(row).map( column => {
           var cell = row.data[column.id]
           cell.rowspan = column.rowspan
           cell.align = column.align
+          console.log('buildReportTable cell', cell)
           return cell;
         })
       }).enter()
