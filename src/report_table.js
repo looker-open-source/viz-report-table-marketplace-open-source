@@ -56,13 +56,8 @@ const buildReportTable = function(config, lookerDataTable, callback) {
         return lookerDataTable.getColumnsToDisplay(config, i).map(function(column) {
           var labelParams = {
             hasPivots: lookerDataTable.has_pivots,
+            withPivots: false,
             level: i,
-            sortColsBy: lookerDataTable.sortColsBy,
-            useHeadings: lookerDataTable.useHeadings,
-            config: config,
-            useShortName: config.useShortName,
-            withView: config.useViewName,
-            withPivots: false
           }
 
           var header = {
@@ -120,6 +115,8 @@ const buildReportTable = function(config, lookerDataTable, callback) {
 }
 
 looker.plugins.visualizations.add({
+  options: LookerDataTable.getCoreConfigOptions(),
+
   create: function(element, config) {
     this.tooltip = d3.select(element)
         .append("div")
@@ -168,6 +165,7 @@ looker.plugins.visualizations.add({
     buildReportTable(config, lookerDataTable, updateColumnOrder)
 
     console.log('config', config)
+    console.log('queryResponse', queryResponse)
     console.log('lookerDataTable', lookerDataTable)
 
     done();
