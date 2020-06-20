@@ -19,10 +19,22 @@ const options = {
     label: "Use Index Dimension",
     default: "false",
   },
+  useViewName: {
+    section: "Table",
+    type: "boolean",
+    label: "Include view name in label",
+    default: "false",
+  },
   useHeadings: {
     section: "Table",
     type: "boolean",
-    label: "Use Headings from field tags",
+    label: "Use Headings (non-pivots only)",
+    default: "false",
+  },
+  useShortName: {
+    section: "Table",
+    type: "boolean",
+    label: "Use Short Name (from model)",
     default: "false",
   },
   sortColumnsBy: {
@@ -55,14 +67,14 @@ const options = {
     type: "boolean",
     label: "Row Subtotals",
     display_size: 'half',
-    default: "true",
+    default: "false",
   },
   colSubtotals: {
     section: "Table",
     type: "boolean",
     label: "Col Subtotals",
     display_size: 'half',
-    default: "true",
+    default: "false",
   },
 }
 
@@ -82,12 +94,20 @@ const getNewConfigOptions = function(table) {
       order: i * 10 + 1,
     }
 
+    newOptions['heading|' + table.dimensions[i].name] = {
+      section: 'Dimensions',
+      type: 'string',
+      label: 'Heading for ' + table.dimensions[i].label,
+      default: '',
+      order: i * 10 + 2,
+    }
+
     newOptions['hide|' + table.dimensions[i].name] = {
       section: 'Dimensions',
       type: 'boolean',
       label: 'Hide',
       display_size: 'third',
-      order: i * 10 + 2,
+      order: i * 10 + 3,
     }
   }
 
@@ -100,6 +120,14 @@ const getNewConfigOptions = function(table) {
       order: 100 + i * 10 + 1,
     }
 
+    newOptions['heading|' + table.measures[i].name] = {
+      section: 'Measures',
+      type: 'string',
+      label: 'Heading for ' + ( table.measures[i].label_short || table.measures[i].label ),
+      default: '',
+      order: 100 + i * 10 + 2,
+    }
+
     newOptions['style|' + table.measures[i].name] = {
       section: 'Measures',
       type: 'string',
@@ -110,7 +138,7 @@ const getNewConfigOptions = function(table) {
         {'Black/Red': 'black_red'},
         {'Hide': 'hide'}
       ],
-      order: 100 + i * 10 + 2
+      order: 100 + i * 10 + 3
     }
 
     var comparisonOptions = []
@@ -222,36 +250,27 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       .append('tr')
       .selectAll('th')
       .data(function(level, i) { 
-        return lookerDataTable.getColumnsToDisplay(i).map(function(column) {
+        return lookerDataTable.getColumnsToDisplay(config, i).map(function(column) {
+          var labelParams = {
+            hasPivots: lookerDataTable.has_pivots,
+            level: i,
+            sortColsBy: lookerDataTable.sortColsBy,
+            useHeadings: lookerDataTable.useHeadings,
+            config: config,
+            useShortName: config.useShortName,
+            withView: config.useViewName,
+            withPivots: false
+          }
+
           var header = {
             'id': column.id,
-            'text': '',
+            'text': column.getLabel(labelParams),
             'align': column.align,
             'colspan': column.colspans[i]
           }
-          if (lookerDataTable.useHeadings && !lookerDataTable.has_pivots) {
-            if (i == 0) {
-              header.text = column.heading
-              header.align  = 'center'
-            } else {
-              header.text = column.short_name || column.getLabel()
-            }
-          } else {
-            if (lookerDataTable.sortColsBy == 'getSortByPivots') {
-              if (i < column.levels.length && column.pivoted) {
-                header.text = column.levels[i]
-              } else if (i === column.levels.length) {
-                header.text = column.getLabel()
-              } else {
-                header.text = ''
-              }
-            } else {
-              if (i == 0) {
-                header.text = column.getLabel()
-              } else {
-                header.text = column.levels[i - 1]
-              }
-            }
+
+          if (lookerDataTable.useHeadings && !lookerDataTable.has_pivots && i === 0) {
+            header.align  = 'center'
           }
           
           return header
@@ -336,8 +355,8 @@ looker.plugins.visualizations.add({
       this.trigger('updateConfig', [{ columnOrder: {} }])
     }
     var lookerDataTable = new LookerDataTable(data, queryResponse, config)
-    console.log(config)
-    console.log(lookerDataTable)
+    console.log('config', config)
+    console.log('lookerDataTable', lookerDataTable)
 
     var new_options = getNewConfigOptions(lookerDataTable)
     this.trigger('registerOptions', new_options)
