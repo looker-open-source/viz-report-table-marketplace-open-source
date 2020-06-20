@@ -42,7 +42,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
         var targetColumn = lookerDataTable.getColumnById(dropTarget.id)
         var movingIdx = Math.floor(movingColumn.pos/10) * 10
         var targetIdx = Math.floor(targetColumn.pos/10) * 10
-        console.log('DRAG FROM', movingColumn, movingIdx, 'to', targetColumn, targetIdx)
+        // console.log('DRAG FROM', movingColumn, movingIdx, 'TO', targetColumn, targetIdx)
         lookerDataTable.moveColumns(config, movingIdx, targetIdx, callback)
       }
     })
@@ -68,7 +68,9 @@ const buildReportTable = function(config, lookerDataTable, callback) {
           }
 
           if (lookerDataTable.useHeadings && !lookerDataTable.has_pivots && i === 0) {
-            header.align  = 'center'
+            header.align = 'center'
+          } else if (lookerDataTable.has_pivots && i < lookerDataTable.pivot_fields.length) {
+            header.align = 'center'
           }
           
           return header
@@ -87,9 +89,6 @@ const buildReportTable = function(config, lookerDataTable, callback) {
           .call(drag)
           .on('mouseover', cell => dropTarget = cell)
           .on('mouseout', () => dropTarget = null)
-  
-  console.log('+++++++++++++')
-  console.log('=============')
 
   table.append('tbody')
     .selectAll('tr')
@@ -97,13 +96,10 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       .append('tr')
       .selectAll('td')
       .data(function(row) {  
-        console.log('=============')
-        console.log('buildReportTable row', row)
         return lookerDataTable.getRow(row).map( column => {
           var cell = row.data[column.id]
           cell.rowspan = column.rowspan
           cell.align = column.align
-          console.log('buildReportTable cell', cell)
           return cell;
         })
       }).enter()
@@ -132,7 +128,6 @@ looker.plugins.visualizations.add({
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
     const updateColumnOrder = newOrder => {
-      console.log('updateColumnOrder()', JSON.stringify(newOrder, null, 2))
       this.trigger('updateConfig', [{columnOrder: newOrder}])
     }
 
@@ -170,7 +165,6 @@ looker.plugins.visualizations.add({
     this.trigger('registerOptions', lookerDataTable.getConfigOptions())
     buildReportTable(config, lookerDataTable, updateColumnOrder)
 
-    console.log('config', config)
     console.log('queryResponse', queryResponse)
     console.log('lookerDataTable', lookerDataTable)
 
