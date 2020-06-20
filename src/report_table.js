@@ -5,129 +5,6 @@ const d3 = require('d3')
 import './report_table.css';
 
 
-/**
- * Builds new config object based on available dimensions and measures
- * @param {*} table 
- */
-const getNewConfigOptions = function(table) {
-  var newOptions = LookerDataTable.getOptions();
-
-  for (var i = 0; i < table.dimensions.length; i++) {
-    newOptions['label|' + table.dimensions[i].name] = {
-      section: 'Dimensions',
-      type: 'string',
-      label: table.dimensions[i].label,
-      default: table.dimensions[i].label,
-      order: i * 10 + 1,
-    }
-
-    newOptions['heading|' + table.dimensions[i].name] = {
-      section: 'Dimensions',
-      type: 'string',
-      label: 'Heading',
-      default: '',
-      order: i * 10 + 2,
-    }
-
-    newOptions['hide|' + table.dimensions[i].name] = {
-      section: 'Dimensions',
-      type: 'boolean',
-      label: 'Hide',
-      display_size: 'third',
-      order: i * 10 + 3,
-    }
-  }
-
-  for (var i = 0; i < table.measures.length; i++) {
-    newOptions['label|' + table.measures[i].name] = {
-      section: 'Measures',
-      type: 'string',
-      label: table.measures[i].label_short || table.measures[i].label,
-      default: table.measures[i].label_short || table.measures[i].label,
-      order: 100 + i * 10 + 1,
-    }
-
-    newOptions['heading|' + table.measures[i].name] = {
-      section: 'Measures',
-      type: 'string',
-      label: 'Heading for ' + ( table.measures[i].label_short || table.measures[i].label ),
-      default: '',
-      order: 100 + i * 10 + 2,
-    }
-
-    newOptions['style|' + table.measures[i].name] = {
-      section: 'Measures',
-      type: 'string',
-      label: 'Style',
-      display: 'select',
-      values: [
-        {'Normal': 'normal'},
-        {'Black/Red': 'black_red'},
-        {'Hide': 'hide'}
-      ],
-      order: 100 + i * 10 + 3
-    }
-
-    var comparisonOptions = []
-    // pivoted measures
-    if (table.measures[i].can_pivot) {
-      var pivotComparisons = []
-      for (var p = 0; p < table.pivot_fields.length; p++) {
-        var option = {}
-        option['By ' + table.pivot_fields[p]] = table.pivot_fields[p]
-        pivotComparisons.push(option)
-      }
-      comparisonOptions = comparisonOptions.concat(pivotComparisons)
-    }
-    // row totals and supermeasures
-    for (var j = 0; j < table.measures.length; j++) {
-      var includeMeasure = table.measures[i].can_pivot === table.measures[j].can_pivot
-                            || 
-                          table.has_row_totals && !table.measures[j].is_table_calculation         
-      if (i != j && includeMeasure) {
-        var option = {}
-        option['vs. ' + table.measures[j].label] = table.measures[j].name
-        comparisonOptions.push(option)
-      }
-    }
-    comparisonOptions.unshift({ '(none)': 'no_variance'})
-
-    newOptions['comparison|' + table.measures[i].name] = {
-      section: 'Measures',
-      type: 'string',
-      label: 'Comparison', // for ' + ( table.measures[i].label_short || table.measures[i].label ),
-      display: 'select',
-      values: comparisonOptions,
-      order: 100 + i * 10 + 5
-    }
-
-    newOptions['switch|' + table.measures[i].name] = {
-      section: 'Measures',
-      type: 'boolean',
-      label: 'Switch',
-      display_size: 'third',
-      order: 100 + i * 10 + 6,
-    }
-
-    newOptions['var_num|' + table.measures[i].name] = {
-      section: 'Measures',
-      type: 'boolean',
-      label: 'Var #',
-      display_size: 'third',
-      order: 100 + i * 10 + 7,
-    }
-
-    newOptions['var_pct|' + table.measures[i].name] = {
-      section: 'Measures',
-      type: 'boolean',
-      label: 'Var %',
-      display_size: 'third',
-      order: 100 + i * 10 + 8,
-    }
-  }
-  return newOptions
-}
-
 const buildReportTable = function(config, lookerDataTable, callback) {
   var dropTarget = null;
   
@@ -137,7 +14,6 @@ const buildReportTable = function(config, lookerDataTable, callback) {
 
   var drag = d3.drag()
     .on('start', (source, idx) => {
-      // console.log('drag start', source, idx)
       if (!lookerDataTable.has_pivots) {
         var xPosition = parseFloat(d3.event.x);
         var yPosition = parseFloat(d3.event.y);
@@ -151,7 +27,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       }
     })
     .on('drag', (source, idx) => {
-      // console.log('drag drag', source, idx, d3.event.x, d3.event.y)
+      // console.log('drag event', source, idx, d3.event.x, d3.event.y)
       if (!lookerDataTable.has_pivots) {
         d3.select("#tooltip") 
           .style("left", d3.event.x + "px")
@@ -244,8 +120,6 @@ const buildReportTable = function(config, lookerDataTable, callback) {
 }
 
 looker.plugins.visualizations.add({
-  options: LookerDataTable.getOptions(),
-
   create: function(element, config) {
     this.tooltip = d3.select(element)
         .append("div")
@@ -259,6 +133,8 @@ looker.plugins.visualizations.add({
       this.trigger('updateConfig', [{columnOrder: newOrder}])
     }
 
+    // ERROR HANDLING
+
     this.clearErrors();
 
     if (queryResponse.fields.pivots.length > 2) {
@@ -268,6 +144,8 @@ looker.plugins.visualizations.add({
       });
       return
     }
+
+    // "INITIALISING" THE VIS
 
     try {
       var elem = document.querySelector('#visContainer');
@@ -281,14 +159,16 @@ looker.plugins.visualizations.add({
     if (typeof config.columnOrder === 'undefined') {
       this.trigger('updateConfig', [{ columnOrder: {} }])
     }
+
+
+    // BUILD THE REPORT TABLE VIS
+
     var lookerDataTable = new LookerDataTable(data, queryResponse, config)
+    this.trigger('registerOptions', lookerDataTable.getConfigOptions())
+    buildReportTable(config, lookerDataTable, updateColumnOrder)
+
     console.log('config', config)
     console.log('lookerDataTable', lookerDataTable)
-
-    var new_options = getNewConfigOptions(lookerDataTable)
-    this.trigger('registerOptions', new_options)
-
-    buildReportTable(config, lookerDataTable, updateColumnOrder)
 
     done();
   }
