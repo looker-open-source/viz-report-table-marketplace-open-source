@@ -1,6 +1,6 @@
 // const { LookerDataTable } = require('vis-tools') 
 const { LookerDataTable } = require('../../vis-tools/looker_data_table.js')
-const d3 = require('d3')
+const d3 = require('./d3loader')
 
 import './report_table.css';
 
