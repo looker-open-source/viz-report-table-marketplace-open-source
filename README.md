@@ -4,4 +4,4 @@
 
 URL: git://github.com/ContrastingSounds/vis-report_table.git
 
-SHA: cf711f136fe881387aa59eca36c5ff334e918d19
+SHA: 416d5cf05511ed979a1f48239d2db70bd288c4db
