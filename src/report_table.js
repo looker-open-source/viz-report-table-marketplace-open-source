@@ -56,14 +56,13 @@ const buildReportTable = function(config, lookerDataTable, callback) {
         return lookerDataTable.getColumnsToDisplay(config, i).map(function(column) {
           var labelParams = {
             hasPivots: lookerDataTable.has_pivots,
-            withPivots: false,
             level: i,
           }
 
           var header = {
             'id': column.id,
             'text': column.getLabel(labelParams),
-            'align': column.align,
+            'align': column.parent.align,
             'colspan': column.colspans[i]
           }
 
@@ -99,7 +98,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
         return lookerDataTable.getRow(row).map( column => {
           var cell = row.data[column.id]
           cell.rowspan = column.rowspan
-          cell.align = column.align
+          cell.align = column.parent.align
           return cell;
         })
       }).enter()
