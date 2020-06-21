@@ -43,7 +43,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
         var movingIdx = Math.floor(movingColumn.pos/10) * 10
         var targetIdx = Math.floor(targetColumn.pos/10) * 10
         // console.log('DRAG FROM', movingColumn, movingIdx, 'TO', targetColumn, targetIdx)
-        lookerDataTable.moveColumns(config, movingIdx, targetIdx, callback)
+        lookerDataTable.moveColumns(movingIdx, targetIdx, callback)
       }
     })
 
