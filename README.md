@@ -1,5 +1,7 @@
 # Report Table for Looker
 
+![Example Report](docs/example_report.png)
+
 - Quick variance calculations
 - Add subtotals (including column subtotals for)
 - Add a header row to non-pivoted tables
