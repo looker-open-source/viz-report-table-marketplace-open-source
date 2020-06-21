@@ -103,13 +103,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
         })
       }).enter()
         .append('td')
-          .text(d => {
-            if (d.value === null || isNaN(d.value)) {
-              return ''
-            } else {
-              return d.rendered || d.value  
-            }
-          }) 
+          .text(d => typeof d.rendered !== 'undefined' ? d.rendered : d.value ) 
           .attr('rowspan', d => d.rowspan)
           .attr('class', d => {
             var classes = []
