@@ -53,7 +53,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       .append('tr')
       .selectAll('th')
       .data(function(level, i) { 
-        return lookerDataTable.getColumnsToDisplay(config, i).map(function(column) {
+        return lookerDataTable.getColumnsToDisplay(i).map(function(column) {
           var labelParams = {
             hasPivots: lookerDataTable.has_pivots,
             level: i,
@@ -103,7 +103,13 @@ const buildReportTable = function(config, lookerDataTable, callback) {
         })
       }).enter()
         .append('td')
-          .text(d => d.rendered || d.value) 
+          .text(d => {
+            if (d.value === null || isNaN(d.value)) {
+              return ''
+            } else {
+              return d.rendered || d.value  
+            }
+          }) 
           .attr('rowspan', d => d.rowspan)
           .attr('class', d => {
             var classes = []
