@@ -31,34 +31,35 @@ table.reportTable {
   font-size: 12px;   
   width: 100%;
   border: 1px solid #CCCCCC; 
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 3px;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 table.reportTable th {
-  /* border: 1px solid #CCCCCC; */
+  border: 1px solid #CCCCCC; 
   border-bottom: 1px solid #000000 !important;
   /* font-size: 10px;  */
   /* height: 25px; */
   padding: 5px;
 
-  max-width: 0px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /*max-width: 0px;*/
+  /*overflow: hidden;*/
+  /*text-overflow: ellipsis;*/
+  /*white-space: nowrap;*/
 }
 
 table.reportTable td {
   vertical-align: super;
-  padding-left: 5px;
+  padding: 5px;
   /*background: #FFFFFF;*/
-  /* border: 1px solid #CCCCCC; */
+  border: 1px solid #CCCCCC; 
+  border-collapse: collapse;
 
-  max-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /*max-width: 0;*/
+  /*overflow: hidden;*/
+  /*text-overflow: ellipsis;*/
+  /*white-space: nowrap;*/
 }
 
 .left {

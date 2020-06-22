@@ -8,9 +8,37 @@ import contemporary from './contemporary_report_table.css'
 
 const buildReportTable = function(config, lookerDataTable, callback) {
   var dropTarget = null;
-  var theme = 'contemporary';
 
-  traditional.use()
+  switch (config.theme) {
+    case 'contemporary':
+      traditional.unuse()
+      contemporary.use()
+      break;
+    case 'traditional':
+      contemporary.unuse()
+      traditional.use()
+      break;
+
+    default:
+      contemporary.unuse()
+      traditional.use()
+  }
+
+  // switch (config.layout) {
+  //   case 'auto':
+  //     fixed.unuse()
+  //     auto.use()
+  //     break;
+  //   case 'fixed':
+  //     auto.unuse()
+  //     fixed.use()
+  //     break;
+
+  //   default:
+  //     auto.unuse()
+  //     fixed.use()
+  // }
+  
   
   var table = d3.select('#visContainer')
     .append('table')
