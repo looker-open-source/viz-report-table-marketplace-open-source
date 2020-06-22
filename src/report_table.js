@@ -5,6 +5,9 @@ const d3 = require('./d3loader')
 import traditional from './traditional_report_table.css'
 import contemporary from './contemporary_report_table.css'
 
+import auto from './auto_layout.css'
+import fixed from './fixed_layout.css'
+
 
 const buildReportTable = function(config, lookerDataTable, callback) {
   var dropTarget = null;
@@ -24,20 +27,20 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       traditional.use()
   }
 
-  // switch (config.layout) {
-  //   case 'auto':
-  //     fixed.unuse()
-  //     auto.use()
-  //     break;
-  //   case 'fixed':
-  //     auto.unuse()
-  //     fixed.use()
-  //     break;
+  switch (config.layout) {
+    case 'auto':
+      fixed.unuse()
+      auto.use()
+      break;
+    case 'fixed':
+      auto.unuse()
+      fixed.use()
+      break;
 
-  //   default:
-  //     auto.unuse()
-  //     fixed.use()
-  // }
+    default:
+      auto.unuse()
+      fixed.use()
+  }
   
   
   var table = d3.select('#visContainer')

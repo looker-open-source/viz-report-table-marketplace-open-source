@@ -29,11 +29,9 @@
 table.reportTable {
   font-family: Open Sans,Helvetica,Arial,sans-serif;
   font-size: 12px;   
-  width: 100%;
   border: 1px solid #CCCCCC; 
   border-collapse: collapse;
   border-spacing: 3px;
-  table-layout: auto;
 }
 
 table.reportTable th {
@@ -42,11 +40,6 @@ table.reportTable th {
   /* font-size: 10px;  */
   /* height: 25px; */
   padding: 5px;
-
-  /*max-width: 0px;*/
-  /*overflow: hidden;*/
-  /*text-overflow: ellipsis;*/
-  /*white-space: nowrap;*/
 }
 
 table.reportTable td {
@@ -55,11 +48,6 @@ table.reportTable td {
   /*background: #FFFFFF;*/
   border: 1px solid #CCCCCC; 
   border-collapse: collapse;
-
-  /*max-width: 0;*/
-  /*overflow: hidden;*/
-  /*text-overflow: ellipsis;*/
-  /*white-space: nowrap;*/
 }
 
 .left {

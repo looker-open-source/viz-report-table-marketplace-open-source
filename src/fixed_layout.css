@@ -1,0 +1,18 @@
+table.reportTable {
+  width: 100%;
+  table-layout: fixed;
+}
+
+table.reportTable th {
+  max-width: 0px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+table.reportTable td {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
