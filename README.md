@@ -11,6 +11,23 @@
 - Reduce to a single dimension value for financial-style reporting
 - Experimental: drag'n'drop ordering of flat tables
 
+## Tagging fields in LookML
+
+A common reporting requirement is grouping fields under headings, and abbreviating column headers when many columns are present. This can be repetitive work! The Report Table vis will pick up tags in the LookML model, with the format `"vis-tools:SETTING:VALUE"`.
+
+The current tag settings available are `heading` and `short_name`.
+
+    measure: number_of_transactions {
+      tags: [
+        "vis-tools:heading:Transaction Value",
+        "vis-tools:short_name:Volume",
+        "vis-tools:unit:#"
+      ]
+      type: count
+      value_format_name: decimal_0
+      drill_fields: [transaction_details*]
+    }
+
 ## Notes
 
 - Maximum of two pivot fields
