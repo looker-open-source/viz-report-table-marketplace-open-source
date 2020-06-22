@@ -3,7 +3,7 @@
 ![Example Report](docs/example_report.png)
 
 - Quick variance calculations
-- Add subtotals (including column subtotals for)
+- Add subtotals (including column subtotals for tables with two levels of pivot)
 - Add a header row to non-pivoted tables
 - Organise pivot tables by pivot value, or by measure
 - Easy red/black conditional format
