@@ -2,11 +2,15 @@
 const { LookerDataTable } = require('../../vis-tools/looker_data_table.js')
 const d3 = require('./d3loader')
 
-import './report_table.css';
+import traditional from './traditional_report_table.css'
+import contemporary from './contemporary_report_table.css'
 
 
 const buildReportTable = function(config, lookerDataTable, callback) {
   var dropTarget = null;
+  var theme = 'contemporary';
+
+  traditional.use()
   
   var table = d3.select('#visContainer')
     .append('table')
