@@ -1,0 +1,150 @@
+#tooltip {
+    position: absolute;
+    width: auto;
+    height: auto;
+    padding: 5px;
+    background-color: white;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+#tooltip.hidden {
+    display: none;
+}
+
+#tooltip p {
+    margin: 0;
+    font-family: sans-serif;
+    font-size: 12px;
+    line-height: 15px;
+}
+
+/*table.reportTable */
+.reportTable {
+  font-family: Open Sans, Helvetica,Arial,sans-serif;
+  font-size: 12px;   
+  color: #696969;
+  /* border: 1px solid #BDC3C7; */
+  border-collapse: collapse;
+  border-spacing: 3px;
+  table-layout: fixed;
+}
+
+/*table.reportTable th */
+th.headerCell {
+  background-color: #ccd8e4;
+  /*border-bottom: 1px solid #000000 !important;*/
+  /* font-size: 10px;  */
+  /* height: 25px; */
+  padding: 5px;
+}
+
+/*table.reportTable tr */
+th.rowCell {
+  vertical-align: super;
+  padding-left: 5px;
+  border-bottom: 1px solid #BDC3C7; 
+}
+
+th.headerCell.dimension {
+  background-color: #e4ecf3;
+  border-right: 1px solid #BDC3C7; 
+  border-bottom: 1px solid #BDC3C7; 
+}
+
+th.headerCell.measure {
+  background-color: #e4d0bd;
+  border-left: 1px solid #BDC3C7; 
+  border-bottom: 1px solid #BDC3C7; 
+}
+
+th.headerCell.measure.calculation {
+  background-color: #c9dfc5;
+  border-left: 1px solid #BDC3C7;
+  border-bottom: 1px solid #BDC3C7; 
+}
+
+th.headerCell.dimension.headerRow {
+  background-color: #ccd8e4;
+  border-right: 1px solid #BDC3C7;
+  border-bottom: 1px solid #BDC3C7; 
+}
+
+th.headerCell.measure.headerRow {
+  background-color: #ccd8e4;
+  border-left: 1px solid #BDC3C7;
+  border-bottom: 1px solid #BDC3C7; 
+}
+
+.left {
+  text-align: left;
+}
+
+.right {
+  text-align: right !important;
+}
+
+.indent {
+  padding-left: 15px !important;
+}
+
+.total {
+  border-top: 2px solid #696969 !important;
+  font-weight: bold !important;
+}
+
+.red {
+  color: red;
+}
+
+
+
+/* https://github.com/looker/custom_visualizations_v2/blob/master/src/examples/advanced_table/ag-theme-looker.css */
+
+/* header (dimension/group) background-color: #ccd8e4 */
+/* th.measure background-color: #e4d0bd */
+/* on hover: background-color: #e6e8ec */
+/* odd measure rows (.ag-row-odd) background-color: #f7f2ee */
+/* row number color #c2c2c2 */
+
+/* Looker header cells */
+.ag-theme-looker .ag-header-cell {
+  background-color: #e4ecf3;
+}
+
+.ag-theme-looker .ag-header-cell.measure {
+  background-color: #e4d0bd;
+}
+
+.ag-theme-looker .ag-header-cell.tableCalc {
+  background-color: #c9dfc5;
+}
+
+
+.ag-theme-looker .ag-header-row.pivotHeaderRow {
+  background-color: #ccd8e4;
+}
+
+
+.ag-theme-looker .ag-row-odd {
+  background-color: #f6f8fa; /* default odd row color */
+}
+
+.ag-theme-looker .ag-row-odd .ag-cell.measure {
+  background-color: #f7f2ee;
+}
+
+.ag-theme-looker .ag-row-odd .ag-cell.tableCalc {
+  background-color: #eef7ee;
+}
+
+.ag-theme-looker .ag-row-odd .ag-cell.groupCell {
+  background-color: #f6f8fa;
+}

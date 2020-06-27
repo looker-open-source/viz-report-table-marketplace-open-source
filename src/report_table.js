@@ -2,47 +2,28 @@
 const { LookerDataTable } = require('../../vis-tools/looker_data_table.js')
 const d3 = require('./d3loader')
 
-import traditional from './traditional_report_table.css'
-import contemporary from './contemporary_report_table.css'
+const themes = {
+  traditional: require('./traditional_report_table.css'),
+  looker: require('./looker_report_table.css'),
+  contemporary: require('./contemporary_report_table.css'),
 
-import auto from './auto_layout.css'
-import fixed from './fixed_layout.css'
+  fixed: require('./fixed_layout.css'),
+  auto: require('./auto_layout.css')
+}
+
+const removeStyles = async function() {
+  Object.keys(themes).forEach(async (theme) => await themes[theme].unuse() )
+}
 
 
 const buildReportTable = function(config, lookerDataTable, callback) {
   var dropTarget = null;
 
-  switch (config.theme) {
-    case 'contemporary':
-      traditional.unuse()
-      contemporary.use()
-      break;
-    case 'traditional':
-      contemporary.unuse()
-      traditional.use()
-      break;
+  removeStyles().then(() => {
+    themes[config.theme].use()
+    themes[config.layout].use()
+  })
 
-    default:
-      contemporary.unuse()
-      traditional.use()
-  }
-
-  switch (config.layout) {
-    case 'auto':
-      fixed.unuse()
-      auto.use()
-      break;
-    case 'fixed':
-      auto.unuse()
-      fixed.use()
-      break;
-
-    default:
-      auto.unuse()
-      fixed.use()
-  }
-  
-  
   var table = d3.select('#visContainer')
     .append('table')
     .attr('class', 'reportTable');
@@ -98,13 +79,17 @@ const buildReportTable = function(config, lookerDataTable, callback) {
             'id': column.id,
             'text': column.getLabel(labelParams),
             'align': column.parent.align,
-            'colspan': column.colspans[i]
+            'colspan': column.colspans[i],
+            'type': column.parent.type,
+            'calculation': column.parent.is_table_calculation
           }
 
           if (lookerDataTable.useHeadings && !lookerDataTable.has_pivots && i === 0) {
             header.align = 'center'
+            header.headerRow = true
           } else if (lookerDataTable.has_pivots && i < lookerDataTable.pivot_fields.length) {
             header.align = 'center'
+            header.headerRow = true
           }
           
           return header
@@ -115,8 +100,11 @@ const buildReportTable = function(config, lookerDataTable, callback) {
           .attr('id', d => d.id)
           .attr('colspan', d => d.colspan)
           .attr('class', d => {
-            var classes = []
+            var classes = ['reportTable', 'headerCell']
             if (typeof d.align !== 'undefined') { classes.push(d.align) }
+            if (typeof d.type !== 'undefined') { classes.push(d.type) }
+            if (typeof d.calculation !== 'undefined' && d.calculation) { classes.push('calculation') }
+            if (typeof d.headerRow !== 'undefined' && d.headerRow) { classes.push('headerRow') }
             return classes.join(' ')
           })
           .attr('draggable', true)
@@ -141,7 +129,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
           .text(d => typeof d.rendered !== 'undefined' ? d.rendered : d.value ) 
           .attr('rowspan', d => d.rowspan)
           .attr('class', d => {
-            var classes = []
+            var classes = ['reportTable', 'rowCell']
             if (typeof d.align !== 'undefined') { classes.push(d.align) }
             if (typeof d.cell_style !== 'undefined') { 
               classes = classes.concat(d.cell_style) 
@@ -201,6 +189,7 @@ looker.plugins.visualizations.add({
 
     console.log('queryResponse', queryResponse)
     console.log('lookerDataTable', lookerDataTable)
+    console.log('container', this.container)
 
     done();
   }
