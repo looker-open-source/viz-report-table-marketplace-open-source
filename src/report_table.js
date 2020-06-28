@@ -120,22 +120,61 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       .data(function(row) {  
         return lookerDataTable.getRow(row).map( column => {
           var cell = row.data[column.id]
+          cell.colid = column.id
+          cell.rowid = row.id
           cell.rowspan = column.rowspan
           cell.align = column.parent.align
           return cell;
         })
       }).enter()
         .append('td')
-          .text(d => typeof d.rendered !== 'undefined' ? d.rendered : d.value ) 
+          .text(d => {
+            if (typeof d.value === 'object') {
+              return null
+            } else {
+              return typeof d.rendered !== 'undefined' ? d.rendered : d.value   
+            }
+          }) 
           .attr('rowspan', d => d.rowspan)
           .attr('class', d => {
             var classes = ['reportTable', 'rowCell']
+            if (typeof d.value === 'object') { classes.push('cellSeries') }
             if (typeof d.align !== 'undefined') { classes.push(d.align) }
-            if (typeof d.cell_style !== 'undefined') { 
-              classes = classes.concat(d.cell_style) 
-            }
+            if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
             return classes.join(' ')
           })
+
+  table.selectAll('.cellSeries').append('svg')
+        .attr('height', 16)
+      .append('g')
+        .attr('class', '.cellSeriesChart')
+      .selectAll('rect')
+      .data(d => {
+        values = []
+        for (var i = 0; i < d.value.series.keys.length; i++) {
+          values.push({
+            idx: i,
+            max: 10000,
+            key: d.value.series.keys[i],
+            value: d.value.series.values[i],
+            type: d.value.series.types[i],
+          })
+        }
+        return values.filter(value => value.type === 'line_item')
+      }).enter()
+        .append('rect')
+          .style('fill', 'steelblue')
+          .attr('x', value => {
+            console.log('inside cellSeries this', this)
+            console.log('inside cellSeries this', this)
+            console.log('inside cellSeries rect value', value)
+            return value.idx * 5
+          })
+          .attr('y', value => Math.floor(16 - (value.value / value.max * 16)))
+          .attr('width', 5)
+          .attr('height', value => Math.floor(value.value / value.max * 16))
+    
+  console.log('table', table)
 }
 
 looker.plugins.visualizations.add({
@@ -165,6 +204,9 @@ looker.plugins.visualizations.add({
       return
     }
 
+    console.log('queryResponse', queryResponse)
+    console.log('data', data)
+
     // "INITIALISING" THE VIS
 
     try {
@@ -187,7 +229,6 @@ looker.plugins.visualizations.add({
     this.trigger('registerOptions', lookerDataTable.getConfigOptions())
     buildReportTable(config, lookerDataTable, updateColumnOrder)
 
-    console.log('queryResponse', queryResponse)
     console.log('lookerDataTable', lookerDataTable)
     console.log('container', this.container)
 
