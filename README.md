@@ -3,13 +3,30 @@
 ![Example Report](docs/example_report.png)
 
 - Quick variance calculations
-- Add subtotals (including column subtotals for)
+- Add subtotals (including column subtotals for tables with two levels of pivot)
 - Add a header row to non-pivoted tables
 - Organise pivot tables by pivot value, or by measure
 - Easy red/black conditional format
 - Use LookML tags to give default abbreviations to popular fields
 - Reduce to a single dimension value for financial-style reporting
 - Experimental: drag'n'drop ordering of flat tables
+
+## Tagging fields in LookML
+
+A common reporting requirement is grouping fields under headings, and abbreviating column headers when many columns are present. This can be repetitive work! The Report Table vis will pick up tags in the LookML model, with the format `"vis-tools:SETTING:VALUE"`.
+
+The current tag settings available are `heading` and `short_name`.
+
+    measure: number_of_transactions {
+      tags: [
+        "vis-tools:heading:Transaction Value",
+        "vis-tools:short_name:Volume",
+        "vis-tools:unit:#"
+      ]
+      type: count
+      value_format_name: decimal_0
+      drill_fields: [transaction_details*]
+    }
 
 ## Notes
 
