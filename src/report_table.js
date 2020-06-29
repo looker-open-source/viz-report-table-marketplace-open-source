@@ -11,6 +11,8 @@ const themes = {
   auto: require('./auto_layout.css')
 }
 
+const use_minicharts = false
+
 const removeStyles = async function() {
   Object.keys(themes).forEach(async (theme) => await themes[theme].unuse() )
 }
@@ -20,8 +22,12 @@ const buildReportTable = function(config, lookerDataTable, callback) {
   var dropTarget = null;
 
   removeStyles().then(() => {
-    themes[config.theme].use()
-    themes[config.layout].use()
+    if (typeof themes[config.theme] !== 'undefined') {
+      themes[config.theme].use()
+    }
+    if (typeof themes[config.layout] !== 'undefined') {
+      themes[config.layout].use()
+    }
   })
 
   var table = d3.select('#visContainer')
@@ -63,56 +69,61 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       }
     })
 
-  table.append('thead')
+
+  var header_rows = table.append('thead')
     .selectAll('tr')
     .data(lookerDataTable.getLevels()).enter() 
-      .append('tr')
-      .selectAll('th')
-      .data(function(level, i) { 
-        return lookerDataTable.getColumnsToDisplay(i).map(function(column) {
-          var labelParams = {
-            hasPivots: lookerDataTable.has_pivots,
-            level: i,
-          }
 
-          var header = {
-            'id': column.id,
-            'text': column.getLabel(labelParams),
-            'align': column.parent.align,
-            'colspan': column.colspans[i],
-            'type': column.parent.type,
-            'calculation': column.parent.is_table_calculation
-          }
 
-          if (lookerDataTable.useHeadings && !lookerDataTable.has_pivots && i === 0) {
-            header.align = 'center'
-            header.headerRow = true
-          } else if (lookerDataTable.has_pivots && i < lookerDataTable.pivot_fields.length) {
-            header.align = 'center'
-            header.headerRow = true
-          }
-          
-          return header
-        })
-      }).enter()
-          .append('th')
-          .text(d => d.text)
-          .attr('id', d => d.id)
-          .attr('colspan', d => d.colspan)
-          .attr('class', d => {
-            var classes = ['reportTable', 'headerCell']
-            if (typeof d.align !== 'undefined') { classes.push(d.align) }
-            if (typeof d.type !== 'undefined') { classes.push(d.type) }
-            if (typeof d.calculation !== 'undefined' && d.calculation) { classes.push('calculation') }
-            if (typeof d.headerRow !== 'undefined' && d.headerRow) { classes.push('headerRow') }
-            return classes.join(' ')
-          })
-          .attr('draggable', true)
-          .call(drag)
-          .on('mouseover', cell => dropTarget = cell)
-          .on('mouseout', () => dropTarget = null)
+  var header_cells = header_rows.append('tr')
+    .selectAll('th')
+    .data(function(level, i) { 
+      return lookerDataTable.getColumnsToDisplay(i).map(function(column) {
+        var labelParams = {
+          hasPivots: lookerDataTable.has_pivots,
+          level: i,
+        }
 
-  table.append('tbody')
+        var header = {
+          'id': column.id,
+          'text': column.getLabel(labelParams),
+          'align': column.parent.align,
+          'colspan': column.colspans[i],
+          'type': column.parent.type,
+          'calculation': column.parent.is_table_calculation
+        }
+
+        if (lookerDataTable.useHeadings && !lookerDataTable.has_pivots && i === 0) {
+          header.align = 'center'
+          header.headerRow = true
+        } else if (lookerDataTable.has_pivots && i < lookerDataTable.pivot_fields.length) {
+          header.align = 'center'
+          header.headerRow = true
+        }
+        
+        return header
+      })
+    }).enter()
+
+  header_cells.append('th')
+    .text(d => d.text)
+    .attr('id', d => d.id)
+    .attr('colspan', d => d.colspan)
+    .attr('class', d => {
+      var classes = ['reportTable', 'headerCell']
+      if (typeof d.align !== 'undefined') { classes.push(d.align) }
+      if (typeof d.type !== 'undefined') { classes.push(d.type) }
+      if (typeof d.calculation !== 'undefined' && d.calculation) { classes.push('calculation') }
+      if (typeof d.headerRow !== 'undefined' && d.headerRow) { classes.push('headerRow') }
+      return classes.join(' ')
+    })
+    .attr('draggable', true)
+    .call(drag)
+    .on('mouseover', cell => dropTarget = cell)
+    .on('mouseout', () => dropTarget = null)
+
+
+  var table_rows = table.append('tbody')
     .selectAll('tr')
     .data(lookerDataTable.data).enter()
       .append('tr')
@@ -127,54 +138,67 @@ const buildReportTable = function(config, lookerDataTable, callback) {
           return cell;
         })
       }).enter()
-        .append('td')
-          .text(d => {
-            if (typeof d.value === 'object') {
-              return null
-            } else {
-              return typeof d.rendered !== 'undefined' ? d.rendered : d.value   
-            }
-          }) 
-          .attr('rowspan', d => d.rowspan)
-          .attr('class', d => {
-            var classes = ['reportTable', 'rowCell']
-            if (typeof d.value === 'object') { classes.push('cellSeries') }
-            if (typeof d.align !== 'undefined') { classes.push(d.align) }
-            if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
-            return classes.join(' ')
-          })
 
-  table.selectAll('.cellSeries').append('svg')
-        .attr('height', 16)
-      .append('g')
-        .attr('class', '.cellSeriesChart')
-      .selectAll('rect')
-      .data(d => {
-        values = []
-        for (var i = 0; i < d.value.series.keys.length; i++) {
-          values.push({
-            idx: i,
-            max: 10000,
-            key: d.value.series.keys[i],
-            value: d.value.series.values[i],
-            type: d.value.series.types[i],
-          })
-        }
-        return values.filter(value => value.type === 'line_item')
-      }).enter()
-        .append('rect')
-          .style('fill', 'steelblue')
-          .attr('x', value => {
-            console.log('inside cellSeries this', this)
-            console.log('inside cellSeries this', this)
-            console.log('inside cellSeries rect value', value)
-            return value.idx * 5
-          })
-          .attr('y', value => Math.floor(16 - (value.value / value.max * 16)))
-          .attr('width', 5)
-          .attr('height', value => Math.floor(value.value / value.max * 16))
+  table_rows.append('td')
+    .text(d => {
+      if (typeof d.value === 'object') {
+        return null
+      } else {
+        return typeof d.rendered !== 'undefined' ? d.rendered : d.value   
+      }
+    }) 
+    .attr('rowspan', d => d.rowspan)
+    .attr('class', d => {
+      var classes = ['reportTable', 'rowCell']
+      if (typeof d.value === 'object') { classes.push('cellSeries') }
+      if (typeof d.align !== 'undefined') { classes.push(d.align) }
+      if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
+      return classes.join(' ')
+    })
+
+  if (use_minicharts) {
+    var barHeight = 16
+    var minicharts = table.selectAll('.cellSeries')
+          .append('svg')
+            .attr('height', d => barHeight)
+            .attr('width', '100%')
+          .append('g')
+            .attr('class', '.cellSeriesChart')
+          .selectAll('rect')
+          .data(d => {
+            values = []
+            for (var i = 0; i < d.value.series.keys.length; i++) {
+              values.push({
+                idx: i,
+                max: 10000,
+                key: d.value.series.keys[i],
+                value: d.value.series.values[i],
+                type: d.value.series.types[i],
+              })
+            }
+            return values.filter(value => value.type === 'line_item')
+          }).enter()
+
     
-  console.log('table', table)
+    var cellWidth = table.selectAll('.cellSeries')._groups[0][0].clientWidth
+    var barWidth = Math.floor( cellWidth / 10 )
+    console.log('cellWidth', cellWidth)
+    console.log('barHeight', barHeight)
+    console.log('barWidth', barWidth)
+
+    minicharts.append('rect')
+      .style('fill', 'steelblue')
+      .attr('x', value => {
+        return value.idx * barWidth
+      })
+      .attr('y', value => barHeight - Math.floor(value.value / value.max * barHeight))
+      .attr('width', barWidth)
+      .attr('height', value => Math.floor(value.value / value.max * barHeight))
+
+      
+    console.log('table', table)    
+  }
+
 }
 
 looker.plugins.visualizations.add({

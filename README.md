@@ -14,6 +14,7 @@
 ## Notes
 
 - Maximum of two pivot fields
+- Subtotals are only for simple sums & averages (e.g. no Count Distincts or running totals)
 - Variances only possible against other measures
   - Future version will allow comparisons against same measure for different pivot values (eg Period-over-Period)
   - For period-over-period analysis currently, create separate measures in LookML or as custom measures
