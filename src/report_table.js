@@ -70,6 +70,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
     })
 
 
+  console.log('buildReportTable() getLevels()', lookerDataTable.getLevels())
   var header_rows = table.append('thead')
     .selectAll('tr')
     .data(lookerDataTable.getLevels()).enter() 
@@ -78,19 +79,16 @@ const buildReportTable = function(config, lookerDataTable, callback) {
   var header_cells = header_rows.append('tr')
     .selectAll('th')
     .data(function(level, i) { 
-      return lookerDataTable.getColumnsToDisplay(i).map(function(column) {
-        var labelParams = {
-          hasPivots: lookerDataTable.has_pivots,
-          level: i,
-        }
+      return lookerDataTable.getTableHeaders(i).map(function(column) {
+        // console.log('buildReportTable() level', i, ' column:', column)
 
         var header = {
           'id': column.id,
-          'text': column.getLabel(labelParams),
-          'align': column.parent.align,
-          'colspan': column.colspans[i],
-          'type': column.parent.type,
-          'calculation': column.parent.is_table_calculation
+          'text': typeof column.getLabel === 'function' ? column.getLabel(i) : column.labels[i],
+          'align': typeof column.parent !== 'undefined' ? column.parent.align : 'left',
+          'colspan': typeof column.colspans !== 'undefined' ? column.colspans[i] : 1,
+          'type': typeof column.parent !== 'undefined' ? column.parent.type : 'measure',
+          'calculation': typeof column.parent !== 'undefined' ? column.parent.is_table_calculation : false
         }
 
         if (lookerDataTable.useHeadings && !lookerDataTable.has_pivots && i === 0) {
@@ -125,16 +123,18 @@ const buildReportTable = function(config, lookerDataTable, callback) {
 
   var table_rows = table.append('tbody')
     .selectAll('tr')
-    .data(lookerDataTable.data).enter()
+    .data(lookerDataTable.getDataRows()).enter()
       .append('tr')
       .selectAll('td')
       .data(function(row) {  
-        return lookerDataTable.getRow(row).map( column => {
+        return lookerDataTable.getTableColumns(row).map( column => {
           var cell = row.data[column.id]
+
           cell.colid = column.id
           cell.rowid = row.id
           cell.rowspan = column.rowspan
           cell.align = column.parent.align
+
           return cell;
         })
       }).enter()
