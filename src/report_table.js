@@ -14,15 +14,28 @@ const themes = {
 const use_minicharts = false
 
 const removeStyles = async function() {
+  const links = document.getElementsByTagName('link')
+  while (links[0]) links[0].parentNode.removeChild(links[0])
+
   Object.keys(themes).forEach(async (theme) => await themes[theme].unuse() )
 }
 
+const loadStylesheet = function(link) {
+  const linkElement = document.createElement('link');
+
+  linkElement.setAttribute('rel', 'stylesheet');
+  linkElement.setAttribute('href', link);
+
+  document.getElementsByTagName('head')[0].appendChild(linkElement);
+};
 
 const buildReportTable = function(config, lookerDataTable, callback) {
   var dropTarget = null;
 
   removeStyles().then(() => {
-    if (typeof themes[config.theme] !== 'undefined') {
+    if (typeof config.customTheme !== 'undefined' && config.customTheme && config.theme === 'custom') {
+      loadStylesheet(config.customTheme)
+    } else if (typeof themes[config.theme] !== 'undefined') {
       themes[config.theme].use()
     }
     if (typeof themes[config.layout] !== 'undefined') {
@@ -70,7 +83,6 @@ const buildReportTable = function(config, lookerDataTable, callback) {
     })
 
 
-  console.log('buildReportTable() getLevels()', lookerDataTable.getLevels())
   var header_rows = table.append('thead')
     .selectAll('tr')
     .data(lookerDataTable.getLevels()).enter() 
@@ -80,11 +92,11 @@ const buildReportTable = function(config, lookerDataTable, callback) {
     .selectAll('th')
     .data(function(level, i) { 
       return lookerDataTable.getTableHeaders(i).map(function(column) {
-        // console.log('buildReportTable() level', i, ' column:', column)
+        // console.log('buildReportTable() level', i, ' column.id:', column.id)
 
         var header = {
           'id': column.id,
-          'text': typeof column.getLabel === 'function' ? column.getLabel(i) : column.labels[i],
+          'text': column.getLabel(i),
           'align': typeof column.parent !== 'undefined' ? column.parent.align : 'left',
           'colspan': typeof column.colspans !== 'undefined' ? column.colspans[i] : 1,
           'type': typeof column.parent !== 'undefined' ? column.parent.type : 'measure',
@@ -108,6 +120,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
     .attr('id', d => d.id)
     .attr('colspan', d => d.colspan)
     .attr('class', d => {
+      // if (d.id === '$$$_index_$$$') { console.log('buildReportTable() adding index field', d.id, d.colspan)}
       var classes = ['reportTable', 'headerCell']
       if (typeof d.align !== 'undefined') { classes.push(d.align) }
       if (typeof d.type !== 'undefined') { classes.push(d.type) }
@@ -228,8 +241,8 @@ looker.plugins.visualizations.add({
       return
     }
 
-    console.log('queryResponse', queryResponse)
-    console.log('data', data)
+    // console.log('queryResponse', queryResponse)
+    // console.log('data', data)
 
     // "INITIALISING" THE VIS
 
@@ -254,7 +267,6 @@ looker.plugins.visualizations.add({
     buildReportTable(config, lookerDataTable, updateColumnOrder)
 
     console.log('lookerDataTable', lookerDataTable)
-    console.log('container', this.container)
 
     done();
   }

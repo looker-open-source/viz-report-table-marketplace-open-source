@@ -62,9 +62,20 @@ table.reportTable td {
   padding-left: 15px !important;
 }
 
+.subtotal {
+  font-style: italic;
+  font-weight: bold;
+  background: #D3D3D3;
+}
+
 .total {
   border-top: 2px solid #000000 !important;
   font-weight: bold !important;
+}
+
+.total.transposed {
+  border-top: 0px !important;
+  background: #D3D3D3;
 }
 
 .red {
