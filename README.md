@@ -40,6 +40,6 @@ The current tag settings available are `heading` and `short_name`.
 
 URL: git://github.com/ContrastingSounds/vis-report_table.git
 
-SHA: 38fc1f06690a5238cb458f9b239aa9b6c9d77ca2
+SHA: ea7cb4f10c51f2bb0a184f4ce9e30db56de86dfa
 
 ![Install](docs/install.png)
