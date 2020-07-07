@@ -156,10 +156,20 @@ const buildReportTable = function(config, lookerDataTable, callback) {
     .text(d => {
       if (typeof d.value === 'object') {
         return null
+      } else if (typeof d.html !== 'undefined' && !d.html.includes('<')) {
+        return d.html
       } else {
         return typeof d.rendered !== 'undefined' ? d.rendered : d.value   
       }
     }) 
+    // TODO: Investigate handling / sanitisation of HTML fields
+    // .html(d => {
+    //   if (typeof d.html !== 'undefined') {
+    //     return d.html
+    //   } else {
+    //     return typeof d.rendered !== 'undefined' ? d.rendered : d.value
+    //   }
+    // })
     .attr('rowspan', d => d.rowspan)
     .attr('class', d => {
       var classes = ['reportTable', 'rowCell']
