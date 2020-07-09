@@ -251,8 +251,8 @@ looker.plugins.visualizations.add({
       return
     }
 
-    // console.log('queryResponse', queryResponse)
-    // console.log('data', data)
+    console.log('queryResponse', queryResponse)
+    console.log('data', data)
 
     // "INITIALISING" THE VIS
 
