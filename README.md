@@ -18,12 +18,13 @@ A table dedicated to single-page, enterprise summary reports. Useful for PDF exp
 - Themes, including ability to test custom themes using your own css file
 - Use LookML tags to give default abbreviations to popular fields
 - Reduce to a single dimension value for financial-style reporting
+– Drill-to-detail 
 
 ## Marketplace Installation
 
 URL: git://github.com/ContrastingSounds/vis-report_table.git
 
-SHA: fa79f97a08566b95e7d3daf247165a1786ed37e9
+SHA: 2698e1116b59cbc41bdb14b350085ba07c00b2b0
 
 ![Install](docs/install.png)
 
