@@ -17,6 +17,23 @@
 - Use LookML tags to give default abbreviations to popular fields
 - Reduce to a single dimension value for financial-style reporting
 
+## Examples
+
+![Drag'n'drop columns for flat tables](docs/report_table_01_drag_and_drop.gif)
+
+![Tags in LookML for consistent headers and abbreviations](docs/report_table_02_auto_headers_and_abbreviations.gif)
+
+![Subtotals and last field only](docs/report_table_03_subtotals_and_last_field_only.gif)
+
+![Sort by Pivot or Measure](docs/report_table_04_sort_by_pivot_or_measure.gif)
+
+![Set headers and labels](docs/report_table_05_change_headers.gif)
+
+![Even width columns or autolayout](docs/report_table_06_even_width_or_auto_layout.gif)
+
+![Transposing and PnL style reports](docs/report_table_07_PnL_transpose_theme.gif)
+
+
 ## Tagging fields in LookML
 
 A common reporting requirement is grouping fields under headings, and abbreviating column headers when many columns are present. This can be repetitive work! The Report Table vis will pick up tags in the LookML model, with the format `"vis-tools:SETTING:VALUE"`.
