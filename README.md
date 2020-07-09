@@ -4,16 +4,18 @@
 
 - Quick variance calculations
 - Add subtotals (including column subtotals for tables with two levels of pivot)
+
   – Subtotals taken from Looker subtotals if available, otherwise performed as front-end calculation
 - Add a header row to non-pivoted tables
-- Organise pivot tables by pivot value, or by measure
+- Organise measure columns by pivot value, or by measure
+
+  - Flat tables (i.e. no pivots) can be organised by drag'n'drop
 - Transpose (any number of dimensions)
 - Easy red/black conditional format
 - "Subtotal" format e.g. for highlighting transposed rows of measures
 - Themes, including ability to test custom themes using your own css file
 - Use LookML tags to give default abbreviations to popular fields
 - Reduce to a single dimension value for financial-style reporting
-- Experimental: drag'n'drop ordering of flat tables
 
 ## Tagging fields in LookML
 
