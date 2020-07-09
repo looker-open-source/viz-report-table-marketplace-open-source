@@ -5,7 +5,7 @@
 - Quick variance calculations
 - Add subtotals (including column subtotals for tables with two levels of pivot)
 
-  – Subtotals taken from Looker subtotals if available, otherwise performed as front-end calculation
+  - Subtotals taken from Looker subtotals if available, otherwise performed as front-end calculation
 - Add a header row to non-pivoted tables
 - Organise measure columns by pivot value, or by measure
 
