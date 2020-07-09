@@ -17,6 +17,14 @@
 - Use LookML tags to give default abbreviations to popular fields
 - Reduce to a single dimension value for financial-style reporting
 
+## Marketplace Installation
+
+URL: git://github.com/ContrastingSounds/vis-report_table.git
+
+SHA: fa79f97a08566b95e7d3daf247165a1786ed37e9
+
+![Install](docs/install.png)
+
 ## Examples
 
 *Drag'n'drop columns for flat tables*
@@ -72,10 +80,4 @@ The current tag settings available are `heading` and `short_name`.
   - e.g. no Count Distincts, running totals, measures of type "number" with arbitrary calculations
   - The vis will use subtotals from the query response if available
 
-## Marketplace Installation
 
-URL: git://github.com/ContrastingSounds/vis-report_table.git
-
-SHA: fa79f97a08566b95e7d3daf247165a1786ed37e9
-
-![Install](docs/install.png)
