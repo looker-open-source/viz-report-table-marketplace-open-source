@@ -173,6 +173,14 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
       return classes.join(' ')
     })
+    .on('click', d => {
+      console.log('click d', d)
+      console.log('click event', d3.event)
+      LookerCharts.Utils.openDrillMenu({
+        links: d.links,
+        event: d3.event
+      })
+    })
 
   if (use_minicharts) {
     var barHeight = 16
