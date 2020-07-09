@@ -4,9 +4,13 @@
 
 - Quick variance calculations
 - Add subtotals (including column subtotals for tables with two levels of pivot)
+  – Subtotals taken from Looker subtotals if available, otherwise performed as front-end calculation
 - Add a header row to non-pivoted tables
 - Organise pivot tables by pivot value, or by measure
+- Transpose (any number of dimensions)
 - Easy red/black conditional format
+- "Subtotal" format e.g. for highlighting transposed rows of measures
+- Themes, including ability to test custom themes using your own css file
 - Use LookML tags to give default abbreviations to popular fields
 - Reduce to a single dimension value for financial-style reporting
 - Experimental: drag'n'drop ordering of flat tables
@@ -31,15 +35,14 @@ The current tag settings available are `heading` and `short_name`.
 ## Notes
 
 - Maximum of two pivot fields
-- Subtotals are only for simple sums & averages (e.g. no Count Distincts or running totals)
-- Variances only possible against other measures
-  - Future version will allow comparisons against same measure for different pivot values (eg Period-over-Period)
-  - For period-over-period analysis currently, create separate measures in LookML or as custom measures
+- Subtotals calculated at the front end are only for simple sums & averages
+  - e.g. no Count Distincts, running totals, measures of type "number" with arbitrary calculations
+  - The vis will use subtotals from the query response if available
 
 ## Marketplace Installation
 
 URL: git://github.com/ContrastingSounds/vis-report_table.git
 
-SHA: 1855e4c7061fe770b86e1fcb4129c719987a0ca0
+SHA: fa79f97a08566b95e7d3daf247165a1786ed37e9
 
 ![Install](docs/install.png)
