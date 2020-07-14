@@ -1,14 +1,13 @@
-// const { LookerDataTable } = require('vis-tools') 
-const { LookerDataTable } = require('vis-tools')
+const { VisPluginTableModel } = require('../../vis-tools/vis_table_plugin.js')
 const d3 = require('./d3loader')
 
 const themes = {
-  traditional: require('./traditional_report_table.css'),
-  looker: require('./looker_report_table.css'),
-  contemporary: require('./contemporary_report_table.css'),
+  traditional: require('./theme_traditional.css'),
+  looker: require('./theme_looker.css'),
+  contemporary: require('./theme_contemporary.css'),
 
-  fixed: require('./fixed_layout.css'),
-  auto: require('./auto_layout.css')
+  fixed: require('./layout_fixed.css'),
+  auto: require('./layout_auto.css')
 }
 
 const use_minicharts = false
@@ -30,7 +29,7 @@ const loadStylesheet = function(link) {
 };
 
 
-const buildReportTable = function(config, lookerDataTable, callback) {
+const buildReportTable = function(config, dataTable, updateColumnOrder) {
   var dropTarget = null;
 
   removeStyles().then(() => {
@@ -50,7 +49,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
 
   var drag = d3.drag()
     .on('start', (source, idx) => {
-      if (!lookerDataTable.has_pivots) {
+      if (!dataTable.has_pivots) {
         var xPosition = parseFloat(d3.event.x);
         var yPosition = parseFloat(d3.event.y);
 
@@ -64,7 +63,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
     })
     .on('drag', (source, idx) => {
       // console.log('drag event', source, idx, d3.event.x, d3.event.y)
-      if (!lookerDataTable.has_pivots) {
+      if (!dataTable.has_pivots) {
         d3.select("#tooltip") 
           .style("left", d3.event.x + "px")
           .style("top", d3.event.y + "px")  
@@ -72,42 +71,38 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       
     })
     .on('end', (source, idx) => {
-      if (!lookerDataTable.has_pivots) {
+      if (!dataTable.has_pivots) {
         d3.select("#tooltip").classed("hidden", true);
-        var movingColumn = lookerDataTable.getColumnById(source.id)
-        var targetColumn = lookerDataTable.getColumnById(dropTarget.id)
+        var movingColumn = dataTable.getColumnById(source.id)
+        var targetColumn = dataTable.getColumnById(dropTarget.id)
         var movingIdx = Math.floor(movingColumn.pos/10) * 10
         var targetIdx = Math.floor(targetColumn.pos/10) * 10
         // console.log('DRAG FROM', movingColumn, movingIdx, 'TO', targetColumn, targetIdx)
-        lookerDataTable.moveColumns(movingIdx, targetIdx, callback)
+        dataTable.moveColumns(movingIdx, targetIdx, updateColumnOrder)
       }
     })
 
-
   var header_rows = table.append('thead')
     .selectAll('tr')
-    .data(lookerDataTable.getLevels()).enter() 
-
+    .data(dataTable.getLevels()).enter() 
 
   var header_cells = header_rows.append('tr')
     .selectAll('th')
     .data(function(level, i) { 
-      return lookerDataTable.getTableHeaders(i).map(function(column) {
-        // console.log('buildReportTable() level', i, ' column.id:', column.id)
-
+      return dataTable.getTableHeaders(i).map(function(column) {
         var header = {
           'id': column.id,
           'text': column.getLabel(i),
-          'align': typeof column.parent !== 'undefined' ? column.parent.align : 'left',
+          'align': typeof column.modelField !== 'undefined' ? column.modelField.align : 'left',
           'colspan': typeof column.colspans !== 'undefined' ? column.colspans[i] : 1,
-          'type': typeof column.parent !== 'undefined' ? column.parent.type : 'measure',
-          'calculation': typeof column.parent !== 'undefined' ? column.parent.is_table_calculation : false
+          'type': typeof column.modelField !== 'undefined' ? column.modelField.type : 'measure',
+          'calculation': typeof column.modelField !== 'undefined' ? column.modelField.is_table_calculation : false
         }
 
-        if (lookerDataTable.useHeadings && !lookerDataTable.has_pivots && i === 0) {
+        if (dataTable.useHeadings && !dataTable.has_pivots && i === 0) {
           header.align = 'center'
           header.headerRow = true
-        } else if (lookerDataTable.has_pivots && i < lookerDataTable.pivot_fields.length) {
+        } else if (dataTable.has_pivots && i < dataTable.pivot_fields.length) {
           header.align = 'center'
           header.headerRow = true
         }
@@ -121,7 +116,6 @@ const buildReportTable = function(config, lookerDataTable, callback) {
     .attr('id', d => d.id)
     .attr('colspan', d => d.colspan)
     .attr('class', d => {
-      // if (d.id === '$$$_index_$$$') { console.log('buildReportTable() adding index field', d.id, d.colspan)}
       var classes = ['reportTable', 'headerCell']
       if (typeof d.align !== 'undefined') { classes.push(d.align) }
       if (typeof d.type !== 'undefined') { classes.push(d.type) }
@@ -135,19 +129,20 @@ const buildReportTable = function(config, lookerDataTable, callback) {
     .on('mouseout', () => dropTarget = null)
 
 
+
   var table_rows = table.append('tbody')
     .selectAll('tr')
-    .data(lookerDataTable.getDataRows()).enter()
+    .data(dataTable.getDataRows()).enter()
       .append('tr')
       .selectAll('td')
       .data(function(row) {  
-        return lookerDataTable.getTableColumns(row).map( column => {
+        return dataTable.getTableColumns(row).map( column => {
           var cell = row.data[column.id]
 
           cell.colid = column.id
           cell.rowid = row.id
           cell.rowspan = column.rowspan
-          cell.align = column.parent.align
+          cell.align = column.modelField.align
 
           return cell;
         })
@@ -155,7 +150,7 @@ const buildReportTable = function(config, lookerDataTable, callback) {
 
   table_rows.append('td')
     .text(d => {
-      if (typeof d.value === 'object') {
+      if (typeof d.value === 'object') { // cell is a turtle
         return null
       } else if (typeof d.html !== 'undefined') {
         var parser = new DOMParser()
@@ -174,8 +169,8 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       return classes.join(' ')
     })
     .on('click', d => {
-      console.log('click d', d)
-      console.log('click event', d3.event)
+      console.log('click d:', d)
+      console.log('click event:', d3.event)
       LookerCharts.Utils.openDrillMenu({
         links: d.links,
         event: d3.event
@@ -205,7 +200,6 @@ const buildReportTable = function(config, lookerDataTable, callback) {
             return values.filter(value => value.type === 'line_item')
           }).enter()
 
-    
     var cellWidth = table.selectAll('.cellSeries')._groups[0][0].clientWidth
     var barWidth = Math.floor( cellWidth / 10 )
     console.log('cellWidth', cellWidth)
@@ -221,14 +215,13 @@ const buildReportTable = function(config, lookerDataTable, callback) {
       .attr('width', barWidth)
       .attr('height', value => Math.floor(value.value / value.max * barHeight))
 
-      
     console.log('table', table)    
   }
 
 }
 
 looker.plugins.visualizations.add({
-  options: LookerDataTable.getCoreConfigOptions(),
+  options: VisPluginTableModel.getCoreConfigOptions(),
 
   create: function(element, config) {
     this.tooltip = d3.select(element)
@@ -239,7 +232,7 @@ looker.plugins.visualizations.add({
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
     const updateColumnOrder = newOrder => {
-      this.trigger('updateConfig', [{columnOrder: newOrder}])
+      this.trigger('updateConfig', [{ columnOrder: newOrder }])
     }
 
     // ERROR HANDLING
@@ -257,7 +250,7 @@ looker.plugins.visualizations.add({
     console.log('queryResponse', queryResponse)
     console.log('data', data)
 
-    // "INITIALISING" THE VIS
+    // INITIALISE THE VIS
 
     try {
       var elem = document.querySelector('#visContainer');
@@ -273,13 +266,17 @@ looker.plugins.visualizations.add({
     }
 
 
-    // BUILD THE REPORT TABLE VIS
+    // BUILD THE VIS
+    // 1. Create object
+    // 2. Register options
+    // 3. Build vis
 
-    var lookerDataTable = new LookerDataTable(data, queryResponse, config)
-    this.trigger('registerOptions', lookerDataTable.getConfigOptions())
-    buildReportTable(config, lookerDataTable, updateColumnOrder)
+    var dataTable = new VisPluginTableModel(data, queryResponse, config)
+    this.trigger('registerOptions', dataTable.getConfigOptions())
+    buildReportTable(config, dataTable, updateColumnOrder)
 
-    console.log('lookerDataTable', lookerDataTable)
+    // DEBUG OUTPUT AND DONE
+    console.log('dataTable', dataTable)
 
     done();
   }
