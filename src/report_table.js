@@ -84,7 +84,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
 
   var header_rows = table.append('thead')
     .selectAll('tr')
-    .data(dataTable.getLevels()).enter() 
+    .data(dataTable.getHeaderTiers()).enter() 
 
   var header_cells = header_rows.append('tr')
     .selectAll('th')
@@ -93,16 +93,16 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
         var header = {
           'id': column.id,
           'text': column.getLabel(i),
-          'align': typeof column.modelField !== 'undefined' ? column.modelField.align : 'left',
-          'colspan': typeof column.colspans !== 'undefined' ? column.colspans[i] : 1,
-          'type': typeof column.modelField !== 'undefined' ? column.modelField.type : 'measure',
-          'calculation': typeof column.modelField !== 'undefined' ? column.modelField.is_table_calculation : false
+          'align': column.modelField.align,
+          'colspan': dataTable.colspan_values[column.id][level.name],
+          'type': column.modelField.type,
+          'calculation': column.modelField.is_table_calculation
         }
 
         if (dataTable.useHeadings && !dataTable.has_pivots && i === 0) {
           header.align = 'center'
           header.headerRow = true
-        } else if (dataTable.has_pivots && i < dataTable.pivot_fields.length) {
+        } else if (dataTable.has_pivots && i < dataTable.pivots.length) {
           header.align = 'center'
           header.headerRow = true
         }
