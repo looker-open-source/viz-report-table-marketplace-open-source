@@ -127,18 +127,8 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
     .data(dataTable.getDataRows()).enter()
       .append('tr')
       .selectAll('td')
-      .data(function(row) {  
-        return dataTable.getTableRowColumns(row).map( column => {
-          var cell = row.data[column.id]
-
-          cell.colid = column.id
-          cell.rowid = row.id
-          cell.rowspan = column.rowspan
-          cell.align = column.modelField.align
-
-          return cell;
-        })
-      }).enter()
+      .data(row => dataTable.getTableRowColumns(row).map(column => row.data[column.id]))
+        .enter()
 
   table_rows.append('td')
     .text(d => {
