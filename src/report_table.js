@@ -128,7 +128,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
       .append('tr')
       .selectAll('td')
       .data(function(row) {  
-        return dataTable.getTableColumns(row).map( column => {
+        return dataTable.getTableRowColumns(row).map( column => {
           var cell = row.data[column.id]
 
           cell.colid = column.id
@@ -142,9 +142,11 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
 
   table_rows.append('td')
     .text(d => {
-      if (typeof d.value === 'object') { // cell is a turtle
+      if (Array.isArray(d.value)) {                     // cell is a list
+        return typeof d.rendered !== 'undefined' ? d.rendered : d.value.join(' ')
+      } else if (typeof d.value === 'object') {         // cell is a turtle
         return null
-      } else if (typeof d.html !== 'undefined') {
+      } else if (typeof d.html !== 'undefined') {       // cell has HTML defined
         var parser = new DOMParser()
         var parsed_html = parser.parseFromString(d.html, 'text/html')
         return parsed_html.documentElement.textContent
