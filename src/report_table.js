@@ -89,25 +89,17 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
   var header_cells = header_rows.append('tr')
     .selectAll('th')
     .data(function(level, i) { 
-      return dataTable.getTableHeaders(i).map(function(column) {
-        var header = {
+      return dataTable.getTableHeaderColumns(i).map(function(column) {
+        var header = column.levels[i]
+        var cell = {
           'id': column.id,
           'text': column.getLabel(i),
-          'align': column.modelField.align,
-          'colspan': dataTable.colspan_values[column.id][level.name],
-          'type': column.modelField.type,
-          'calculation': column.modelField.is_table_calculation
-        }
-
-        if (dataTable.useHeadings && !dataTable.has_pivots && i === 0) {
-          header.align = 'center'
-          header.headerRow = true
-        } else if (dataTable.has_pivots && i < dataTable.pivots.length) {
-          header.align = 'center'
-          header.headerRow = true
-        }
-        
-        return header
+          'align': header.modelField.align,
+          'colspan': dataTable.colspan_values[column.id][level.type],
+          'type': header.modelField.type,
+          'calculation': header.modelField.is_table_calculation
+        }        
+        return cell
       })
     }).enter()
 
