@@ -132,17 +132,21 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
 
   table_rows.append('td')
     .text(d => {
-      if (Array.isArray(d.value)) {                     // cell is a list
-        return typeof d.rendered !== 'undefined' ? d.rendered : d.value.join(' ')
+      var text = ''
+      if (Array.isArray(d.value)) {                     // cell is a list or number_list
+        text = !(d.rendered === null) ? d.rendered : d.value.join(' ')
       } else if (typeof d.value === 'object') {         // cell is a turtle
-        return null
-      } else if (typeof d.html !== 'undefined') {       // cell has HTML defined
+        text = null
+      } else if (d.html) {                              // cell has HTML defined
         var parser = new DOMParser()
         var parsed_html = parser.parseFromString(d.html, 'text/html')
-        return parsed_html.documentElement.textContent
+        text = parsed_html.documentElement.textContent
+      } else if (d.rendered || d.rendered === '') {     // could be deliberate choice to render empty string
+        text = d.rendered
       } else {
-        return typeof d.rendered !== 'undefined' ? d.rendered : d.value   
+        text = d.value   
       }
+      return text
     }) 
     .attr('rowspan', d => d.rowspan)
     .attr('class', d => {
