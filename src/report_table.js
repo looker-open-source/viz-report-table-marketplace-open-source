@@ -89,30 +89,23 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
   var header_cells = header_rows.append('tr')
     .selectAll('th')
     .data(function(level, i) { 
-      return dataTable.getTableHeaderColumns(i).map(function(column) {
+      return dataTable.getTableHeaderCells(i).map(function(column) {
         var header = column.levels[i]
         var cell = {
-          'id': column.id,
-          'text': column.getLabel(i),
-          'align': header.modelField.align,
           'colspan': dataTable.colspan_values[column.id][level.type],
-          'type': header.modelField.type,
-          'calculation': header.modelField.is_table_calculation
         }        
-        return cell
+        return {...header, ...cell}
       })
     }).enter()
 
   header_cells.append('th')
-    .text(d => d.text)
+    .text(d => d.label)
     .attr('id', d => d.id)
     .attr('colspan', d => d.colspan)
     .attr('class', d => {
-      var classes = ['reportTable', 'headerCell']
+      var classes = ['reportTable']
       if (typeof d.align !== 'undefined') { classes.push(d.align) }
-      if (typeof d.type !== 'undefined') { classes.push(d.type) }
-      if (typeof d.calculation !== 'undefined' && d.calculation) { classes.push('calculation') }
-      if (typeof d.headerRow !== 'undefined' && d.headerRow) { classes.push('headerRow') }
+      if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
       return classes.join(' ')
     })
     .attr('draggable', true)
