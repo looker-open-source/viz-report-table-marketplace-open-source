@@ -142,6 +142,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
       return text
     }) 
     .attr('rowspan', d => d.rowspan)
+    .attr('colspan', d => d.colspan)
     .attr('class', d => {
       var classes = ['reportTable', 'rowCell']
       if (typeof d.value === 'object') { classes.push('cellSeries') }
