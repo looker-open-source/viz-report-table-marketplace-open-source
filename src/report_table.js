@@ -139,7 +139,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
       } else {
         text = d.value   
       }
-      return text
+      return text ? text.replace('-', '\u2011') : text
     }) 
     .attr('rowspan', d => d.rowspan)
     .attr('colspan', d => d.colspan)
