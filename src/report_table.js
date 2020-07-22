@@ -88,20 +88,14 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
 
   var header_cells = header_rows.append('tr')
     .selectAll('th')
-    .data(function(level, i) { 
-      return dataTable.getTableHeaderCells(i).map(function(column) {
-        var header = column.levels[i]
-        var cell = {
-          'colspan': dataTable.colspan_values[column.id][level.type],
-        }        
-        return {...header, ...cell}
-      })
-    }).enter()
+    .data((level, i) => dataTable.getTableHeaderCells(i).map(column => column.levels[i]))
+      .enter()    
 
   header_cells.append('th')
     .text(d => d.label)
     .attr('id', d => d.id)
     .attr('colspan', d => d.colspan)
+    .attr('rowspan', d => d.rowspan)
     .attr('class', d => {
       var classes = ['reportTable']
       if (typeof d.align !== 'undefined') { classes.push(d.align) }
@@ -112,7 +106,6 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
     .call(drag)
     .on('mouseover', cell => dropTarget = cell)
     .on('mouseout', () => dropTarget = null)
-
 
 
   var table_rows = table.append('tbody')
@@ -139,12 +132,13 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
       } else {
         text = d.value   
       }
+      text = String(text)
       return text ? text.replace('-', '\u2011') : text
     }) 
     .attr('rowspan', d => d.rowspan)
     .attr('colspan', d => d.colspan)
     .attr('class', d => {
-      var classes = ['reportTable', 'rowCell']
+      var classes = ['reportTable']
       if (typeof d.value === 'object') { classes.push('cellSeries') }
       if (typeof d.align !== 'undefined') { classes.push(d.align) }
       if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
