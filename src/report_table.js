@@ -137,6 +137,14 @@ const buildReportTable = function(config, dataTable, updateColumnOrder) {
     }) 
     .attr('rowspan', d => d.rowspan)
     .attr('colspan', d => d.colspan)
+    .attr('style', d => {
+      if (6 <= config.bodyFontSize <= 20) {
+        var setting = ['font-size:', Math.floor(config.bodyFontSize), 'px'].join('')
+        return setting
+      } else {
+        return ''
+      }
+    }) // font-size:20px
     .attr('class', d => {
       var classes = ['reportTable']
       if (typeof d.value === 'object') { classes.push('cellSeries') }
