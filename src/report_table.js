@@ -10,7 +10,6 @@ const themes = {
   auto: require('./layout_auto.css')
 }
 
-const CONTAINER_TOP_MARGIN = 16
 const BBOX_X_ADJUST = 10
 const BBOX_Y_ADJUST = 10
 
@@ -312,7 +311,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         )
   }
 
-  if (config.animateChanges) {
+  if (config.customTheme === 'animate') {
     document.getElementById('visSvg').classList.remove('hidden')
     setTimeout(addOverlay, 1000)
   } else {
