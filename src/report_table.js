@@ -32,7 +32,11 @@ const loadStylesheet = function(link) {
 };
 
 
+
+
+
 const buildReportTable = function(config, dataTable, updateColumnOrder, element) {
+  // document.getElementById('visContainer').classList.add('hidden')
   var dropTarget = null;
 
   removeStyles().then(() => {
@@ -46,6 +50,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     }
   })
 
+  const renderTable = async function() {
   var table = d3.select('#visContainer')
     .append('table')
       .attr('id', 'reportTable')
@@ -213,6 +218,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 
     console.log('table', table)    
   }
+}
 
   var addOverlay = () => {
     // console.log('table', table)
@@ -311,13 +317,18 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         )
   }
 
-  if (config.customTheme === 'animate') {
-    document.getElementById('visSvg').classList.remove('hidden')
-    setTimeout(addOverlay, 1000)
-  } else {
-    document.getElementById('visSvg').classList.add('hidden')
-  }
-  
+  renderTable().then(() => {
+    if (config.customTheme === 'animate') {
+      document.getElementById('visSvg').classList.remove('hidden')
+      // setTimeout(addOverlay, 1000)
+      addOverlay()
+      // document.getElementById('visContainer').classList.remove('hidden')
+    } else {
+      document.getElementById('visSvg').classList.add('hidden')
+      // document.getElementById('visContainer').classList.remove('hidden')
+    }
+  })
+
 }
 
 looker.plugins.visualizations.add({
