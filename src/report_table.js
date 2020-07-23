@@ -282,6 +282,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
                 .style('fill', 'none')
                 .style("stroke", "red")
                 .style("stroke-width", 1)
+                .style('stroke-dasharray', '4')
               .call(
                 enter => enter.transition().duration(1000)
                   .attr('x', d => d.x)
@@ -311,7 +312,13 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         )
   }
 
-  setTimeout(addOverlay, 1000)
+  if (config.animateChanges) {
+    document.getElementById('visSvg').classList.remove('hidden')
+    setTimeout(addOverlay, 1000)
+  } else {
+    document.getElementById('visSvg').classList.add('hidden')
+  }
+  
 }
 
 looker.plugins.visualizations.add({
