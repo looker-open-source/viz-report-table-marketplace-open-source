@@ -11,8 +11,14 @@
 table.reportTable { 
   width: 100%;
   table-layout: auto;
+  opacity: 0;
+  transition: opacity 1000ms;
 }
 
 .hidden {
   display: none;
+}
+
+table.reportTable.reveal {
+  opacity: 1;
 }

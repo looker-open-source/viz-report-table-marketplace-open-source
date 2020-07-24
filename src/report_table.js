@@ -229,13 +229,19 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     d3.selectAll('th')
       .select(function(d, i) {
         var bbox = this.getBoundingClientRect()
+        // console.log('rect this', this)
+        // console.log('rect this.innerHTML', this.innerHTML)
+        // console.log('rect this.classList', this.classList)
+        // console.log('rect this.className', this.className)
         allRects.push({
           index: i,
           data: d,
           x: bbox.x - BBOX_X_ADJUST, 
           y: bbox.y - BBOX_Y_ADJUST, 
           width: bbox.width,
-          height: bbox.height
+          height: bbox.height,
+          html: this.innerHTML,
+          class: this.className + ' rectElem'
         })
       })
 
@@ -248,60 +254,65 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         x: bbox.x - BBOX_X_ADJUST,
         y: bbox.y - BBOX_Y_ADJUST,
         width: bbox.width,
-        height: bbox.height
+        height: bbox.height,
+        html: this.innerHTML,
+        class: this.className + ' rectElem'
       })
     })
 
     var overlay = d3.select('#visSvg')
       .attr('width', viewbox_width)
       .attr('height', viewbox_height)
-      .selectAll('rect')
+      .selectAll('.rectElem')
         .data(allRects, d => d.data.id)
         .join(
-            enter => enter.append('rect')
-                .attr('x', d => d.x)
-                .attr('y', d => -2000)
-                .attr('width', d => d.width)
-                .attr('height', d => d.height)
-                .style('fill', 'none')
-                .style("stroke", "red")
-                .style("stroke-width", 1)
-                .style('stroke-dasharray', '4')
+            enter => enter.append('div')
+                .attr('class', d => d.class)
+                .style('opacity', 1)
+                .style('position', 'absolute')
+                .style('left', d => d.x + 'px')
+                .style('top', d => -2000)
+                .style('width', d => d.width + 'px')
+                .style('height', d => d.height + 'px')
+                .text(d => d.html)
               .call(
                 enter => enter.transition().duration(1000)
-                  .attr('x', d => d.x)
-                  .attr('y', d => d.y)
-                  .attr('width', d => d.width)
-                  .attr('height', d => d.height)
-                  .style('fill', 'none')
-                  .style('stroke', 'red')
-                  .style("stroke-width", 1)
-              ),
+                // .attr('class', d => d.class)
+                // .style('position', 'absolute')
+                // .style('left', d => d.x + 'px')
+                .style('top', d => d.y + 'px')
+                // .style('width', d => d.width + 'px')
+                // .style('height', d => d.height + 'px')
+                //   .text(d => d.html)
+                ),
             update => update
               .call(
                 update => update.transition().duration(1000)
-                  .attr('x', d => d.x)
-                  .attr('y', d => d.y)
-                  .attr('width', d => d.width)
-                  .attr('height', d => d.height)
-                  .style('stroke', 'red')
+                .attr('class', d => d.class)
+                // .style('position', 'absolute')
+                .style('left', d => d.x + 'px')
+                .style('top', d => d.y + 'px')
+                .style('width', d => d.width + 'px')
+                .style('height', d => d.height + 'px')
+                .text(d => d.html)
               ),
             exit => exit
-                .attr('stroke', 'red')
               .call(
-                exit => exit.transition().duration(1000)
-                  .attr('y', 2000)
+                exit => exit.transition().duration(500)
+                  .style('opacity', 0)
                   .remove()
               )
         )
   }
 
   renderTable().then(() => {
+    document.getElementById('reportTable').classList.add('reveal')
     if (config.customTheme === 'animate') {
       document.getElementById('visSvg').classList.remove('hidden')
-      addOverlay().then(() => {
-        document.getElementById('reportTable').style.opacity = 1
-      })
+      setTimeout(addOverlay(), 500)
+      // .then(() => {
+      //   document.getElementById('reportTable').style.opacity = 1
+      // })
     } else {
       document.getElementById('visSvg').classList.add('hidden')
       document.getElementById('reportTable').style.opacity = 1
@@ -314,12 +325,8 @@ looker.plugins.visualizations.add({
   options: VisPluginTableModel.getCoreConfigOptions(),
 
   create: function(element, config) {
-    // this.tableContainer = d3.select(element)
-    //   .append('div')
-    //   .attr('id', 'visContainer')
-
     this.svgContainer = d3.select(element)
-      .append("svg")
+      .append("div")
       .attr("id", "visSvg")
       .attr("width", element.clientWidth)
       .attr("height", element.clientHeight);
@@ -360,7 +367,6 @@ looker.plugins.visualizations.add({
     this.container = d3.select(element)
       .append('div')
       .attr('id', 'visContainer')
-      .attr('class')
 
     if (typeof config.columnOrder === 'undefined') {
       this.trigger('updateConfig', [{ columnOrder: {} }])
@@ -378,7 +384,7 @@ looker.plugins.visualizations.add({
 
     // DEBUG OUTPUT AND DONE
     console.log('dataTable', dataTable)
-    console.log('container', this.container)
+    console.log('container', document.getElementById('visContainer').parentNode)
 
     done();
   }

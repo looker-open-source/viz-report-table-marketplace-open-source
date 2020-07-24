@@ -26,7 +26,7 @@
     line-height: 15px;
 }
 
-table.reportTable {
+.reportTable {
   font-family: Open Sans,Helvetica,Arial,sans-serif;
   font-size: 10px;   
   /* border: 1px solid #CCCCCC; */
@@ -35,7 +35,7 @@ table.reportTable {
   table-layout: fixed;
 }
 
-table.reportTable th {
+.reportTable th {
   /* border: 1px solid #CCCCCC; */
   border-bottom: 1px solid #000000 !important;
   /* font-size: 10px;  */
@@ -43,7 +43,7 @@ table.reportTable th {
   padding: 5px;
 }
 
-table.reportTable td {
+.reportTable td {
   vertical-align: super;
   padding-left: 5px;
   /*background: #FFFFFF;*/

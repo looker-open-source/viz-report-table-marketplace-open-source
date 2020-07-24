@@ -11,6 +11,8 @@
 table.reportTable {
   width: 100%;
   table-layout: fixed;
+  opacity: 0;
+  transition: opacity 1000ms;
 }
 
 table.reportTable th {
@@ -29,4 +31,9 @@ table.reportTable td {
 
 .hidden {
   display: none;
+}
+
+table.reportTable.reveal {
+  opacity: 1;
+  transition: opacity 1000ms;
 }
