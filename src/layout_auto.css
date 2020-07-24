@@ -15,10 +15,10 @@ table.reportTable {
   transition: opacity 1000ms;
 }
 
-.hidden {
-  display: none;
-}
-
 table.reportTable.reveal {
   opacity: 1;
+}
+
+.hidden {
+  display: none;
 }

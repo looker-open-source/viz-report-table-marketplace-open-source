@@ -15,6 +15,11 @@ table.reportTable {
   transition: opacity 1000ms;
 }
 
+table.reportTable.reveal {
+  opacity: 1;
+  transition: opacity 1000ms;
+}
+
 table.reportTable th {
   max-width: 0px;
   overflow: hidden;
@@ -31,9 +36,4 @@ table.reportTable td {
 
 .hidden {
   display: none;
-}
-
-table.reportTable.reveal {
-  opacity: 1;
-  transition: opacity 1000ms;
 }
