@@ -108,7 +108,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       .attr('rowspan', d => d.rowspan)
       .attr('class', d => {
         var classes = ['reportTable']
-        if (typeof d.align !== 'undefined') { classes.push(d.align) }
+        // if (typeof d.align !== 'undefined') { classes.push(d.align) }
         if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
         return classes.join(' ')
       })
@@ -166,7 +166,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       .attr('class', d => {
         var classes = ['reportTable']
         if (typeof d.value === 'object') { classes.push('cellSeries') }
-        if (typeof d.align !== 'undefined') { classes.push(d.align) }
+        // if (typeof d.align !== 'undefined') { classes.push(d.align) }
         if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
         return classes.join(' ')
       })
@@ -241,7 +241,8 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           width: bbox.width,
           height: bbox.height,
           html: this.innerHTML,
-          class: this.className + ' rectElem'
+          class: this.className + ' rectElem animated',
+          fontSize: config.headerFontSize
         })
       })
 
@@ -256,7 +257,8 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         width: bbox.width,
         height: bbox.height,
         html: this.innerHTML,
-        class: this.className + ' rectElem'
+        class: this.className + ' rectElem animated',
+        fontSize: config.bodyFontSize
       })
     })
 
@@ -274,26 +276,21 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
                 .style('top', d => -2000)
                 .style('width', d => d.width + 'px')
                 .style('height', d => d.height + 'px')
+                .style('font-size', d => d.fontSize + 'px')
                 .text(d => d.html)
               .call(
                 enter => enter.transition().duration(1000)
-                // .attr('class', d => d.class)
-                // .style('position', 'absolute')
-                // .style('left', d => d.x + 'px')
-                .style('top', d => d.y + 'px')
-                // .style('width', d => d.width + 'px')
-                // .style('height', d => d.height + 'px')
-                //   .text(d => d.html)
+                  .style('top', d => d.y + 'px')
                 ),
             update => update
               .call(
                 update => update.transition().duration(1000)
                 .attr('class', d => d.class)
-                // .style('position', 'absolute')
                 .style('left', d => d.x + 'px')
                 .style('top', d => d.y + 'px')
                 .style('width', d => d.width + 'px')
                 .style('height', d => d.height + 'px')
+                .style('font-size', d => d.fontSize + 'px')
                 .text(d => d.html)
               ),
             exit => exit

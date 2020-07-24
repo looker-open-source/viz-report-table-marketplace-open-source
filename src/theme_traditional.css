@@ -35,7 +35,7 @@
   table-layout: fixed;
 }
 
-.reportTable th {
+.headerCell {
   /* border: 1px solid #CCCCCC; */
   border-bottom: 1px solid #000000 !important;
   /* font-size: 10px;  */
@@ -43,32 +43,40 @@
   padding: 5px;
 }
 
-.reportTable td {
+.rectElem.animated {
+  margin: 4px;
+}
+
+.rowCell {
   vertical-align: super;
   padding-left: 5px;
   /*background: #FFFFFF;*/
   /* border: 1px solid #CCCCCC; */
 }
 
-.left {
+.nonNumeric {
   text-align: left;
 }
 
-.right {
-  text-align: right !important;
+.numeric {
+  text-align: right;
 }
 
-.indent {
+.merged {
+  text-align: center !important;
+}
+
+.singleIndex {
   padding-left: 15px !important;
 }
 
 .subtotal {
   font-style: italic;
-  font-weight: bold;
+  font-weight: bold !important;
 }
 
 .total {
-  border-top: 2px solid #000000 !important;
+  border-top: 2px solid #000000;
   font-weight: bold !important;
 }
 
@@ -76,6 +84,10 @@
   border-top: 0px !important;
 }
 
-.red {
+.negative {
   color: red;
+}
+
+.estimated {
+  color: darkgray !important;
 }
