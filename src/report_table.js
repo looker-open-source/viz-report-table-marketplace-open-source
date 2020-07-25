@@ -98,7 +98,6 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       })
     
     if (dataTable.minWidthForIndexColumns) {
-      console.log('setting min width')
       columnTextWidths = {}
 
       if (!dataTable.transposeTable) {
