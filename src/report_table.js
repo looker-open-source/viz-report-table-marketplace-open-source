@@ -224,12 +224,14 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           height: bbox.height,
           html: this.innerHTML,
           class: this.className + ' rectElem animated',
-          fontSize: config.headerFontSize
+          fontSize: config.headerFontSize,
+          align: this.style.textAlign
         })
       })
 
     d3.selectAll('td')
     .select(function(d, i) {
+      console.log('this', this)
       var bbox = this.getBoundingClientRect()
       allRects.push({
         index: i,
@@ -240,7 +242,8 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         height: bbox.height,
         html: this.innerHTML,
         class: this.className + ' rectElem animated',
-        fontSize: config.bodyFontSize
+        fontSize: config.bodyFontSize,
+        align: this.style.textAlign
       })
     })
 
@@ -252,27 +255,31 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         .join(
             enter => enter.append('div')
                 .attr('class', d => d.class)
-                .style('opacity', 0.3)
+                .style('opacity', 0.2)
                 .style('position', 'absolute')
                 .style('left', d => d.x + 'px')
                 .style('top', d => -2000)
                 .style('width', d => d.width + 'px')
                 .style('height', d => d.height + 'px')
                 .style('font-size', d => d.fontSize + 'px')
+                .style('text-align', d => d.align)
                 .text(d => d.html)
               .call(
                 enter => enter.transition().duration(1000)
-                  .style('top', d => d.y + 'px')
+                .style('opacity', 1)  
+                .style('top', d => d.y + 'px')
                 ),
             update => update
               .call(
                 update => update.transition().duration(1000)
                 .attr('class', d => d.class)
+                .style('opacity', 1)
                 .style('left', d => d.x + 'px')
                 .style('top', d => d.y + 'px')
                 .style('width', d => d.width + 'px')
                 .style('height', d => d.height + 'px')
                 .style('font-size', d => d.fontSize + 'px')
+                .style('text-align', d => d.align)
                 .text(d => d.html)
               ),
             exit => exit
