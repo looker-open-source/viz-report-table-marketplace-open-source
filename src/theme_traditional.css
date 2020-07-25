@@ -87,6 +87,10 @@ th.headerCell {
   border-top: 0px !important;
 }
 
+.dimension.transposed {
+  font-weight: bold;
+}
+
 .negative {
   color: red;
 }
