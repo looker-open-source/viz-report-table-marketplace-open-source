@@ -32,9 +32,6 @@ const loadStylesheet = function(link) {
 };
 
 
-
-
-
 const buildReportTable = function(config, dataTable, updateColumnOrder, element) {
   var dropTarget = null;
 
@@ -50,6 +47,15 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
   })
 
   const renderTable = async function() {
+    const getTextWidth = function(text, font = '') {
+      // re-use canvas object for better performance
+      var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'));
+      var context = canvas.getContext('2d');
+      context.font = font || config.bodyFontSize + 'pt arial';
+      var metrics = context.measureText(text);
+      return metrics.width;
+    }
+
     var table = d3.select('#visContainer')
       .append('table')
         .attr('id', 'reportTable')
@@ -90,6 +96,48 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           dataTable.moveColumns(movingIdx, targetIdx, updateColumnOrder)
         }
       })
+    
+    if (dataTable.minWidthForIndexColumns) {
+      console.log('setting min width')
+      columnTextWidths = {}
+
+      if (!dataTable.transposeTable) {
+        dataTable.column_series.filter(cs => !cs.column.hide).filter(cs => cs.column.modelField.type === 'dimension').forEach(cs => {
+          var maxLength = cs.series.values.reduce((a, b) => Math.max(getTextWidth(a), getTextWidth(b)))
+          var columnId = cs.column.modelField.name
+          if (dataTable.useIndexColumn) {
+            columnId = '$$$_index_$$$'
+            maxLength += 15
+          }
+          columnTextWidths[columnId] = Math.ceil(maxLength)
+        })
+      } else {
+        dataTable.headers.forEach(header => {
+          var fontSize = 'bold ' + config.bodyFontSize + 'pt arial'
+          var maxLength = dataTable.transposed_data
+            .map(row => row.data[header.type].rendered)
+            .reduce((a, b) => Math.max(getTextWidth(a, fontSize), getTextWidth(b, fontSize)))
+          columnTextWidths[header.type] = Math.ceil(maxLength)
+        })
+      }
+    }
+    
+    var column_groups = table.selectAll('colgroup')
+      .data(dataTable.getTableColumnGroups()).enter()  
+        .append('colgroup')
+
+    column_groups.selectAll('col')
+      .data(d => d).enter()
+        .append('col')
+        .attr('id', d => d.id )
+        .attr('span', 1)
+        .style('width', d => {
+          if (dataTable.minWidthForIndexColumns &&  d.type === 'index' && typeof columnTextWidths[d.id] !== 'undefined') {
+            return columnTextWidths[d.id] + 'px'
+          } else {
+            return ''
+          }
+        })
 
     var header_rows = table.append('thead')
       .selectAll('tr')
@@ -122,9 +170,9 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       .selectAll('tr')
       .data(dataTable.getDataRows()).enter()
         .append('tr')
-        .selectAll('td')
-        .data(row => dataTable.getTableRowColumns(row).map(column => row.data[column.id]))
-          .enter()
+          .selectAll('td')
+          .data(row => dataTable.getTableRowColumns(row).map(column => row.data[column.id]))
+            .enter()
 
     table_rows.append('td')
       .text(d => {
