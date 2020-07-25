@@ -36,7 +36,6 @@ const loadStylesheet = function(link) {
 
 
 const buildReportTable = function(config, dataTable, updateColumnOrder, element) {
-  // document.getElementById('visContainer').classList.add('hidden')
   var dropTarget = null;
 
   removeStyles().then(() => {
@@ -108,18 +107,11 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       .attr('rowspan', d => d.rowspan)
       .attr('class', d => {
         var classes = ['reportTable']
-        // if (typeof d.align !== 'undefined') { classes.push(d.align) }
         if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
         return classes.join(' ')
       })
-      .attr('style', d => {
-        if (10 <= config.headerFontSize <= 20) {
-          var setting = ['font-size:', Math.floor(config.headerFontSize), 'px'].join('')
-          return setting
-        } else {
-          return ''
-        }
-      })
+      .style('text-align', d => d.align)
+      .style('font-size', config.headerFontSize + 'px')
       .attr('draggable', true)
       .call(drag)
       .on('mouseover', cell => dropTarget = cell)
@@ -155,18 +147,12 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       }) 
       .attr('rowspan', d => d.rowspan)
       .attr('colspan', d => d.colspan)
-      .attr('style', d => {
-        if (10 <= config.bodyFontSize <= 20) {
-          var setting = ['font-size:', Math.floor(config.bodyFontSize), 'px'].join('')
-          return setting
-        } else {
-          return ''
-        }
-      })
+      .style('text-align', d => d.align)
+      .style('font-size', config.bodyFontSize + 'px')
       .attr('class', d => {
         var classes = ['reportTable']
         if (typeof d.value === 'object') { classes.push('cellSeries') }
-        // if (typeof d.align !== 'undefined') { classes.push(d.align) }
+        if (typeof d.align !== 'undefined') { classes.push(d.align) }
         if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
         return classes.join(' ')
       })
@@ -229,10 +215,6 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     d3.selectAll('th')
       .select(function(d, i) {
         var bbox = this.getBoundingClientRect()
-        // console.log('rect this', this)
-        // console.log('rect this.innerHTML', this.innerHTML)
-        // console.log('rect this.classList', this.classList)
-        // console.log('rect this.className', this.className)
         allRects.push({
           index: i,
           data: d,
@@ -270,7 +252,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         .join(
             enter => enter.append('div')
                 .attr('class', d => d.class)
-                .style('opacity', 1)
+                .style('opacity', 0.3)
                 .style('position', 'absolute')
                 .style('left', d => d.x + 'px')
                 .style('top', d => -2000)
@@ -306,10 +288,8 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     document.getElementById('reportTable').classList.add('reveal')
     if (config.customTheme === 'animate') {
       document.getElementById('visSvg').classList.remove('hidden')
-      setTimeout(addOverlay(), 500)
-      // .then(() => {
-      //   document.getElementById('reportTable').style.opacity = 1
-      // })
+      addOverlay()
+      // setTimeout(addOverlay(), 500)
     } else {
       document.getElementById('visSvg').classList.add('hidden')
       document.getElementById('reportTable').style.opacity = 1

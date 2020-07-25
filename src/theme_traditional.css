@@ -28,8 +28,6 @@
 
 .reportTable {
   font-family: Open Sans,Helvetica,Arial,sans-serif;
-  /* font-size: 10px;    */
-  /* border: 1px solid #CCCCCC; */
   border-collapse: separate;
   border-spacing: 3px;
   table-layout: fixed;
@@ -37,23 +35,26 @@
 
 .rectElem.animated {
   font-family: Open Sans,Helvetica,Arial,sans-serif;
-  margin: 4px;
+  padding: 4px;
 }
 
-.headerCell {
-  /* border: 1px solid #CCCCCC; */
+th.headerCell {
   border-bottom: 1px solid #000000 !important;
-  /* font-size: 10px;  */
-  /* height: 25px; */
   font-weight: bold;
   padding: 5px;
+}
+
+.animated.headerCell {
+  border-bottom: 4px solid #ffffff;
+  box-shadow: inset 0px -1px 0px 0px #000000 !important;
+  font-weight: bold;
+  padding: 5px;
+  box-sizing: border-box;
 }
 
 .rowCell {
   vertical-align: super;
   padding-left: 5px;
-  /*background: #FFFFFF;*/
-  /* border: 1px solid #CCCCCC; */
 }
 
 .nonNumeric {

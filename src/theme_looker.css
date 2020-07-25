@@ -86,11 +86,12 @@
   border-bottom: 1px solid #BDC3C7; 
 }
 
+
 .nonNumeric {
   text-align: left;
 }
 
-.td.reportTable.rowCell.numeric {
+.numeric {
   text-align: right;
 }
 
