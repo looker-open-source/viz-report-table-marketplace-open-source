@@ -322,7 +322,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     var allRects = []
     d3.selectAll('th')
       .select(function(d, i) {
-        if (d.id !== 'undefined') {
+        if (typeof d.id !== 'undefined') {
           var bbox = this.getBoundingClientRect()
         allRects.push({
           index: i,
@@ -341,7 +341,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 
     d3.selectAll('td')
     .select(function(d, i) {
-      if (d.id !== 'undefined') {
+      if (typeof d.id !== 'undefined') {
         var bbox = this.getBoundingClientRect()
         allRects.push({
           index: i,
