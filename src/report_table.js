@@ -67,20 +67,21 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 
     var drag = d3.drag()
       .on('start', (source, idx) => {
-        if (!dataTable.has_pivots) {
+        if (!dataTable.has_pivots && source.colspan === 1) { // if a headercell is a merged cell, can't tell which column its associated with
           var xPosition = parseFloat(d3.event.x);
           var yPosition = parseFloat(d3.event.y);
+          var html = source.column.getHeaderCellLabelByType('field')
 
           d3.select("#tooltip")
               .style("left", xPosition + "px")
               .style("top", yPosition + "px")                     
-              .html('<p>Yahoo!</p>');
+              .html(html);
     
           d3.select("#tooltip").classed("hidden", false);     
         }
       })
       .on('drag', (source, idx) => {
-        console.log('drag event', source, idx, d3.event.x, d3.event.y)
+        // console.log('drag event', source, idx, d3.event.x, d3.event.y)
         if (!dataTable.has_pivots) {
           d3.select("#tooltip") 
             .style("left", d3.event.x + "px")
@@ -91,11 +92,11 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       .on('end', (source, idx) => {
         if (!dataTable.has_pivots) {
           d3.select("#tooltip").classed("hidden", true);
-          var movingColumn = dataTable.getColumnById(source.id)
-          var targetColumn = dataTable.getColumnById(dropTarget.id)
+          var movingColumn = source.column
+          var targetColumn = dropTarget.column
           var movingIdx = Math.floor(movingColumn.pos/10) * 10
           var targetIdx = Math.floor(targetColumn.pos/10) * 10
-          console.log('DRAG FROM', movingColumn, movingIdx, 'TO', targetColumn, targetIdx)
+          // console.log('DRAG FROM', movingColumn, movingIdx, 'TO', targetColumn, targetIdx)
           dataTable.moveColumns(movingIdx, targetIdx, updateColumnOrder)
         }
       })
@@ -291,9 +292,9 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 
       var cellWidth = table.selectAll('.cellSeries')._groups[0][0].clientWidth
       var barWidth = Math.floor( cellWidth / 10 )
-      console.log('cellWidth', cellWidth)
-      console.log('barHeight', barHeight)
-      console.log('barWidth', barWidth)
+      // console.log('cellWidth', cellWidth)
+      // console.log('barHeight', barHeight)
+      // console.log('barWidth', barWidth)
 
       minicharts.append('rect')
         .style('fill', 'steelblue')
@@ -303,8 +304,6 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         .attr('y', value => barHeight - Math.floor(value.value / value.max * barHeight))
         .attr('width', barWidth)
         .attr('height', value => Math.floor(value.value / value.max * barHeight))
-
-      console.log('table', table)    
     }
 }
 
@@ -315,7 +314,8 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     var allRects = []
     d3.selectAll('th')
       .select(function(d, i) {
-        var bbox = this.getBoundingClientRect()
+        if (d.id !== 'undefined') {
+          var bbox = this.getBoundingClientRect()
         allRects.push({
           index: i,
           data: d,
@@ -328,24 +328,26 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           fontSize: config.headerFontSize,
           align: this.style.textAlign
         })
+        }
       })
 
     d3.selectAll('td')
     .select(function(d, i) {
-      console.log('this', this)
-      var bbox = this.getBoundingClientRect()
-      allRects.push({
-        index: i,
-        data: d,
-        x: bbox.x - BBOX_X_ADJUST,
-        y: bbox.y - BBOX_Y_ADJUST,
-        width: bbox.width,
-        height: bbox.height,
-        html: this.innerHTML,
-        class: this.className + ' rectElem animated',
-        fontSize: config.bodyFontSize,
-        align: this.style.textAlign
-      })
+      if (d.id !== 'undefined') {
+        var bbox = this.getBoundingClientRect()
+        allRects.push({
+          index: i,
+          data: d,
+          x: bbox.x - BBOX_X_ADJUST,
+          y: bbox.y - BBOX_Y_ADJUST,
+          width: bbox.width,
+          height: bbox.height,
+          html: this.innerHTML,
+          class: this.className + ' rectElem animated',
+          fontSize: config.bodyFontSize,
+          align: this.style.textAlign
+        })
+      }
     })
 
     var overlay = d3.select('#visSvg')
@@ -419,7 +421,7 @@ looker.plugins.visualizations.add({
     this.tooltip = d3.select(element)
       .append("div")
       .attr("id", "tooltip")
-      // .attr("class", "hidden")
+      .attr("class", "hidden")
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
