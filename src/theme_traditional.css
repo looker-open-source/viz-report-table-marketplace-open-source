@@ -16,6 +16,17 @@
     z-index: 2;
 }
 
+.tooltipTable {
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  border: 0px;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.focus {
+  font-weight: bold;
+}
+
 .hidden {
     display: none;
 }
@@ -32,10 +43,6 @@
   border-collapse: separate;
   border-spacing: 3px;
   table-layout: fixed;
-}
-
-tbody tr:hover {
-  background-color: #ffff99;
 }
 
 .rectElem.animated {
@@ -70,8 +77,12 @@ th.headerCell {
   text-align: right;
 }
 
-.merged {
+.headerCell.merged {
   text-align: center !important;
+  background-color: #ffffff !important;
+}
+
+.rowCell.merged {
   background-color: #ffffff !important;
 }
 
@@ -106,5 +117,5 @@ th.headerCell {
 }
 
 .hover {
-  background-color: #ffff99;
+  background-color: #ffffbb;
 }

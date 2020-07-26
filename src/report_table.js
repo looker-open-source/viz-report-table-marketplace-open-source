@@ -34,6 +34,9 @@ const loadStylesheet = function(link) {
 
 const buildReportTable = function(config, dataTable, updateColumnOrder, element) {
   var dropTarget = null;
+  const bounds = element.getBoundingClientRect()
+  const chartCentreX = bounds.x + (bounds.width / 2);
+  const chartCentreY = bounds.y + (bounds.height / 2);
 
   removeStyles().then(() => {
     if (typeof config.customTheme !== 'undefined' && config.customTheme && config.theme === 'custom') {
@@ -169,6 +172,8 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       .selectAll('tr')
       .data(dataTable.getDataRows()).enter()
         .append('tr')
+        .on('mouseover', function() { this.classList.toggle('hover') })
+        .on('mouseout', function() { this.classList.toggle('hover') })
           .selectAll('td')
           .data(row => dataTable.getTableRowColumns(row).map(column => row.data[column.id]))
             .enter()
@@ -204,50 +209,55 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         return classes.join(' ')
       })
       .on('mouseover', d => {
-        // Highlight effect
-        if (!dataTable.transposeTable) {
-          var id = ['col', d.colid].join('').replace('.', '')
-        } else {
-          var id = ['col', d.rowid].join('').replace('.', '')
+        if (dataTable.showHighlight) {
+          if (!dataTable.transposeTable) {
+            var id = ['col', d.colid].join('').replace('.', '')
+          } else {
+            var id = ['col', d.rowid].join('').replace('.', '')
+          }
+          
+          var colElement = document.getElementById(id)
+          colElement.classList.toggle('hover')
         }
         
-        var colElement = document.getElementById(id)
-        colElement.classList.toggle('hover')
-
-        // Tooltip
-        var x = d3.event.clientX
-        var y = d3.event.clientY
-        var html = dataTable.getCellToolTip(d.rowid, d.colid)
-
-        d3.select("#tooltip")
-          .style('left', x + 'px')
-          .style('top', y + 'px')                   
-          .html(html)
-        
-        d3.select("#tooltip").classed("hidden", false);
-      })
-      .on('mousemove', function() {
-        var x = d3.event.clientX
-        var y = d3.event.clientY
-        // var x = d3.event.pageX < chartCentreX ? d3.event.pageX : d3.event.pageX - 210
-        // var y = d3.event.pageY < chartCentreY ? d3.event.pageY : d3.event.pageY - 120
-
-        d3.select('#tooltip')
+        if (dataTable.showTooltip && d.cell_style.includes('measure')) {
+          var x = d3.event.clientX
+          var y = d3.event.clientY
+          var html = dataTable.getCellToolTip(d.rowid, d.colid)
+  
+          d3.select("#tooltip")
             .style('left', x + 'px')
-            .style('top', y + 'px')
-    })
-      .on('mouseout', d => {
-        // Highlight
-        if (!dataTable.transposeTable) {
-          var id = ['col', d.colid].join('').replace('.', '')
-        } else {
-          var id = ['col', d.rowid].join('').replace('.', '')
+            .style('top', y + 'px')                   
+            .html(html)
+          
+          d3.select("#tooltip").classed("hidden", false);
         }
-        var colElement = document.getElementById(id)
-        colElement.classList.toggle('hover')
-
-        // Tooltip
-        d3.select("#tooltip").classed("hidden", true)
+      })
+      .on('mousemove', d => {
+        if (dataTable.showTooltip  && d.cell_style.includes('measure')) {
+          var tooltip = d3.select('#tooltip')
+          var x = d3.event.clientX < chartCentreX ? d3.event.clientX + 10 : d3.event.clientX - tooltip.node().getBoundingClientRect().width - 10
+          var y = d3.event.clientY < chartCentreY ? d3.event.clientY + 10 : d3.event.clientY - tooltip.node().getBoundingClientRect().height - 10
+  
+          tooltip
+              .style('left', x + 'px')
+              .style('top', y + 'px')
+        }
+      })
+      .on('mouseout', d => {
+        if (dataTable.showHighlight) {
+          if (!dataTable.transposeTable) {
+            var id = ['col', d.colid].join('').replace('.', '')
+          } else {
+            var id = ['col', d.rowid].join('').replace('.', '')
+          }
+          var colElement = document.getElementById(id)
+          colElement.classList.toggle('hover')
+        }
+        
+        if (dataTable.showTooltip  && d.cell_style.includes('measure')) {
+          d3.select("#tooltip").classed("hidden", true)
+        }
       })
       .on('click', d => {
         LookerCharts.Utils.openDrillMenu({
