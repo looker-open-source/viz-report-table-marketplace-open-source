@@ -173,11 +173,19 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       .selectAll('tr')
       .data(dataTable.getDataRows()).enter()
         .append('tr')
-        .on('mouseover', function() { this.classList.toggle('hover') })
-        .on('mouseout', function() { this.classList.toggle('hover') })
-          .selectAll('td')
-          .data(row => dataTable.getTableRowColumns(row).map(column => row.data[column.id]))
-            .enter()
+        .on('mouseover', function() { 
+          if (dataTable.showHighlight) {
+            this.classList.toggle('hover') 
+          }
+        })
+        .on('mouseout', function() { 
+          if (dataTable.showHighlight) {
+            this.classList.toggle('hover') 
+          }
+        })
+        .selectAll('td')
+        .data(row => dataTable.getTableRowColumns(row).map(column => row.data[column.id]))
+          .enter()
 
     table_rows.append('td')
       .text(d => {
