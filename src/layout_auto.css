@@ -18,7 +18,3 @@ table.reportTable {
 table.reportTable.reveal {
   opacity: 1;
 }
-
-.hidden {
-  display: none;
-}

@@ -71,13 +71,13 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           d3.select("#tooltip")
               .style("left", xPosition + "px")
               .style("top", yPosition + "px")                     
-              .html();
+              .html('<p>Yahoo!</p>');
     
-          d3.select("#tooltip").classed("hidden", false);        
+          d3.select("#tooltip").classed("hidden", false);     
         }
       })
       .on('drag', (source, idx) => {
-        // console.log('drag event', source, idx, d3.event.x, d3.event.y)
+        console.log('drag event', source, idx, d3.event.x, d3.event.y)
         if (!dataTable.has_pivots) {
           d3.select("#tooltip") 
             .style("left", d3.event.x + "px")
@@ -92,7 +92,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           var targetColumn = dataTable.getColumnById(dropTarget.id)
           var movingIdx = Math.floor(movingColumn.pos/10) * 10
           var targetIdx = Math.floor(targetColumn.pos/10) * 10
-          // console.log('DRAG FROM', movingColumn, movingIdx, 'TO', targetColumn, targetIdx)
+          console.log('DRAG FROM', movingColumn, movingIdx, 'TO', targetColumn, targetIdx)
           dataTable.moveColumns(movingIdx, targetIdx, updateColumnOrder)
         }
       })
@@ -204,22 +204,52 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         return classes.join(' ')
       })
       .on('mouseover', d => {
-        var id = ['col', d.colid].join('').replace('.', '')
-        console.log('column element id:', id)
-        console.log('mouseover d:', d)
-        console.log('mouseover event:', d3.event)
+        // Highlight effect
+        if (!dataTable.transposeTable) {
+          var id = ['col', d.colid].join('').replace('.', '')
+        } else {
+          var id = ['col', d.rowid].join('').replace('.', '')
+        }
+        
+        var colElement = document.getElementById(id)
+        colElement.classList.toggle('hover')
 
-        var colElement = document.getElementById(id)
-        colElement.classList.toggle('hover')
+        // Tooltip
+        var x = d3.event.clientX
+        var y = d3.event.clientY
+        var html = dataTable.getCellToolTip(d.rowid, d.colid)
+
+        d3.select("#tooltip")
+          .style('left', x + 'px')
+          .style('top', y + 'px')                   
+          .html(html)
+        
+        d3.select("#tooltip").classed("hidden", false);
       })
+      .on('mousemove', function() {
+        var x = d3.event.clientX
+        var y = d3.event.clientY
+        // var x = d3.event.pageX < chartCentreX ? d3.event.pageX : d3.event.pageX - 210
+        // var y = d3.event.pageY < chartCentreY ? d3.event.pageY : d3.event.pageY - 120
+
+        d3.select('#tooltip')
+            .style('left', x + 'px')
+            .style('top', y + 'px')
+    })
       .on('mouseout', d => {
-        var id = ['col', d.colid].join('').replace('.', '')
+        // Highlight
+        if (!dataTable.transposeTable) {
+          var id = ['col', d.colid].join('').replace('.', '')
+        } else {
+          var id = ['col', d.rowid].join('').replace('.', '')
+        }
         var colElement = document.getElementById(id)
         colElement.classList.toggle('hover')
+
+        // Tooltip
+        d3.select("#tooltip").classed("hidden", true)
       })
       .on('click', d => {
-        console.log('click d:', d)
-        console.log('click event:', d3.event)
         LookerCharts.Utils.openDrillMenu({
           links: d.links,
           event: d3.event
@@ -378,8 +408,8 @@ looker.plugins.visualizations.add({
 
     this.tooltip = d3.select(element)
       .append("div")
-      .attr("class", "hidden")
       .attr("id", "tooltip")
+      // .attr("class", "hidden")
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
