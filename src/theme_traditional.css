@@ -64,6 +64,10 @@ th.headerCell {
   box-sizing: border-box;
 }
 
+.hover {
+  background-color: #ffffbb;
+}
+
 .rowCell {
   vertical-align: super;
   padding-left: 5px;
@@ -82,7 +86,16 @@ th.headerCell {
   background-color: #ffffff !important;
 }
 
+.headerCell.transposed.dimension.merged {
+  text-align: center !important;
+  background-color: #ffffff !important;
+}
+
 .rowCell.merged {
+  background-color: #ffffff !important;
+}
+
+.rowCell.transposed.dimension.merged {
   background-color: #ffffff !important;
 }
 
@@ -114,8 +127,4 @@ th.headerCell {
 
 .estimate {
   color: darkgray !important;
-}
-
-.hover {
-  background-color: #ffffbb;
 }
