@@ -33,6 +33,10 @@
   table-layout: fixed;
 }
 
+tbody tr:hover {
+  background-color: #ffff99;
+}
+
 .rectElem.animated {
   font-family: Open Sans,Helvetica,Arial,sans-serif;
   padding: 4px;
@@ -67,6 +71,7 @@ th.headerCell {
 
 .merged {
   text-align: center !important;
+  background-color: #ffffff !important;
 }
 
 .singleIndex {
@@ -97,4 +102,8 @@ th.headerCell {
 
 .estimated {
   color: darkgray !important;
+}
+
+.hover {
+  background-color: #ffff99;
 }

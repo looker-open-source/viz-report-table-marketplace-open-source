@@ -128,7 +128,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     column_groups.selectAll('col')
       .data(d => d).enter()
         .append('col')
-        .attr('id', d => d.id )
+        .attr('id', d => ['col',d.id].join('').replace('.', '') )
         .attr('span', 1)
         .style('width', d => {
           if (dataTable.minWidthForIndexColumns &&  d.type === 'index' && typeof columnTextWidths[d.id] !== 'undefined') {
@@ -202,6 +202,20 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         if (typeof d.align !== 'undefined') { classes.push(d.align) }
         if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
         return classes.join(' ')
+      })
+      .on('mouseover', d => {
+        var id = ['col', d.colid].join('').replace('.', '')
+        console.log('column element id:', id)
+        console.log('mouseover d:', d)
+        console.log('mouseover event:', d3.event)
+
+        var colElement = document.getElementById(id)
+        colElement.classList.toggle('hover')
+      })
+      .on('mouseout', d => {
+        var id = ['col', d.colid].join('').replace('.', '')
+        var colElement = document.getElementById(id)
+        colElement.classList.toggle('hover')
       })
       .on('click', d => {
         console.log('click d:', d)
