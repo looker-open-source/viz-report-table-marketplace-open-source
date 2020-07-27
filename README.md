@@ -24,7 +24,7 @@ A table dedicated to single-page, enterprise summary reports. Useful for PDF exp
 
 URL: git://github.com/ContrastingSounds/vis-report_table.git
 
-SHA: 5aa3619dfdfab56fda3998ab7363b12c596870ea
+SHA: 79cac5d481c4e4a0ace27bf68a198910201136b9
 
 ![Install](docs/install.png)
 
