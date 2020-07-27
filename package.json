@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "d3": "^5.16.0",
-    "vis-tools": "https://github.com/ContrastingSounds/vis-tools#v1.0.0"
+    "vis-tools": "https://github.com/ContrastingSounds/vis-tools#v1.0.1"
   },
   "scripts": {
     "build": "webpack"
