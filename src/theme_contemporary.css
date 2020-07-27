@@ -13,20 +13,29 @@
     pointer-events: none;
     font-family: sans-serif;
     font-size: 12px;
+    z-index: 2;
 }
 
-#tooltip.hidden {
+.tooltipTable {
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  border: 0px;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.focus {
+  font-weight: bold;
+}
+
+.hidden {
     display: none;
 }
 
-#tooltip p {
-    margin: 0;
-    font-family: sans-serif;
-    font-size: 12px;
-    line-height: 15px;
+.hover {
+  background-color: #ffffbb;
 }
 
-table.reportTable {
+.reportTable {
   font-family: Open Sans,Helvetica,Arial,sans-serif;
   border: 1px solid #CCCCCC; 
   border-collapse: collapse;
@@ -46,21 +55,43 @@ table.reportTable td {
   border-collapse: collapse;
 }
 
-
-.rectElem.animated {
-  font-family: Open Sans,Helvetica,Arial,sans-serif;
-  margin: 4px;
-}
-
 .headerCell {
   border-bottom: 1px solid #000000 !important;
   font-weight: bold;
   padding: 5px;
 }
 
+.indexCell.transposed {
+  font-weight: bold;
+}
+
+.indexCell.transposed.merged {
+  background-color: #ffffff !important;
+}
+
 .rowCell {
   vertical-align: super;
   padding-left: 5px;
+}
+
+.nonNumeric {
+  text-align: left;
+}
+
+.numeric {
+  text-align: right;
+}
+
+.negative {
+  color: red;
+}
+
+.estimate {
+  color: darkgray !important;
+}
+
+.singleIndex {
+  padding-left: 15px !important;
 }
 
 .subtotal {
@@ -79,26 +110,7 @@ table.reportTable td {
   background: #D3D3D3;
 }
 
-.nonNumeric {
-  text-align: left;
-}
-
-.numeric {
-  text-align: right;
-}
-
-.merged {
-  text-align: center !important;
-}
-
-.singleIndex {
-  padding-left: 15px !important;
-}
-
-.negative {
-  color: red;
-}
-
-.estimated {
-  color: darkgray !important;
+.rectElem.animated {
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  margin: 4px;
 }

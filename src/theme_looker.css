@@ -13,17 +13,26 @@
     pointer-events: none;
     font-family: sans-serif;
     font-size: 12px;
+    z-index: 2;
 }
 
-#tooltip.hidden {
+.tooltipTable {
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  border: 0px;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.focus {
+  font-weight: bold;
+}
+
+.hidden {
     display: none;
 }
 
-#tooltip p {
-    margin: 0;
-    font-family: sans-serif;
-    font-size: 12px;
-    line-height: 15px;
+.hover {
+  background-color: #ffffbb;
 }
 
 .reportTable {
@@ -34,12 +43,7 @@
   table-layout: fixed;
 }
 
-.rectElem.animated {
-  font-family: Open Sans,Helvetica,Arial,sans-serif;
-  margin: 4px;
-}
-
-.headerCell {
+th.headerCell {
   background-color: #ccd8e4;
   padding: 5px;
   border-bottom: 1px solid #BDC3C7;
@@ -65,7 +69,15 @@
   border-left: 1px solid #BDC3C7;
 }
 
-.headerCell.dimension.headerRow {
+.headerCell.transposed.dimension {
+  background-color: #e4ecf3;
+}
+
+.headerCell.transposed.dimension.merged {
+  background-color: #e4ecf3 !important;
+}
+
+/* .headerCell.dimension.headerRow {
   background-color: #ccd8e4;
   border-right: 1px solid #BDC3C7;
 }
@@ -78,7 +90,7 @@
 .headerCell.measure.headerRow {
   background-color: #ccd8e4;
   border-left: 1px solid #BDC3C7;
-}
+} */
 
 .rowCell {
   vertical-align: super;
@@ -86,6 +98,45 @@
   border-bottom: 1px solid #BDC3C7; 
 }
 
+.rowCell.merged {
+  background-color: #ffffff !important;
+}
+
+.indexCell.transposed {
+  font-weight: bold;
+}
+
+.indexCell.transposed.pivot {
+  background-color: #ccd8e4;
+}
+
+.indexCell.transposed.dimension {
+  background-color: #e4ecf3;
+}
+
+.indexCell.transposed.measure {
+  background-color: #e4d0bd;
+}
+
+.indexCell.transposed.calculation {
+  background-color: #c9dfc5;
+}
+
+.indexCell.transposed.pivot.merged {
+  background-color: #ccd8e4 !important;
+}
+
+.indexCell.transposed.dimension.merged {
+  background-color: #e4ecf3 !important;
+}
+
+.indexCell.transposed.measure.merged {
+  background-color: #e4d0bd !important;
+}
+
+.indexCell.transposed.calculation.merged {
+  background-color: #c9dfc5 !important;
+}
 
 .nonNumeric {
   text-align: left;
@@ -95,10 +146,17 @@
   text-align: right;
 }
 
-.merged {
-  text-align: center !important;
+.negative {
+  color: red;
 }
 
+.estimate {
+  color: darkgray !important;
+}
+
+.singleIndex {
+  padding-left: 15px !important;
+}
 
 .subtotal {
   font-style: italic;
@@ -116,58 +174,7 @@
   background: #D3D3D3;
 }
 
-.negative {
-  color: red;
-}
-
-.singleIndex {
-  padding-left: 15px !important;
-}
-
-.estimated {
-  color: darkgray !important;
-}
-
-
-/* https://github.com/looker/custom_visualizations_v2/blob/master/src/examples/advanced_table/ag-theme-looker.css */
-
-/* header (dimension/group) background-color: #ccd8e4 */
-/* th.measure background-color: #e4d0bd */
-/* on hover: background-color: #e6e8ec */
-/* odd measure rows (.ag-row-odd) background-color: #f7f2ee */
-/* row number color #c2c2c2 */
-
-/* Looker header cells */
-.ag-theme-looker .ag-header-cell {
-  background-color: #e4ecf3;
-}
-
-.ag-theme-looker .ag-header-cell.measure {
-  background-color: #e4d0bd;
-}
-
-.ag-theme-looker .ag-header-cell.tableCalc {
-  background-color: #c9dfc5;
-}
-
-
-.ag-theme-looker .ag-header-row.pivotHeaderRow {
-  background-color: #ccd8e4;
-}
-
-
-.ag-theme-looker .ag-row-odd {
-  background-color: #f6f8fa; /* default odd row color */
-}
-
-.ag-theme-looker .ag-row-odd .ag-cell.measure {
-  background-color: #f7f2ee;
-}
-
-.ag-theme-looker .ag-row-odd .ag-cell.tableCalc {
-  background-color: #eef7ee;
-}
-
-.ag-theme-looker .ag-row-odd .ag-cell.groupCell {
-  background-color: #f6f8fa;
+.rectElem.animated {
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  margin: 4px;
 }
