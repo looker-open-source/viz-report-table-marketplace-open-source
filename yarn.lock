@@ -3034,9 +3034,9 @@ v8-compile-cache@2.0.3:
   resolved "https://registry.yarnpkg.com/v8-compile-cache/-/v8-compile-cache-2.0.3.tgz#00f7494d2ae2b688cfe2899df6ed2c54bef91dbe"
   integrity sha512-CNmdbwQMBjwr9Gsmohvm0pbL954tJrNzf6gWL3K+QMQf00PF7ERGrEiLgjuU3mKreLC2MeGhUsNV9ybTbLgd3w==
 
-"vis-tools@https://github.com/ContrastingSounds/vis-tools#a8d821c37f5b3da4cf5d5ed15eefda7e754581e9":
+"vis-tools@https://github.com/ContrastingSounds/vis-tools#v1.0.0":
   version "0.1.0"
-  resolved "https://github.com/ContrastingSounds/vis-tools#a8d821c37f5b3da4cf5d5ed15eefda7e754581e9"
+  resolved "https://github.com/ContrastingSounds/vis-tools#71ca3747bb9f34b7abf9ba7994ddc8de0b61f730"
   dependencies:
     ssf "^0.11.0"
 

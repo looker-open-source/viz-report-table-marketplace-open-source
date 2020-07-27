@@ -1,4 +1,4 @@
-const { VisPluginTableModel } = require('../../vis-tools/vis_table_plugin.js')
+const { VisPluginTableModel } = require('vis-tools/vis_table_plugin')
 const d3 = require('./d3loader')
 
 const themes = {
