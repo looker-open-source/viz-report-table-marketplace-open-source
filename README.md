@@ -24,7 +24,7 @@ A table dedicated to single-page, enterprise summary reports. Useful for PDF exp
 
 URL: git://github.com/ContrastingSounds/vis-report_table.git
 
-SHA: 2698e1116b59cbc41bdb14b350085ba07c00b2b0
+SHA: 5aa3619dfdfab56fda3998ab7363b12c596870ea
 
 ![Install](docs/install.png)
 
@@ -63,7 +63,7 @@ SHA: 2698e1116b59cbc41bdb14b350085ba07c00b2b0
 
 A common reporting requirement is grouping fields under headings, and abbreviating column headers when many columns are present. This can be repetitive work! The Report Table vis will pick up tags in the LookML model, with the format `"vis-tools:SETTING:VALUE"`.
 
-The current tag settings available are `heading` and `short_name`.
+The current tag settings available are `heading`, `short_name`, `unit`.
 
     measure: number_of_transactions {
       tags: [
@@ -82,5 +82,6 @@ The current tag settings available are `heading` and `short_name`.
 - Subtotals calculated at the front end are only for simple sums & averages
   - e.g. no Count Distincts, running totals, measures of type "number" with arbitrary calculations
   - The vis will use subtotals from the query response if available
+  - The tooltip will alert users to "estimated" numbers
 
 
