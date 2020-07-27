@@ -2,7 +2,7 @@
 
 A table dedicated to single-page, enterprise summary reports. Useful for PDF exports, report packs, finance reporting, etc. Does not do multi-page tables and lists. Does look good for your year-on-year analysis.
 
-![Example Report](docs/example_report.png)
+![Example Report](docs/marketplace_image.png)
 
 - Quick variance calculations
 - Add subtotals (including column subtotals for tables with two levels of pivot)

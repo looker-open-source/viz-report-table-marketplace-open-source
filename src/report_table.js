@@ -1,4 +1,5 @@
-const { VisPluginTableModel } = require('vis-tools/vis_table_plugin')
+// const { VisPluginTableModel } = require('vis-tools/vis_table_plugin')
+const { VisPluginTableModel } = require('../../vis-tools/vis_table_plugin.js')
 const d3 = require('./d3loader')
 
 const themes = {
@@ -192,7 +193,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         var text = ''
         if (Array.isArray(d.value)) {                     // cell is a list or number_list
           text = !(d.rendered === null) ? d.rendered : d.value.join(' ')
-        } else if (typeof d.value === 'object') {         // cell is a turtle
+        } else if (typeof d.value === 'object' && d.value !== null && typeof d.value.series !== 'undefined') {  // cell is a turtle
           text = null
         } else if (d.html) {                              // cell has HTML defined
           var parser = new DOMParser()
@@ -204,7 +205,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           text = d.value   
         }
         text = String(text)
-        return text ? text.replace('-', '\u2011') : text
+        return text ? text.replace('-', '\u2011') : text  // prevents wrapping on minus sign / hyphen
       }) 
       .attr('rowspan', d => d.rowspan)
       .attr('colspan', d => d.colspan)
