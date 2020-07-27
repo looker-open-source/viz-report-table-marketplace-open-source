@@ -245,8 +245,8 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       .on('mousemove', d => {
         if (dataTable.showTooltip  && d.cell_style.includes('measure')) {
           var tooltip = d3.select('#tooltip')
-          var x = d3.event.clientX < chartCentreX ? d3.event.clientX + 10 : d3.event.clientX - tooltip.node().getBoundingClientRect().width - 10
-          var y = d3.event.clientY < chartCentreY ? d3.event.clientY + 10 : d3.event.clientY - tooltip.node().getBoundingClientRect().height - 10
+          var x = d3.event.clientX < chartCentreX ? d3.event.pageX + 10 : d3.event.pageX - tooltip.node().getBoundingClientRect().width - 10
+          var y = d3.event.clientY < chartCentreY ? d3.event.pageY + 10 : d3.event.pageY - tooltip.node().getBoundingClientRect().height - 10
   
           tooltip
               .style('left', x + 'px')
@@ -322,7 +322,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     var allRects = []
     d3.selectAll('th')
       .select(function(d, i) {
-        if (typeof d.id !== 'undefined') {
+        if (typeof d !== 'undefined') {
           var bbox = this.getBoundingClientRect()
         allRects.push({
           index: i,
@@ -341,7 +341,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 
     d3.selectAll('td')
     .select(function(d, i) {
-      if (typeof d.id !== 'undefined') {
+      if (typeof d !== 'undefined') {
         var bbox = this.getBoundingClientRect()
         allRects.push({
           index: i,
