@@ -18,15 +18,8 @@ A table dedicated to single-page, enterprise summary reports. Useful for PDF exp
 - Themes, including ability to test custom themes using your own css file
 - Use LookML tags to give default abbreviations to popular fields
 - Reduce to a single dimension value for financial-style reporting
-– Drill-to-detail 
+- Drill-to-detail 
 
-## Marketplace Installation
-
-URL: git://github.com/ContrastingSounds/vis-report_table.git
-
-SHA: 1a8e5d52c7bc8824c909c78ddb6f169319965efc
-
-![Install](docs/install.png)
 
 ## Examples
 
