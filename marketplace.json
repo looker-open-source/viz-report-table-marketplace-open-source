@@ -7,12 +7,12 @@
   },
     "constants": {
         "VIS_LABEL": {
-            "label": "Table (Report)",
-            "description": "Table intended for single-page prints and financial reports."
+            "label": "Visualization Label",
+            "description": "This label will appear in the visualization selector in the Looker Explore UI."
         },
         "VIS_ID": {
-            "label": "report_table",
-            "description": "Report Table visualization.",
+            "label": "Visualization ID",
+            "description": "This ID must be unique across all custom visualizations on your instance.",
             "value_constraint": "visualization"
         }
     }
