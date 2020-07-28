@@ -9,12 +9,7 @@ module.exports = {
   devtool: 'source-map',
   module: {
     rules: [
-      // {
-      //   test: /\.css$/,
-      //   use: ["style-loader", "css-loader"],
-      // },
       {
-        // test: /\.lazy\.css$/i,
         test: /\.css$/i,
         use: [
           { loader: 'style-loader', options: { injectType: 'lazyStyleTag' } },
