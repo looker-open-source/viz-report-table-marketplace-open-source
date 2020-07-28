@@ -418,7 +418,14 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 }
 
 looker.plugins.visualizations.add({
-  options: VisPluginTableModel.getCoreConfigOptions(),
+  options: (function() { 
+    let ops = VisPluginTableModel.getCoreConfigOptions();
+
+    //remove custom theme for now
+    ops.theme.values.pop()
+    delete ops.customTheme
+    return ops
+  })(),
 
   create: function(element, config) {
     this.svgContainer = d3.select(element)
@@ -450,8 +457,8 @@ looker.plugins.visualizations.add({
       return
     }
 
-    console.log('queryResponse', queryResponse)
-    console.log('data', data)
+    // console.log('queryResponse', queryResponse)
+    // console.log('data', data)
 
     // INITIALISE THE VIS
 
@@ -474,13 +481,14 @@ looker.plugins.visualizations.add({
     // 2. Register options
     // 3. Build vis
 
+    // console.log(config)
     var dataTable = new VisPluginTableModel(data, queryResponse, config)
     this.trigger('registerOptions', dataTable.getConfigOptions())
     buildReportTable(config, dataTable, updateColumnOrder, element)
 
     // DEBUG OUTPUT AND DONE
-    console.log('dataTable', dataTable)
-    console.log('container', document.getElementById('visContainer').parentNode)
+    // console.log('dataTable', dataTable)
+    // console.log('container', document.getElementById('visContainer').parentNode)
 
     done();
   }

@@ -2,7 +2,7 @@
   "label": "Report Table",
   "category_label": "Plug-ins",
   "branding": {
-    "image_uri": "https://svgsilh.com/png/576797-3f51b5.png",
+    "image_uri": "https://marketplace-api.looker.com/visualization-screenshots/report_table_icon.png",
     "tagline": "Table intended for single-page prints and financial reports"
   },
     "constants": {
