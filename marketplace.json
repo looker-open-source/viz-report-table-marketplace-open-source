@@ -3,7 +3,7 @@
   "category_label": "Plug-ins",
   "branding": {
     "image_uri": "https://marketplace-api.looker.com/visualization-screenshots/report_table_icon.png",
-    "tagline": "Table intended for single-page prints and financial reports"
+    "tagline": "Use the Report Table to easily create single-page prints for easy to read financial reports."
   },
     "constants": {
         "VIS_LABEL": {
