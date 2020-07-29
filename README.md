@@ -83,4 +83,4 @@ You can also apply your own custom styling by supplying a URL to a CSS file in t
 
 ![Theme selector](/docs/custom_theme.png)
 
-In order to serve raw CSS files from your git provider, first pass the URL through [raw.githack.com](https://raw.githack.com/). Please use (this example template)[/src/theme_custom_template.css] to help you get started with your customization.
+In order to serve raw CSS files from your git provider, first pass the URL through [raw.githack.com](https://raw.githack.com/). Please use [this example template](/src/theme_custom_template.css) to help you get started with your customization.
