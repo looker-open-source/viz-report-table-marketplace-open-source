@@ -122,7 +122,7 @@ Great! Marketplace content -- including visualizations -- were designed for cont
 
 **`/src`**: This directory will contain all of the visualization's source code.
 
-**`/src/report_table.js**`: The main source code for the visualization.
+**`/src/report_table.js`**: The main source code for the visualization.
 
 **`/node_modules`**: The directory where all of the modules of code that your project depends on (npm packages) are automatically installed.
 
