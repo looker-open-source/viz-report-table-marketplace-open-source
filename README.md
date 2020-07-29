@@ -77,4 +77,10 @@ The current tag settings available are `heading`, `short_name`, `unit`.
   - The vis will use subtotals from the query response if available
   - The tooltip will alert users to "estimated" numbers
 
+## Using Custom CSS 
 
+You can also apply your own custom styling by supplying a URL to a CSS file in the `Load custom CSS from:` option and selecting `Use custom theme` in the `Theme` tab.
+
+![Theme selector](/docs/custom_theme.png)
+
+In order to serve raw CSS files from your git provider, first pass the URL through [raw.githack.com](https://raw.githack.com/). Please use (this example template)[/src/theme_custom_template.css] to help you get started with your customization.
