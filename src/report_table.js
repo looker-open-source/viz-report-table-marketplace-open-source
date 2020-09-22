@@ -11,6 +11,10 @@ const themes = {
   auto: require('./layout_auto.css')
 }
 
+const fonts = [
+  "https://fonts.googleapis.com/css?family=Noto+Sans+SC"
+]
+
 const BBOX_X_ADJUST = 10
 const BBOX_Y_ADJUST = 10
 
@@ -48,6 +52,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     if (typeof themes[config.layout] !== 'undefined') {
       themes[config.layout].use()
     }
+    fonts.forEach(e => loadStylesheet(e));
   })
 
   const renderTable = async function() {
@@ -444,6 +449,8 @@ looker.plugins.visualizations.add({
       this.trigger('updateConfig', [{ columnOrder: newOrder }])
     }
 
+    
+
     // ERROR HANDLING
 
     this.clearErrors();
@@ -488,7 +495,7 @@ looker.plugins.visualizations.add({
     // DEBUG OUTPUT AND DONE
     // console.log('dataTable', dataTable)
     // console.log('container', document.getElementById('visContainer').parentNode)
-
+    
     done();
   }
 })

@@ -36,7 +36,7 @@
 }
 
 .reportTable {
-  font-family: Open Sans, Helvetica,Arial,sans-serif;
+  font-family: Open Sans,Helvetica,Arial, Noto Sans SC, sans-serif;
   color: #696969;
   border-collapse: collapse;
   border-spacing: 3px;
