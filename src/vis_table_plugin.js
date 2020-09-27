@@ -602,7 +602,7 @@ class VisPluginTableModel {
               switch (header.type) {
                 case 'pivot0':
                 case 'pivot1':
-                  var label = isRowTotal ? '' : pivot_value.data[header.modelField.name]
+                  var label = isRowTotal ? '' : pivot_value.metadata[header.modelField.name].rendered || pivot_value.metadata[header.modelField.name].value
                   if (isRowTotal && header.type.startsWith('pivot') && header.type === 'pivot' + (this.pivot_fields.length - 1)) {
                     label = 'Row Total'
                   }
