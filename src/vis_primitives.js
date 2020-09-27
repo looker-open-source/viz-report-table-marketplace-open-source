@@ -112,32 +112,6 @@ class HeaderCell {
 
     this.align = align ? align : this.column.modelField.is_numeric ? 'right' : 'left'
 
-    // if (column.vis.sortColsBy === 'pivots') {
-    //   if (type.startsWith 'pivot') {
-    //     this.align = 'center'
-    //   }
-    // } else {
-
-    // }
-
-    // if (this.column.modelField.type === 'dimension') {
-    //   if (type === 'pivot') {
-    //     this.align = 'right'
-    //   } else if (type === 'heading') {
-    //     this.align = 'center'
-    //   } else {
-    //     this.align = modelField.align || 'left'
-    //   }
-    // } else if (this.column.modelField.type === 'measure') {
-    //   if (type === 'field' && (column.vis.pivot_fields.length === 0 || column.vis.sortColsBy === 'getSortByPivots' )) {
-    //     this.align = modelField.align || 'right'
-    //   } else {
-    //     this.align = 'center'
-    //   }
-    // } else {
-    //   this.align = align
-    // }
-
     this.modelField = modelField
     this.pivotData = pivotData
 
