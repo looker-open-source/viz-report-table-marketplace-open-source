@@ -348,13 +348,16 @@ class Column {
   }
 }
 
-exports.newArray = newArray
-exports.ModelDimension = ModelDimension
-exports.ModelPivot = ModelPivot
-exports.ModelMeasure = ModelMeasure
-exports.CellSeries = CellSeries
-exports.ColumnSeries = ColumnSeries
-exports.HeaderCell = HeaderCell
-exports.DataCell = DataCell
-exports.Row = Row
-exports.Column = Column
+
+export {
+  newArray,
+  ModelDimension,
+  ModelPivot,
+  ModelMeasure,
+  CellSeries,
+  ColumnSeries,
+  HeaderCell,
+  DataCell,
+  Row,
+  Column
+};

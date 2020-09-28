@@ -4,7 +4,7 @@ import { select, selectAll, event } from "d3-selection";
 import { transition } from "d3-transition";
 import { drag } from "d3-drag";
 
-export {
+export default {
   select,
   selectAll,
   event,

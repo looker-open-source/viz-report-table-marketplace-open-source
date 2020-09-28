@@ -1,5 +1,5 @@
 import { VisPluginTableModel } from './vis_table_plugin'
-const d3 = require('./d3loader')
+import d3 from './d3loader'
 
 const themes = {
   traditional: require('./theme_traditional.css'),
@@ -11,7 +11,8 @@ const themes = {
 }
 
 const fonts = [
-  "https://fonts.googleapis.com/css?family=Noto+Sans+SC"
+  "https://fonts.googleapis.com/css?family=Noto+Sans+SC",
+  "https://fonts.googleapis.com/css?family=Noto+Sans+TC"
 ]
 
 const BBOX_X_ADJUST = 10
@@ -51,7 +52,6 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     if (typeof themes[config.layout] !== 'undefined') {
       themes[config.layout].use()
     }
-    fonts.forEach(e => loadStylesheet(e));
   })
 
   const renderTable = async function() {
@@ -490,6 +490,7 @@ looker.plugins.visualizations.add({
     var dataTable = new VisPluginTableModel(data, queryResponse, config)
     this.trigger('registerOptions', dataTable.getConfigOptions())
     buildReportTable(config, dataTable, updateColumnOrder, element)
+    if(details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
     // DEBUG OUTPUT AND DONE
     // console.log('dataTable', dataTable)
