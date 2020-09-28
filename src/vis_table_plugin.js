@@ -1,6 +1,15 @@
 import SSF from "ssf"
-
-import { ModelDimension, ModelPivot, ModelMeasure, CellSeries, ColumnSeries, Row, Column, DataCell, HeaderCell } from './vis_primitives'
+import { 
+  ModelDimension, 
+  ModelPivot, 
+  ModelMeasure, 
+  CellSeries, 
+  ColumnSeries, 
+  Row, 
+  Column, 
+  DataCell, 
+  HeaderCell 
+} from './vis_primitives'
 
 const tableModelCoreOptions = {
   theme: {
