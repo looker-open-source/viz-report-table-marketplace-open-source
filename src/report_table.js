@@ -1,5 +1,4 @@
-const { VisPluginTableModel } = require('vis-tools/vis_table_plugin')
-// const { VisPluginTableModel } = require('../../vis-tools/vis_table_plugin.js') // dev only
+import { VisPluginTableModel } from './vis_table_plugin'
 const d3 = require('./d3loader')
 
 const themes = {
@@ -108,7 +107,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       })
     
     if (dataTable.minWidthForIndexColumns) {
-      columnTextWidths = {}
+      var columnTextWidths = {}
 
       if (!dataTable.transposeTable) {
         dataTable.column_series.filter(cs => !cs.column.hide).filter(cs => cs.column.modelField.type === 'dimension').forEach(cs => {
