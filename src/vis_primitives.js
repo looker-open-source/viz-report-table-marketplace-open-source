@@ -17,7 +17,11 @@ class ModelField {
     this.vis = vis
     this.name = queryResponseField.name
     this.view = queryResponseField.view_label || ''
-    this.label = queryResponseField.field_group_variant || queryResponseField.label_short || queryResponseField.label
+    if (queryResponseField.label_from_parameter === null) {
+      this.label = queryResponseField.field_group_variant || queryResponseField.label_short || queryResponseField.label
+    } else {
+      this.label = queryResponseField.label_short || queryResponseField.label
+    }
     this.is_numeric = typeof queryResponseField.is_numeric !== 'undefined' ? queryResponseField.is_numeric : false
     this.is_array = ['list', 'number_list', 'location', 'tier'].includes(queryResponseField.type)
     this.value_format = queryResponseField.value_format ? queryResponseField.value_format : ''
