@@ -1279,10 +1279,22 @@ class VisPluginTableModel {
           })
           let groupId = ['CollapsibleSubtotal', ...group].join('|')
           for (const [field, cell] of Object.entries(subtotals_entry)) {
-            this.subtotalGroups[groupId].row.data[field] = new DataCell({
-              ...cell,
-              ...{ cell_style: ["total", "subtotal"] }
-            })
+            console.log('subtotals_entry:', typeof cell.value, field, cell)
+            if (typeof cell.value !== 'undefined') {
+              this.subtotalGroups[groupId].row.data[field] = new DataCell({
+                ...cell,
+                ...{ cell_style: ["total", "subtotal"] }
+              })
+            } else {
+              for (const [pivot, pivotCell] of Object.entries(cell)) {
+                let key = [pivot, field].join('.')
+                this.subtotalGroups[groupId].row.data[key] = new DataCell({
+                  ...pivotCell,
+                  ...{ cell_style: ["total", "subtotal"] }
+                })
+              }
+            }
+            
           }
         })
       }
@@ -1368,7 +1380,8 @@ class VisPluginTableModel {
     for (const [key, subtotalGroup] of Object.entries(this.subtotalGroups)) {
       subtotalGroup.row.data['$$$_index_$$$'] = new DataCell({ cell_style: ["total", "subtotal"] })
       this.columns.forEach(column => {
-        // console.log('column:', column.id, 'subtotalGroup column:', subtotalGroup.row.data[column.id] )
+        console.log('column:', column)
+        console.log('subtotalGroup.row.data:', subtotalGroup.row.data)
         let cell = subtotalGroup.row.data[column.id]
         cell.colid = column.id
         cell.rowid = subtotalGroup.id
