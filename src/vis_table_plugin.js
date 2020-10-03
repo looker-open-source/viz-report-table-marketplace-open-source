@@ -1671,7 +1671,6 @@ class VisPluginTableModel {
       var depth = Math.max(a.sort.length, b.sort.length)
       for (var i = 0; i < depth; i++) {
           var field = typeof a.sort[i].name !== 'undefined' ? a.sort[i].name : ''
-          console.log('this', this)
           var sort = dataTable.sorts.find(item => item.name === field)
           var desc = typeof sort !== 'undefined' ? sort.desc : false
 

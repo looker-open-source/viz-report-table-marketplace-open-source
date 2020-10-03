@@ -462,8 +462,8 @@ looker.plugins.visualizations.add({
       return
     }
 
-    console.log('queryResponse', queryResponse)
-    console.log('data', data)
+    // console.log('queryResponse', queryResponse)
+    // console.log('data', data)
 
     // INITIALISE THE VIS
 
@@ -493,7 +493,7 @@ looker.plugins.visualizations.add({
     if(details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
     // DEBUG OUTPUT AND DONE
-    console.log('dataTable', dataTable)
+    // console.log('dataTable', dataTable)
     // console.log('container', document.getElementById('visContainer').parentNode)
     
     done();
