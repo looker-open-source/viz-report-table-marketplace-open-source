@@ -24,7 +24,7 @@ table.reportTable th {
   max-width: 0px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: break-word;
 }
 
 table.reportTable td {
