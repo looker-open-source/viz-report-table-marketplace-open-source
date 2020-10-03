@@ -71,7 +71,7 @@ class ModelDimension extends ModelField {
   constructor({ vis, queryResponseField }) {
     super({ vis, queryResponseField })
 
-    this.type = 'dimension'    
+    this.type = 'dimension'
     this.align = 'left'
   }
 }
@@ -186,9 +186,10 @@ class ColumnSeries {
 }
 
 class DataCell {
-  constructor({ value, rendered = null, html = null, links = [], cell_style = [], align = 'right', rowspan = 1, colspan = 1, rowid = '', colid = '' } = {})
+  constructor({ value, sort_value = undefined, rendered = null, html = null, links = [], cell_style = [], align = 'right', rowspan = 1, colspan = 1, rowid = '', colid = '' } = {})
     {
       this.value = value
+      this.sort_value = sort_value
       this.rendered = rendered
       this.html = html
       this.links = links
