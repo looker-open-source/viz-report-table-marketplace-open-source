@@ -250,6 +250,7 @@ class VisPluginTableModel {
     this.showHighlight = config.showHighlight || false
     this.genericLabelForSubtotals = config.genericLabelForSubtotals || false
 
+    this.sorts = queryResponse.sorts
     this.hasTotals = typeof queryResponse.totals_data !== 'undefined' ? true : false
     this.calculateOthers = typeof queryResponse.truncated !== 'undefined' ? queryResponse.truncated && config.calculateOthers : false 
     this.hasSubtotals = typeof queryResponse.subtotals_data !== 'undefined' ? true : false
@@ -1665,15 +1666,28 @@ class VisPluginTableModel {
     })
   }
 
-  compareSortArrays (a, b) {
-    var depth = Math.max(a.sort.length, b.sort.length)
-    for(var i = 0; i < depth; i++) {
-        var a_value = typeof a.sort[i] !== 'undefined' ? a.sort[i].value : 0
-        var b_value = typeof b.sort[i] !== 'undefined' ? b.sort[i].value : 0
-        if (a_value > b_value) { return 1 }
-        if (a_value < b_value) { return -1 }
+  compareSortArrays (dataTable) {
+    return function(a, b) {
+      var depth = Math.max(a.sort.length, b.sort.length)
+      for (var i = 0; i < depth; i++) {
+          var field = typeof a.sort[i].name !== 'undefined' ? a.sort[i].name : ''
+          console.log('this', this)
+          var sort = dataTable.sorts.find(item => item.name === field)
+          var desc = typeof sort !== 'undefined' ? sort.desc : false
+
+          var a_value = typeof a.sort[i] !== 'undefined' ? a.sort[i].value : 0
+          var b_value = typeof b.sort[i] !== 'undefined' ? b.sort[i].value : 0
+
+          if (desc) {
+            if (a_value < b_value) { return 1 }
+            if (a_value > b_value) { return -1 }
+          } else {
+            if (a_value > b_value) { return 1 }
+            if (a_value < b_value) { return -1 }
+          }
+      }
+      return -1
     }
-    return -1
   }
   /**
    * Sorts the rows of data, then updates vertical cell merge 
@@ -1684,7 +1698,7 @@ class VisPluginTableModel {
    * 3. Row Value (currently based only on original row index from the Looker data object)
    */
   sortData () {
-    this.data.sort(this.compareSortArrays)
+    this.data.sort(this.compareSortArrays(this))
     if (this.spanRows) { this.setRowSpans() }
   }
 
@@ -1706,7 +1720,7 @@ class VisPluginTableModel {
    * Note that column sort values can be over-riden by manual drag'n'drop 
    */
   sortColumns () {
-    this.columns.sort(this.compareSortArrays)
+    this.columns.sort(this.compareSortArrays(this))
   }
 
   /**
