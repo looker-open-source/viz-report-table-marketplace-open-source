@@ -270,6 +270,7 @@ class VisPluginTableModel {
     this.showHighlight = config.showHighlight || false
     this.genericLabelForSubtotals = config.genericLabelForSubtotals || false
 
+    this.sorts = queryResponse.sorts
     this.hasTotals = typeof queryResponse.totals_data !== 'undefined' ? true : false
     this.calculateOthers = typeof queryResponse.truncated !== 'undefined' ? queryResponse.truncated && config.calculateOthers : false 
     this.hasSubtotals = typeof queryResponse.subtotals_data !== 'undefined' ? true : false
@@ -549,7 +550,7 @@ class VisPluginTableModel {
 
       var column = new Column(newDimension.name, this, newDimension) 
       column.idx = col_idx
-      column.sort.push(0)
+      column.sort.push({name: 'section', value: 0})
       this.headers.forEach(header => {
         switch (header.type) {
           case 'pivot0':
@@ -558,14 +559,14 @@ class VisPluginTableModel {
             var headerCell = new HeaderCell({ column: column, type: header.type, modelField: pivotField })
             headerCell.label = '' // TODO: Decide how (if) it makes sense to add pivot labels at top of dimension columns
             column.levels.push(headerCell)
-            column.sort.push(0)
+            column.sort.push({name: header.type, value: 0})
             break
           case 'heading':
             column.levels.push(new HeaderCell({ column: column, type: 'heading', modelField: newDimension }))
             break
           case 'field':
             column.levels.push(new HeaderCell({ column: column, type: 'field', modelField: newDimension }))
-            column.sort.push(col_idx)
+            column.sort.push({name: 'col_idx', value: col_idx})
             break
         }
       })
@@ -628,7 +629,7 @@ class VisPluginTableModel {
             column.isRowTotal = isRowTotal
             column.pivot_key = pivot_value.key
             column.idx = col_idx
-            column.sort.push(isRowTotal ? 2 : 1)
+            column.sort.push({name: 'section', value: isRowTotal ? 2 : 1})
 
             var level_sort_values = []
             this.headers.forEach(header => {
@@ -647,9 +648,9 @@ class VisPluginTableModel {
                   }))
                   level_sort_values.push(pivot_value.sort_values[header.modelField.name])
                   if (column.pivoted) {
-                    column.sort.push(pivot_value.sort_values[header.modelField.name])
+                    column.sort.push({name: header.modelField.name, value: pivot_value.sort_values[header.modelField.name]})
                   } else {
-                    column.sort.push(0)
+                    column.sort.push({name: header.modelField.name, value: 0})
                   }
                   break
 
@@ -659,7 +660,7 @@ class VisPluginTableModel {
 
                 case 'field':
                   column.levels.push(new HeaderCell({ column: column, type: 'field', modelField: measure}))
-                  column.sort.push(m)
+                  column.sort.push({name: 'm', value: m})
                   break;
               }
             })
@@ -673,7 +674,7 @@ class VisPluginTableModel {
       // noticeably simpler for flat tables!
       this.measures.forEach(measure => {
         var column = new Column(measure.name, this, measure)
-        column.sort.push(1)
+        column.sort.push({name: 'section', value: 1})
         column.idx = col_idx
 
         try {
@@ -695,7 +696,7 @@ class VisPluginTableModel {
 
             case 'field':
               column.levels.push(new HeaderCell({ column: column, type: 'field', modelField: measure}))
-              column.sort.push(column.pos)
+              column.sort.push({name: 'column.pos', value: column.pos})
               break;
           }
         })
@@ -730,14 +731,14 @@ class VisPluginTableModel {
             case 'pivot0':
             case 'pivot1':
               column.levels.push(new HeaderCell({ column: column, type: header.type, modelField: { label: '' } }))
-              column.sort.push(1)
+              column.sort.push({name: 'section', value: 1})
               break
             case 'heading':
               column.levels.push(new HeaderCell({ column: column, type: 'heading', modelField: meas }))
               break
             case 'field':
               column.levels.push(new HeaderCell({ column: column, type: 'field', modelField: meas }))
-              column.sort.push(col_idx)
+              column.sort.push({name: 'col_idx', value: col_idx})
               break
           }
         })
@@ -816,7 +817,7 @@ class VisPluginTableModel {
     var dimension = this.dimensions[this.dimensions.length - 1]
     var dim_config_setting = this.config['hide|' + dimension.name]
     var column = new Column('$$$_index_$$$', this, dimension)
-    column.sort.push(-1)
+    column.sort.push({name: 'section', value: -1})
     column.hide = dim_config_setting === true ? dim_config_setting : false
 
     this.headers.forEach(header => {
@@ -827,14 +828,14 @@ class VisPluginTableModel {
           var headerCell = new HeaderCell({ column: column, type: header.type, modelField: pivotField })
           headerCell.label = ''  // TODO: Decide how (if) it makes sense to add pivot labels at top of dimension columns
           column.levels.push(headerCell)
-          column.sort.push(0)
+          column.sort.push({name: header.type, value: 0})
           break
         case 'heading':
           column.levels.push(new HeaderCell({ column: column, type: 'heading', modelField: dimension }))
           break
         case 'field':
           column.levels.push(new HeaderCell({ column: column, type: 'field', modelField: dimension }))
-          column.sort.push(0)
+          column.sort.push({name: column.id, value: 0})
           break
       }
     })
@@ -914,7 +915,11 @@ class VisPluginTableModel {
         })
       }
 
-      row.sort = [0, 0, i]
+      row.sort = [
+        {name: 'section', value: 0}, 
+        {name: 'unknown', value: 0},
+        {name: 'original_row', value: i}
+      ]
       this.data.push(row)
     })
   }
@@ -1025,7 +1030,11 @@ class VisPluginTableModel {
         totalsRow.data[this.firstVisibleDimension].align = 'left'
       }
     }
-    totalsRow.sort = [1, 0, 0]
+    totalsRow.sort = [
+      {name: 'section', value: 1},
+      {name: 'unknown', value: 0},
+      {name: 'original_row', value: Number.POSITIVE_INFINITY}
+    ]
     totalsRow.originalRow = Number.POSITIVE_INFINITY
     this.data.push(totalsRow)
 
@@ -1089,7 +1098,11 @@ class VisPluginTableModel {
           othersRow.data[this.firstVisibleDimension].align = 'left'
         }
       }
-      othersRow.sort = [1, -1, -1] 
+      othersRow.sort = [
+        {name: 'section', value: 1},
+        {name: 'unknown', value: -1},
+        {name: 'original_row', value: -1}
+      ] 
       othersRow.originalRow = 999999
       this.data.push(othersRow)
     }
@@ -1559,6 +1572,147 @@ class VisPluginTableModel {
     }
   }
 
+  /**
+   * Generates subtotals values
+   * 
+   * 1. Build array of subtotal groups
+   *    - Based on the joined values of each row's dimensions (up to the configured subtotal depth)
+   *    - Update each row's sort value with its subtotal group number
+   * 2. Generate data rows
+   *    - For each subtotal group, create a new Row
+   *      - For each Column
+   *        - Set the style
+   *        - In the index dimension and the firstVisibleDimension, put the subtotal label
+   *        - If it's a measure 
+   *          - Count & total all rows of type 'line_item'
+   *          - Use total or average value based on calculation type
+   *          - Set as blank if it's a string type
+   *            // This is a gap in functionality. Ideally subtotal would replicate the logic that generated
+   *            // the string values in the line items.
+   */
+  addSubTotals () { 
+    var depth = this.addSubtotalDepth
+
+    // BUILD GROUPINGS / SORT VALUES
+    var subTotalGroups = []
+    var latest_group = []
+    this.data.forEach((row, i) => {    
+      if (row.type !== 'total') {
+        var group = []
+        for (var g = 0; g < depth; g++) {
+          var dim = this.dimensions[g].name
+          group.push(row.data[dim].value)
+        }
+        if (group.join('|') !== latest_group.join('|')) {
+          subTotalGroups.push(group)
+          latest_group = group
+        }
+        row.sort = [
+          {name: 'section', value: 0},
+          {name: 'subtotal', value: subTotalGroups.length-1},
+          {name: 'original_row', value: i}
+        ]
+      }
+      
+      if (row.id === 'Others' && row.type === 'line_item') {
+        row.hide = true
+      }
+    })
+
+    // GENERATE DATA ROWS FOR SUBTOTALS
+    subTotalGroups.forEach((subTotalGroup, s) => {
+      var subtotalRow = new Row('subtotal')
+      var dims = subTotalGroup.join('|') ? subTotalGroup.join('|') : 'Others'
+      subtotalRow.id = ['Subtotal', dims].join('|')
+
+      this.columns.forEach(column => {
+        if (column.modelField.type === 'dimension') {
+          if ([this.firstVisibleDimension, '$$$_index_$$$'].includes(column.id)) {
+            var rowspan = 1
+            var colspan = this.useIndexColumn ? 1 : this.dimensions.filter(d => !d.hide).length
+          } else {
+            var rowspan = -1
+            var colspan = -1
+          }
+          var cell_style = column.modelField.is_numeric ? ['total', 'subtotal', 'numeric', 'dimension'] : ['total', 'subtotal', 'nonNumeric', 'dimension']
+          var cell = new DataCell({ 
+            'cell_style': cell_style, 
+            align: column.modelField.is_numeric ? 'right' : 'left', 
+            rowspan: rowspan, 
+            colspan: colspan,
+            colid: column.id,
+            rowid: subtotalRow.id
+          })
+          if (column.id === '$$$_index_$$$' || column.id === this.firstVisibleDimension ) {
+            if (this.genericLabelForSubtotals) {
+              cell.value = 'Subtotal'
+              cell.rendered = 'Subtotal'
+            } else {
+              cell.value = subTotalGroup.join(' | ') ? subTotalGroup.join(' | ') : 'Others'
+              cell.rendered = cell.value
+            }
+          }
+          subtotalRow.data[column.id] = cell
+        }
+
+        if (column.modelField.type == 'measure') {
+          var cell_style = column.modelField.is_numeric ? ['total', 'subtotal', 'numeric', 'measure'] : ['total', 'subtotal', 'nonNumeric', 'measure']
+          var align = column.modelField.is_numeric ? 'right' : 'left'
+          if (Object.entries(this.subtotals_data).length > 0 && !subtotalRow.id.startsWith('Subtotal|Others')) { // if subtotals already provided in Looker's queryResponse
+            var cell = new DataCell({ 
+              ...subtotalRow.data[column.id], 
+              ...this.subtotals_data[subtotalRow.id].data[column.id],
+              ...{ cell_style: cell_style, align: align, colid: column.id, rowid: subtotalRow.id }
+            })
+            subtotalRow.data[column.id] = cell
+          } else {
+            var subtotal_value = 0
+            var subtotal_items = 0
+            var rendered = ''
+            this.data.forEach(data_row => {
+              if (data_row.type == 'line_item' && data_row.sort[1].value == s) { // data_row.sort[1].value == s checks whether its part of the current subtotal group
+                var value = data_row.data[column.id].value
+                if (Number.isFinite(value)) {
+                  subtotal_value += value
+                  subtotal_items++
+                }
+              } 
+            })
+            
+            if (column.modelField.calculation_type === 'average' && subtotal_items > 0) {
+              subtotal_value = subtotal_value / subtotal_items
+            }
+            if (subtotal_value) {
+              var unit = this.config.useUnit && column.modelField.unit !== '#'  ? column.modelField.unit : ''
+              rendered = column.modelField.value_format === '' ? subtotal_value.toString() : unit + SSF.format(column.modelField.value_format, subtotal_value)
+            }
+            if (column.modelField.calculation_type === 'string') {
+              subtotal_value = ''
+              rendered = ''
+            } 
+
+            var cell = new DataCell({
+              value: subtotal_value,
+              rendered: rendered,
+              cell_style: cell_style,
+              align: align,
+              colid: column.id,
+              rowid: subtotalRow.id
+            })
+            subtotalRow.data[column.id] = cell
+          }
+        }
+      })
+      subtotalRow.sort = [
+        {name: 'section', value: 0},
+        {name: 'subtotal', value: s}, 
+        {name: 'original_row', value: 9999}
+      ]
+      this.data.push(subtotalRow)
+    })
+    this.sortData()
+    this.hasSubtotals = true
+  }
 
   /**
    * Generates new column subtotals, where 2 pivot levels have been used
@@ -1617,7 +1771,7 @@ class VisPluginTableModel {
 
     // USE THE NEW DEFINITIONS TO ADD SUBTOTAL COLUMNS TO TABLE.COLUMNS
     subtotalColumns.forEach((subtotalColumn, s) => {
-      subtotalColumn.sort.push(1)
+      subtotalColumn.sort.push({name: 'section', value: 1})
 
       this.headers.forEach((header, i) => {
         switch (header.type) {
@@ -1627,11 +1781,11 @@ class VisPluginTableModel {
               column: subtotalColumn, 
               type: header.type, 
               modelField: {
-                name: this.pivot_fields[0].name,
+                name: header.modelField.name,
                 label: subtotalColumn.subtotal_data.pivot,
               }
             }))
-            subtotalColumn.sort.push(sort_value_from_column)
+            subtotalColumn.sort.push({name: 'sort_value_from_column', value: sort_value_from_column})
             break
 
           case 'pivot1':
@@ -1640,7 +1794,7 @@ class VisPluginTableModel {
               label: 'Subtotal',
             }}))
             var subtotalSortValue = typeof this.pivot_values[0].sort_values[header.modelField.name] === 'string' ? 'ZZZZ' : 99999999
-            subtotalColumn.sort.push(subtotalSortValue)
+            subtotalColumn.sort.push({name: 'subtotalSortValue', value: subtotalSortValue})
             break
 
           case 'heading':
@@ -1649,7 +1803,7 @@ class VisPluginTableModel {
 
           case 'field':
             subtotalColumn.levels.push(new HeaderCell({ column: subtotalColumn, type: 'field', modelField: subtotalColumn.modelField}))
-            subtotalColumn.sort.push(subtotalColumn.subtotal_data.measure_idx)
+            subtotalColumn.sort.push({name: 'measure.idx', value: subtotalColumn.subtotal_data.measure_idx})
             break
         }
       })
@@ -1748,13 +1902,13 @@ class VisPluginTableModel {
       column.variance_type = 'absolute'
       column.idx = baseline.idx + 1
       column.pos = baseline.pos + 1
-      column.sort = [...baseline.sort, 1]
+      column.sort = [...baseline.sort, {name: 'variance_absolute', value: 1}]
       column.hide = !this.config['var_num|' + baseline.modelField.name]
     } else {
       column.variance_type = 'percentage'
       column.idx = baseline.idx + 2
       column.pos = baseline.pos + 2
-      column.sort = [...baseline.sort, 2]
+      column.sort = [...baseline.sort, {name: 'variance_percentage', value: 2}]
       column.unit = '%'
       column.hide = !this.config['var_pct|' + baseline.modelField.name]
     }
@@ -1768,7 +1922,7 @@ class VisPluginTableModel {
     column.pivot_key = baseline.pivot_key
 
     if (this.groupVarianceColumns) {    
-        column.sort[0] = 1.5
+        column.sort[0].value = 1.5
     }
 
     this.headers.forEach((header, i) => {
@@ -1892,22 +2046,34 @@ class VisPluginTableModel {
     })
   }
 
-  compareSortArrays (a, b) {
-    var depth = Math.max(a.sort.length, b.sort.length)
-    for(var i = 0; i < depth; i++) {
-        var a_value = typeof a.sort[i] !== 'undefined' ? a.sort[i] : 0
-        var b_value = typeof b.sort[i] !== 'undefined' ? b.sort[i] : 0
-        if (a_value > b_value) { return 1 }
-        if (a_value < b_value) { return -1 }
+  compareSortArrays (dataTable) {
+    return function(a, b) {
+      var depth = Math.max(a.sort.length, b.sort.length)
+      for (var i = 0; i < depth; i++) {
+          var field = typeof a.sort[i].name !== 'undefined' ? a.sort[i].name : ''
+          var sort = dataTable.sorts.find(item => item.name === field)
+          var desc = typeof sort !== 'undefined' ? sort.desc : false
+
+          var a_value = typeof a.sort[i] !== 'undefined' ? a.sort[i].value : 0
+          var b_value = typeof b.sort[i] !== 'undefined' ? b.sort[i].value : 0
+
+          if (desc) {
+            if (a_value < b_value) { return 1 }
+            if (a_value > b_value) { return -1 }
+          } else {
+            if (a_value > b_value) { return 1 }
+            if (a_value < b_value) { return -1 }
+          }
+      }
+      return -1
     }
-    return -1
   }
 
   /**
    * Sorts the rows of data, then updates vertical cell merge 
    */
   sortData () {
-    this.data.sort(this.compareSortArrays)
+    this.data.sort(this.compareSortArrays(this))
     if (this.spanRows) { this.setRowSpans() }
   }
 
@@ -1929,7 +2095,7 @@ class VisPluginTableModel {
    * Note that column sort values can be over-riden by manual drag'n'drop 
    */
   sortColumns () {
-    this.columns.sort(this.compareSortArrays)
+    this.columns.sort(this.compareSortArrays(this))
   }
 
   /**
@@ -2097,7 +2263,6 @@ class VisPluginTableModel {
   }
 
   transposeColumnsIntoRows () { 
-    console.log('transposeColumnsIntoRows()...')
     this.columns.filter(c => c.modelField.type === 'measure').forEach(column => {
       var transposedData = {}
 
@@ -2141,7 +2306,7 @@ class VisPluginTableModel {
           transposedData[row.id].id = [sourceCell.colid, sourceCell.rowid].join('.')
           transposedData[row.id]['cell_style'].push('transposed')
         } else {
-          console.log('row data does not exist for', column.id)
+          // console.log('row data does not exist for', column.id)
         }
       })
 
