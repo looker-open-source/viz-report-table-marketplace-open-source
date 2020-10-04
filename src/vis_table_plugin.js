@@ -88,6 +88,11 @@ const tableModelCoreOptions = {
   columnOrder: {},
 
   collapseSubtotals: {},
+
+  collapseAll: {
+    type: 'boolean',
+    default: false,
+  },
   
   rowSubtotals: {
     section: "Table",
@@ -226,11 +231,12 @@ class VisPluginTableModel {
    * @param {*} queryResponse 
    * @param {*} config 
    */
-  constructor(lookerData, queryResponse, config) {
+  constructor(lookerData, queryResponse, config, updateConfig) {
     
 
     this.visId = 'report_table'
     this.config = config
+    this.updateConfig = updateConfig
 
     this.headers = []
     this.dimensions = []
@@ -1589,20 +1595,31 @@ class VisPluginTableModel {
 
   collapseAndExpand () {
     console.log('collapseAndExpand()...')
+    let collapseAll = true
     const collapseGroup = (row) => {
       row.children.forEach(child => {
-        console.log('hide:', child)
         child.hide = true
         collapseGroup(child)
       })
     }
 
     for (const [subtotalGroup, collapse] of Object.entries(this.config.collapseSubtotals)) {
-      if (collapse) {
-        console.log('collapse:', subtotalGroup)
+      var isCollapsed = collapse
+      if (!isCollapsed && this.config.collapseAll) {
+        isCollapsed = true
+        let collapseConfig = this.config.collapseSubtotals
+        collapseConfig[subtotalGroup] = isCollapsed 
+        this.updateConfig('collapseSubtotals', collapseConfig)
+      }
+
+      if (isCollapsed) {
         collapseGroup(this.subtotalGroups[subtotalGroup].row)
+      } else {
+        collapseAll = false
       }
     }
+
+    this.updateConfig('collapseAll', collapseAll)
   }
 
   /**
@@ -2436,7 +2453,7 @@ class VisPluginTableModel {
    * @param {*} to 
    * @param {*} callback 
    */
-  moveColumns(from, to, updateConfig) {
+  moveColumns(from, to) {
     var config = this.config
     if (from != to) {
       var shift = to - from
@@ -2456,7 +2473,7 @@ class VisPluginTableModel {
           col_order[col.id] = col.pos
         } 
       })
-      updateConfig('columnOrder', col_order)
+      this.updateConfig('columnOrder', col_order)
     }
   }
 

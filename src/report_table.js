@@ -37,7 +37,7 @@ const loadStylesheet = function(link) {
 };
 
 
-const buildReportTable = function(config, dataTable, updateConfig, element) {
+const buildReportTable = function(config, dataTable, element) {
   var dropTarget = null;
   const bounds = element.getBoundingClientRect()
   const chartCentreX = bounds.x + (bounds.width / 2);
@@ -102,7 +102,7 @@ const buildReportTable = function(config, dataTable, updateConfig, element) {
           var movingIdx = Math.floor(movingColumn.pos/10) * 10
           var targetIdx = Math.floor(targetColumn.pos/10) * 10
           // console.log('DRAG FROM', movingColumn, movingIdx, 'TO', targetColumn, targetIdx)
-          dataTable.moveColumns(movingIdx, targetIdx, updateConfig)
+          dataTable.moveColumns(movingIdx, targetIdx)
         }
       })
     
@@ -234,11 +234,28 @@ const buildReportTable = function(config, dataTable, updateConfig, element) {
           colElement.classList.toggle('hover')
         }
         
+        var x = d3.event.clientX
+        var y = d3.event.clientY
+
         if (dataTable.showTooltip && d.cell_style.includes('measure')) {
-          var x = d3.event.clientX
-          var y = d3.event.clientY
           var html = dataTable.getCellToolTip(d.rowid, d.colid)
   
+          d3.select("#tooltip")
+            .style('left', x + 'px')
+            .style('top', y + 'px')                   
+            .html(html)
+          
+          d3.select("#tooltip").classed("hidden", false);
+        } else if (d.cell_style.includes('subtotal') && d.cell_style.includes('dimension')) {
+          html = '<div>Collapse/Expand</div>'
+          d3.select("#tooltip")
+            .style('left', x + 'px')
+            .style('top', y + 'px')                   
+            .html(html)
+          
+          d3.select("#tooltip").classed("hidden", false);
+        } else if (d.cell_style.includes('total') && d.cell_style.includes('dimension')) {
+          html = '<div>Collapse/Expand All</div>'
           d3.select("#tooltip")
             .style('left', x + 'px')
             .style('top', y + 'px')                   
@@ -269,22 +286,41 @@ const buildReportTable = function(config, dataTable, updateConfig, element) {
           colElement.classList.toggle('hover')
         }
         
-        if (dataTable.showTooltip  && d.cell_style.includes('measure')) {
+        let hideToolTip = (dataTable.showTooltip  && d.cell_style.includes('measure'))
+          || (d.cell_style.includes('subtotal') && d.cell_style.includes('dimension'))
+          || (d.cell_style.includes('total') && d.cell_style.includes('dimension'))
+
+        if (hideToolTip) {
           d3.select("#tooltip").classed("hidden", true)
         }
       })
       .on('click', d => {
         if (d.cell_style.includes('subtotal') && d.cell_style.includes('dimension')) {
-          console.log('Toggle ', d.rowid)
           var collapseConfig = dataTable.config.collapseSubtotals
           collapseConfig[d.rowid] = !collapseConfig[d.rowid] 
-          updateConfig('collapseSubtotals', collapseConfig)
+          if (!collapseConfig[d.rowid]) {
+            dataTable.updateConfig('collapseAll', false)
+          }
+          dataTable.updateConfig('collapseSubtotals', collapseConfig)
+        } else if (d.cell_style.includes('total') && d.cell_style.includes('dimension')) {
+          var isFullyCollapsed = dataTable.config.collapseAll
+          if (isFullyCollapsed) {
+            var collapseConfig = {}
+            for (const [subtotalGroup, value] of Object.entries(dataTable.subtotalGroups)) {
+              collapseConfig[subtotalGroup] = false
+            }
+            dataTable.updateConfig('collapseSubtotals', collapseConfig)
+            dataTable.updateConfig('collapseAll', false)
+          } else {
+            dataTable.updateConfig('collapseAll', true)
+          }
         } else {
           LookerCharts.Utils.openDrillMenu({
             links: d.links,
             event: d3.event
           })
         }
+        d3.select("#tooltip").classed("hidden", true)
       })
 
     if (use_minicharts) {
@@ -498,9 +534,9 @@ looker.plugins.visualizations.add({
     // 3. Build vis
 
     // console.log(config)
-    var dataTable = new VisPluginTableModel(data, queryResponse, config)
+    var dataTable = new VisPluginTableModel(data, queryResponse, config, updateConfig)
     this.trigger('registerOptions', dataTable.getConfigOptions())
-    buildReportTable(config, dataTable, updateConfig, element)
+    buildReportTable(config, dataTable, element)
     if(details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
     // DEBUG OUTPUT AND DONE
