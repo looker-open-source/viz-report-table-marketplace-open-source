@@ -276,6 +276,9 @@ const buildReportTable = function(config, dataTable, updateConfig, element) {
       .on('click', d => {
         if (d.cell_style.includes('subtotal') && d.cell_style.includes('dimension')) {
           console.log('Toggle ', d.rowid)
+          var collapseConfig = dataTable.config.collapseSubtotals
+          collapseConfig[d.rowid] = !collapseConfig[d.rowid] 
+          updateConfig('collapseSubtotals', collapseConfig)
         } else {
           LookerCharts.Utils.openDrillMenu({
             links: d.links,
@@ -448,14 +451,6 @@ looker.plugins.visualizations.add({
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
-    // TODO: Convert to generic updateVisConfig (key, value)
-    //       add toggleSubtotal() function to DataTable
-    //           every expand/collapse should leave a permanent change of state / config
-    //           performance seems to be fine just changing subtotal depth option
-    //           direct children - hidden / revealed
-    //           grand children - stay hidden if hidden, but revealed if that was their individual state
-    //           does this require a new 'collapse' property? Would make sense if only to have a up/sideways triangle
-    //       include toggleSubtotal() in the on click function around line 270
     const updateConfig = (option, value) => {
       let newConfig = {}
       newConfig[option] = value
@@ -463,7 +458,6 @@ looker.plugins.visualizations.add({
     }
 
     
-
     // ERROR HANDLING
 
     this.clearErrors();

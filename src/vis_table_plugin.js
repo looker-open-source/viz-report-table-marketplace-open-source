@@ -86,6 +86,8 @@ const tableModelCoreOptions = {
   },
 
   columnOrder: {},
+
+  collapseSubtotals: {},
   
   rowSubtotals: {
     section: "Table",
@@ -297,6 +299,7 @@ class VisPluginTableModel {
       this.enrichSubtotalRows()
       this.updateRowSortValues()
       this.collapsibleSortData()
+      this.collapseAndExpand()
     }
     if (this.spanRows) { this.setRowSpans() }
     if (this.addColSubtotals && this.pivot_fields.length === 2) { this.addColumnSubTotals() }
@@ -1253,6 +1256,7 @@ class VisPluginTableModel {
             if (this.addSubtotalDepth < 9999 && this.addSubtotalDepth - 1 !== depth) {
               newSubtotalGroup.row.hide = true
             }
+
           }
         }
       })
@@ -1581,6 +1585,24 @@ class VisPluginTableModel {
         }
       })
     })
+  }
+
+  collapseAndExpand () {
+    console.log('collapseAndExpand()...')
+    const collapseGroup = (row) => {
+      row.children.forEach(child => {
+        console.log('hide:', child)
+        child.hide = true
+        collapseGroup(child)
+      })
+    }
+
+    for (const [subtotalGroup, collapse] of Object.entries(this.config.collapseSubtotals)) {
+      if (collapse) {
+        console.log('collapse:', subtotalGroup)
+        collapseGroup(this.subtotalGroups[subtotalGroup].row)
+      }
+    }
   }
 
   /**
