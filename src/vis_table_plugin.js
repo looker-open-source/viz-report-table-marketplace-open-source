@@ -224,9 +224,6 @@ class VisPluginTableModel {
    * Build the LookerData object
    * @constructor
    * 
-   * - TODO: add new column series
-   * - TODO: Get table column groups
-   * 
    * @param {*} lookerData 
    * @param {*} queryResponse 
    * @param {*} config 
@@ -566,7 +563,7 @@ class VisPluginTableModel {
           case 'pivot1':
             var pivotField = new ModelPivot({ vis: this, queryResponseField: header.modelField })
             var headerCell = new HeaderCell({ column: column, type: header.type, modelField: pivotField })
-            headerCell.label = '' // TODO: Decide how (if) it makes sense to add pivot labels at top of dimension columns
+            headerCell.label = '' 
             column.levels.push(headerCell)
             column.sort.push({name: header.type, value: 0})
             break
@@ -835,7 +832,7 @@ class VisPluginTableModel {
         case 'pivot1':
           var pivotField = new ModelPivot({ vis: this, queryResponseField: header.modelField })
           var headerCell = new HeaderCell({ column: column, type: header.type, modelField: pivotField })
-          headerCell.label = ''  // TODO: Decide how (if) it makes sense to add pivot labels at top of dimension columns
+          headerCell.label = ''  
           column.levels.push(headerCell)
           column.sort.push({name: header.type, value: 0})
           break
@@ -1392,7 +1389,6 @@ class VisPluginTableModel {
 
   /**
    * Set rowspan, colspan, align, cell_style, index column value & rendered
-   * TODO: Handle reporting in thousands/millions when using subtotals
    */
   enrichSubtotalRows () {
     for (const [key, subtotalGroup] of Object.entries(this.subtotalGroups)) {
@@ -1542,7 +1538,7 @@ class VisPluginTableModel {
             }
             break
 
-          // TODO: Validate Sort Subtotals by First Measure option
+          // TODO: More sophisticated order by measures option (eg choose measure, choose single column or subtotal)
           case 'subtotalMeasure':
             if (row.type !== 'total') {
               let group = ['CollapsibleSubtotal']
@@ -1710,7 +1706,6 @@ class VisPluginTableModel {
 
   /**
    * Generates new column subtotals, where 2 pivot levels have been used
-   * // TODO: Could also have subtotals for 1 pivot tables sorted by measure
    * 
    * 1. Derive the new column definitions
    * 2. Use the new definitions to add subtotal columns to table.columns
@@ -2229,7 +2224,6 @@ class VisPluginTableModel {
       is_table_calculation: false
     }
   
-    // TODO: Update to ensure hidden subtotal rows become hidden columns
     // One column per data row (line items, subtotals, totals)
     this.data.forEach(sourceRow => {
       if (!sourceRow.hide) {
