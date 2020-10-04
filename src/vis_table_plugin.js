@@ -1321,7 +1321,6 @@ class VisPluginTableModel {
     for (const [key, subtotalGroup] of Object.entries(this.subtotalGroups)) {
       let missingGroups = []
       if (typeof subtotalGroup.grouping === 'undefined') {
-        console.log('subtotalGroup missing in queryResponse.subtotals_data:', key)
         missingGroups.push(subtotalGroup)
       }
 
@@ -1392,7 +1391,8 @@ class VisPluginTableModel {
   }
 
   /**
-   * 
+   * Set rowspan, colspan, align, cell_style, index column value & rendered
+   * TODO: Handle reporting in thousands/millions when using subtotals
    */
   enrichSubtotalRows () {
     for (const [key, subtotalGroup] of Object.entries(this.subtotalGroups)) {
@@ -1467,7 +1467,7 @@ class VisPluginTableModel {
           desc: false
         })
       }
-    } else {
+    } else { // this.config.sortRowSubtotalsBy === 'measure'
       for (let i = 0; i < this.dimensions.length - 1; i++) {
         subtotalSorts.push({
           type: 'subtotalMeasure',
@@ -1549,7 +1549,14 @@ class VisPluginTableModel {
                   }
                 }
                 let groupId = group.join('|')
-                let value = this.subtotalGroups[groupId].row.data[sort.name].value 
+                console.log('row', this.subtotalGroups[groupId].row)
+                console.log('sort', sort)
+                if (this.hasPivots) {
+                  var key = [this.pivot_values[0].key, sort.name].join('.')
+                } else {
+                  var key = sort.name
+                }
+                let value = this.subtotalGroups[groupId].row.data[key].value 
                 row.collapsibleSort.push({
                   name: 'unknown1523', 
                   value: value
@@ -1610,7 +1617,7 @@ class VisPluginTableModel {
     }
 
     for (const [subtotalGroup, collapse] of Object.entries(this.config.collapseSubtotals)) {
-      var depth = this.subtotalGroups[subtotalGroup].depth
+      var depth = typeof this.subtotalGroups[subtotalGroup] !== 'undefined' ? this.subtotalGroups[subtotalGroup].depth : -2
       if (depth >= this.addSubtotalDepth) {
         var isCollapsed = collapse
         if (!isCollapsed && this.config.collapseAll) {
