@@ -223,7 +223,7 @@ const buildReportTable = function(config, dataTable, element) {
         return classes.join(' ')
       })
       .on('mouseover', d => {
-        if (dataTable.showHighlight) {
+        if (dataTable.showHighlight && d.cell_style.includes('measure')) {
           if (!dataTable.transposeTable) {
             var id = ['col', d.colid].join('').replace('.', '')
           } else {
@@ -265,7 +265,7 @@ const buildReportTable = function(config, dataTable, element) {
         }
       })
       .on('mousemove', d => {
-        if (dataTable.showTooltip  && d.cell_style.includes('measure')) {
+        if (dataTable.showTooltip && d.cell_style.includes('measure')) {
           var tooltip = d3.select('#tooltip')
           var x = d3.event.clientX < chartCentreX ? d3.event.pageX + 10 : d3.event.pageX - tooltip.node().getBoundingClientRect().width - 10
           var y = d3.event.clientY < chartCentreY ? d3.event.pageY + 10 : d3.event.pageY - tooltip.node().getBoundingClientRect().height - 10
@@ -276,7 +276,7 @@ const buildReportTable = function(config, dataTable, element) {
         }
       })
       .on('mouseout', d => {
-        if (dataTable.showHighlight) {
+        if (dataTable.showHighlight && d.cell_style.includes('measure')) {
           if (!dataTable.transposeTable) {
             var id = ['col', d.colid].join('').replace('.', '')
           } else {
@@ -296,15 +296,21 @@ const buildReportTable = function(config, dataTable, element) {
       })
       .on('click', d => {
         if (d.cell_style.includes('subtotal') && d.cell_style.includes('dimension')) {
+          // EXPAND / COLLAPSE SUBTOTAL GROUP
           var collapseConfig = dataTable.config.collapseSubtotals
           collapseConfig[d.rowid] = !collapseConfig[d.rowid] 
           if (!collapseConfig[d.rowid]) {
+            console.log('CLICK TO EXPAND:', d.rowid)
             dataTable.updateConfig('collapseAll', false)
+          } else {
+            console.log('CLICK TO COLLAPSE:', d.rowid)
           }
           dataTable.updateConfig('collapseSubtotals', collapseConfig)
         } else if (d.cell_style.includes('total') && d.cell_style.includes('dimension')) {
+          // EXPAND / COLLAPSE ALL
           var isFullyCollapsed = dataTable.config.collapseAll
           if (isFullyCollapsed) {
+            console.log('CLICK TO EXPAND ALL')
             var collapseConfig = {}
             for (const [subtotalGroup, value] of Object.entries(dataTable.subtotalGroups)) {
               collapseConfig[subtotalGroup] = false
@@ -312,6 +318,7 @@ const buildReportTable = function(config, dataTable, element) {
             dataTable.updateConfig('collapseSubtotals', collapseConfig)
             dataTable.updateConfig('collapseAll', false)
           } else {
+            console.log('CLICK TO COLLAPSE ALL')
             dataTable.updateConfig('collapseAll', true)
           }
         } else {
@@ -506,8 +513,8 @@ looker.plugins.visualizations.add({
       return
     }
 
-    console.log('queryResponse', queryResponse)
-    console.log('data', data)
+    // console.log('queryResponse', queryResponse)
+    // console.log('data', data)
 
     // INITIALISE THE VIS
 

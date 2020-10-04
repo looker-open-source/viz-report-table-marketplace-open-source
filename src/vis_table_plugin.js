@@ -262,7 +262,7 @@ class VisPluginTableModel {
     this.useShortName = config.useShortName || false
     this.useViewName = config.useViewName || false
     this.addRowSubtotals = config.rowSubtotals || false
-    this.addSubtotalDepth = parseInt(config.subtotalDepth)|| this.dimensions.length - 1
+    this.addSubtotalDepth = typeof config.subtotalDepth !== 'undefined' ? parseInt(config.subtotalDepth) : this.dimensions.length - 1
     this.subtotalGroups = []
     this.addColSubtotals = config.colSubtotals || false
     this.spanRows = false || config.spanRows
@@ -368,19 +368,19 @@ class VisPluginTableModel {
 
       if (i < this.dimensions.length - 1) {
         var subtotal_option = {}
-        subtotal_option[dimension.label] = (i + 1).toString()
+        subtotal_option[dimension.label] = i.toString()
         subtotal_options.push(subtotal_option)
       }
     })
 
-    subtotal_options.push({'All Subtotals': '9999'})
+    subtotal_options.push({'All Subtotals': '-1'})
     newOptions['subtotalDepth'] = {
       section: "Table",
       type: "string",
       label: "Sub Total Depth",
       display: 'select',
       values: subtotal_options,
-      default: "1",
+      default: "0",
       order: 5,
     }
 
@@ -1203,7 +1203,7 @@ class VisPluginTableModel {
       }
     ]
     
-    console.log('sortRowsAndInitialiseSubtotals() rowSortOrder:', this.rowSortOrder)
+    // console.log('sortRowsAndInitialiseSubtotals() rowSortOrder:', this.rowSortOrder)
 
     this.data.forEach(row => {
       row.collapsibleSort = []
@@ -1259,10 +1259,14 @@ class VisPluginTableModel {
             if (depth > 0) {
               latestGroups[depth - 1].row.children.push(visSubtotal)
             }
-            if (this.addSubtotalDepth < 9999 && this.addSubtotalDepth - 1 !== depth) {
-              newSubtotalGroup.row.hide = true
-            }
-
+            if (this.addSubtotalDepth >= 0) {
+              if (this.addSubtotalDepth !== depth) { // invisible subtotals groups must also be expanded (to prevent hiding line_items)
+                newSubtotalGroup.row.hide = true
+                let collapseConfig = this.config.collapseSubtotals
+                collapseConfig[newSubtotalGroup.id] = false 
+                this.updateConfig('collapseSubtotals', collapseConfig)
+              }
+            } 
           }
         }
       })
@@ -1314,7 +1318,8 @@ class VisPluginTableModel {
     for (const [key, subtotalGroup] of Object.entries(this.subtotalGroups)) {
       let missingGroups = []
       if (typeof subtotalGroup.row.data.$$$__grouping__$$$ === 'undefined') {
-        console.log('subtotalGroup missing in queryResponse.subtotals_data:', key)
+        // TODO: Make sure we're mapping against the new collapsible groups
+        // console.log('subtotalGroup missing in queryResponse.subtotals_data:', key)
         missingGroups.push(subtotalGroup)
       }
 
@@ -1491,7 +1496,7 @@ class VisPluginTableModel {
         desc: false
       }
     ]
-    console.log('updateRowSortValues() rowSortOrder:', this.rowSortOrder)
+    // console.log('updateRowSortValues() rowSortOrder:', this.rowSortOrder)
 
     this.data.forEach(row => {
       row.collapsibleSort = []
@@ -1594,7 +1599,6 @@ class VisPluginTableModel {
   }
 
   collapseAndExpand () {
-    console.log('collapseAndExpand()...')
     let collapseAll = true
     const collapseGroup = (row) => {
       row.children.forEach(child => {
@@ -1604,18 +1608,21 @@ class VisPluginTableModel {
     }
 
     for (const [subtotalGroup, collapse] of Object.entries(this.config.collapseSubtotals)) {
-      var isCollapsed = collapse
-      if (!isCollapsed && this.config.collapseAll) {
-        isCollapsed = true
-        let collapseConfig = this.config.collapseSubtotals
-        collapseConfig[subtotalGroup] = isCollapsed 
-        this.updateConfig('collapseSubtotals', collapseConfig)
-      }
-
-      if (isCollapsed) {
-        collapseGroup(this.subtotalGroups[subtotalGroup].row)
-      } else {
-        collapseAll = false
+      var depth = this.subtotalGroups[subtotalGroup].depth
+      if (depth >= this.addSubtotalDepth) {
+        var isCollapsed = collapse
+        if (!isCollapsed && this.config.collapseAll) {
+          isCollapsed = true
+          let collapseConfig = this.config.collapseSubtotals
+          collapseConfig[subtotalGroup] = isCollapsed 
+          this.updateConfig('collapseSubtotals', collapseConfig)
+        }
+  
+        if (isCollapsed) {
+          collapseGroup(this.subtotalGroups[subtotalGroup].row)
+        } else {
+          collapseAll = false
+        }
       }
     }
 
@@ -2164,7 +2171,6 @@ class VisPluginTableModel {
    * 2. Add a transposed column for every data row
    */
   transposeRowsIntoColumns () {
-    // TODO: review logic for cell.align
     var index_parent = {
       align: 'left',
       type: 'transposed_table_index',
@@ -2209,27 +2215,29 @@ class VisPluginTableModel {
     // TODO: Update to ensure hidden subtotal rows become hidden columns
     // One column per data row (line items, subtotals, totals)
     this.data.forEach(sourceRow => {
-      var transposedColumn = new Column(sourceRow.id, this, measure_parent)
+      if (!sourceRow.hide) {
+        var transposedColumn = new Column(sourceRow.id, this, measure_parent)
 
-      this.transposed_headers.forEach(header => {
-        var cellRef = this.useIndexColumn && ['subtotal', 'total'].includes(sourceRow.type) ? '$$$_index_$$$' : header.modelField.name
-        var sourceCell = sourceRow.data[cellRef]
-        var headerCell = new HeaderCell({ 
-          column: transposedColumn, 
-          type: header.type, 
-          label: sourceCell.rendered === '' ? sourceCell.rendered : sourceCell.rendered || sourceCell.value, 
-          align: 'center',
-          cell_style: sourceCell.cell_style,
+        this.transposed_headers.forEach(header => {
+          var cellRef = this.useIndexColumn && ['subtotal', 'total'].includes(sourceRow.type) ? '$$$_index_$$$' : header.modelField.name
+          var sourceCell = sourceRow.data[cellRef]
+          var headerCell = new HeaderCell({ 
+            column: transposedColumn, 
+            type: header.type, 
+            label: sourceCell.rendered === '' ? sourceCell.rendered : sourceCell.rendered || sourceCell.value, 
+            align: 'center',
+            cell_style: sourceCell.cell_style,
+          })
+          headerCell.colspan = sourceCell.rowspan
+          headerCell.rowspan = sourceCell.colspan
+          headerCell.id = [sourceCell.colid, sourceCell.rowid].join('.')
+          headerCell.cell_style.push('transposed')
+
+          transposedColumn.levels.push(headerCell)
         })
-        headerCell.colspan = sourceCell.rowspan
-        headerCell.rowspan = sourceCell.colspan
-        headerCell.id = [sourceCell.colid, sourceCell.rowid].join('.')
-        headerCell.cell_style.push('transposed')
 
-        transposedColumn.levels.push(headerCell)
-      })
-
-      this.transposed_columns.push(transposedColumn)
+        this.transposed_columns.push(transposedColumn)
+      }
     })
   }
 
