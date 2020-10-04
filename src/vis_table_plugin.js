@@ -1436,6 +1436,14 @@ class VisPluginTableModel {
           if (column.modelField.is_numeric) {
             cell.align = 'right'
             cell.cell_style = cell.cell_style.concat(['numeric', 'measure'])
+
+            var reportInSetting = this.config['reportIn|' + column.modelField.name]
+            if (typeof reportInSetting !== 'undefined'  && reportInSetting !== '1') {
+              var unit = this.config.useUnit && column.modelField.unit !== '#'  ? column.modelField.unit : ''
+              cell.html = null
+              cell.value = Math.round(cell.value / parseInt(reportInSetting))
+              cell.rendered = column.modelField.value_format === '' ? cell.value.toString() : unit + SSF.format(column.modelField.value_format, cell.value)
+            }
           } else {
             cell.align = 'left'
             cell.cell_style = cell.cell_style.concat(['nonNumeric', 'measure'])
