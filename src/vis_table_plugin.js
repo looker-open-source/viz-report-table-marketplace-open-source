@@ -1553,8 +1553,6 @@ class VisPluginTableModel {
                   }
                 }
                 let groupId = group.join('|')
-                console.log('row', this.subtotalGroups[groupId].row)
-                console.log('sort', sort)
                 if (this.hasPivots) {
                   var key = [this.pivot_values[0].key, sort.name].join('.')
                 } else {
@@ -1878,7 +1876,7 @@ class VisPluginTableModel {
 
   createVarianceColumn (colpair) {
     if (!this.config.colSubtotals && colpair.variance.baseline.startsWith('$$$_subtotal_$$$')) {
-      console.log('Cannot calculate variance of column subtotals if subtotals disabled.')
+      // console.log('Cannot calculate variance of column subtotals if subtotals disabled.')
       return
     }
     var id = ['$$$_variance_$$$', colpair.calc, colpair.variance.baseline, colpair.variance.comparison].join('|')
