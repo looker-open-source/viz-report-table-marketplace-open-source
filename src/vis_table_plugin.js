@@ -1413,7 +1413,15 @@ class VisPluginTableModel {
               name: 'subtotal',
               label: 'Subtotal',
             }}))
-            var subtotalSortValue = typeof this.pivot_values[0].sort_values[header.modelField.name] === 'string' ? 'ZZZZ' : 99999999
+
+            console.log('this.sorts', this.sorts)
+            console.log('header.modelField.name', header.modelField.name)
+            var sortDescending = this.sorts.find(sort => sort.name === header.modelField.name).desc
+            if (sortDescending) {
+              var subtotalSortValue = typeof this.pivot_values[0].sort_values[header.modelField.name] === 'string' ? 'aaaaaaaa' : Number.NEGATIVE_INFINITY
+            } else {
+              var subtotalSortValue = typeof this.pivot_values[0].sort_values[header.modelField.name] === 'string' ? 'ZZZZZZZZ' : Number.POSITIVE_INFINITY
+            }
             subtotalColumn.sort.push({name: 'subtotalSortValue', value: subtotalSortValue})
             break
 
