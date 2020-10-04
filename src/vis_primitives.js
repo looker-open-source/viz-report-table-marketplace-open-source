@@ -226,6 +226,7 @@ class Row {
     this.sort = []    // [ section, subtotal group, row number ]
     this.data = {}    // Indexed by Column.id
                       // { value: any, rendered: string, html?: string, links?: array }
+    this.children = []
   }
 }
 

@@ -37,7 +37,7 @@ const loadStylesheet = function(link) {
 };
 
 
-const buildReportTable = function(config, dataTable, updateColumnOrder, element) {
+const buildReportTable = function(config, dataTable, updateConfig, element) {
   var dropTarget = null;
   const bounds = element.getBoundingClientRect()
   const chartCentreX = bounds.x + (bounds.width / 2);
@@ -102,7 +102,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           var movingIdx = Math.floor(movingColumn.pos/10) * 10
           var targetIdx = Math.floor(targetColumn.pos/10) * 10
           // console.log('DRAG FROM', movingColumn, movingIdx, 'TO', targetColumn, targetIdx)
-          dataTable.moveColumns(movingIdx, targetIdx, updateColumnOrder)
+          dataTable.moveColumns(movingIdx, targetIdx, updateConfig)
         }
       })
     
@@ -274,10 +274,14 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         }
       })
       .on('click', d => {
-        LookerCharts.Utils.openDrillMenu({
-          links: d.links,
-          event: d3.event
-        })
+        if (d.cell_style.includes('subtotal') && d.cell_style.includes('dimension')) {
+          console.log('Toggle ', d.rowid)
+        } else {
+          LookerCharts.Utils.openDrillMenu({
+            links: d.links,
+            event: d3.event
+          })
+        }
       })
 
     if (use_minicharts) {
@@ -444,8 +448,18 @@ looker.plugins.visualizations.add({
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
-    const updateColumnOrder = newOrder => {
-      this.trigger('updateConfig', [{ columnOrder: newOrder }])
+    // TODO: Convert to generic updateVisConfig (key, value)
+    //       add toggleSubtotal() function to DataTable
+    //           every expand/collapse should leave a permanent change of state / config
+    //           performance seems to be fine just changing subtotal depth option
+    //           direct children - hidden / revealed
+    //           grand children - stay hidden if hidden, but revealed if that was their individual state
+    //           does this require a new 'collapse' property? Would make sense if only to have a up/sideways triangle
+    //       include toggleSubtotal() in the on click function around line 270
+    const updateConfig = (option, value) => {
+      let newConfig = {}
+      newConfig[option] = value
+      this.trigger('updateConfig', [newConfig])
     }
 
     
@@ -479,6 +493,9 @@ looker.plugins.visualizations.add({
     if (typeof config.columnOrder === 'undefined') {
       this.trigger('updateConfig', [{ columnOrder: {} }])
     }
+    if (typeof config.collapseSubtotals === 'undefined') {
+      this.trigger('updateConfig', [{ collapseSubtotals: {} }])
+    }
 
 
     // BUILD THE VIS
@@ -489,7 +506,7 @@ looker.plugins.visualizations.add({
     // console.log(config)
     var dataTable = new VisPluginTableModel(data, queryResponse, config)
     this.trigger('registerOptions', dataTable.getConfigOptions())
-    buildReportTable(config, dataTable, updateColumnOrder, element)
+    buildReportTable(config, dataTable, updateConfig, element)
     if(details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
     // DEBUG OUTPUT AND DONE

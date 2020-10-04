@@ -294,7 +294,6 @@ class VisPluginTableModel {
     if (this.addRowSubtotals) { 
       this.sortRowsAndInitialiseSubtotals()
       this.calculateSubtotalValues(queryResponse)
-      console.log('this', this)
       this.enrichSubtotalRows()
       this.updateRowSortValues()
       this.collapsibleSortData()
@@ -365,6 +364,7 @@ class VisPluginTableModel {
       }
     })
 
+    subtotal_options.push({'All Subtotals': '9999'})
     newOptions['subtotalDepth'] = {
       section: "Table",
       type: "string",
@@ -1237,7 +1237,6 @@ class VisPluginTableModel {
             let visSubtotal = new Row('subtotal')
             visSubtotal.id = subtotalId
             visSubtotal.depth = depth
-            visSubtotal.children = []
 
             let newSubtotalGroup = {
               depth: depth,
@@ -1250,6 +1249,9 @@ class VisPluginTableModel {
             latestGroups[depth] = newSubtotalGroup
             if (depth > 0) {
               latestGroups[depth - 1].row.children.push(visSubtotal)
+            }
+            if (this.addSubtotalDepth < 9999 && this.addSubtotalDepth - 1 !== depth) {
+              newSubtotalGroup.row.hide = true
             }
           }
         }
@@ -1279,7 +1281,6 @@ class VisPluginTableModel {
           })
           let groupId = ['CollapsibleSubtotal', ...group].join('|')
           for (const [field, cell] of Object.entries(subtotals_entry)) {
-            console.log('subtotals_entry:', typeof cell.value, field, cell)
             if (typeof cell.value !== 'undefined') {
               this.subtotalGroups[groupId].row.data[field] = new DataCell({
                 ...cell,
@@ -1380,8 +1381,6 @@ class VisPluginTableModel {
     for (const [key, subtotalGroup] of Object.entries(this.subtotalGroups)) {
       subtotalGroup.row.data['$$$_index_$$$'] = new DataCell({ cell_style: ["total", "subtotal"] })
       this.columns.forEach(column => {
-        console.log('column:', column)
-        console.log('subtotalGroup.row.data:', subtotalGroup.row.data)
         let cell = subtotalGroup.row.data[column.id]
         cell.colid = column.id
         cell.rowid = subtotalGroup.id
@@ -1441,7 +1440,6 @@ class VisPluginTableModel {
    *   original row
    */
   updateRowSortValues () {
-    console.log('updateRowSortValues() data table:', this)
     let subtotalSorts = []
     if (this.config.sortRowSubtotalsBy === 'dimension') {
       for (let i = 0; i < this.dimensions.length - 1; i++) {
@@ -1519,6 +1517,7 @@ class VisPluginTableModel {
             }
             break
 
+          // TODO: Validate Sort Subtotals by First Measure option
           case 'subtotalMeasure':
             if (row.type !== 'total') {
               let group = ['CollapsibleSubtotal']
@@ -2168,6 +2167,7 @@ class VisPluginTableModel {
       is_table_calculation: false
     }
   
+    // TODO: Update to ensure hidden subtotal rows become hidden columns
     // One column per data row (line items, subtotals, totals)
     this.data.forEach(sourceRow => {
       var transposedColumn = new Column(sourceRow.id, this, measure_parent)
@@ -2414,7 +2414,7 @@ class VisPluginTableModel {
    * @param {*} to 
    * @param {*} callback 
    */
-  moveColumns(from, to, updateColumnOrder) {
+  moveColumns(from, to, updateConfig) {
     var config = this.config
     if (from != to) {
       var shift = to - from
@@ -2434,7 +2434,7 @@ class VisPluginTableModel {
           col_order[col.id] = col.pos
         } 
       })
-      updateColumnOrder(col_order)
+      updateConfig('columnOrder', col_order)
     }
   }
 
