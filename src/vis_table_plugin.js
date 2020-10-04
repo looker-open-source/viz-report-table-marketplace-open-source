@@ -1279,8 +1279,8 @@ class VisPluginTableModel {
   /**
    * Populates subtotal Rows with aggregate data
    * If available, uses queryResponse.subtotals_data
-   * Checks for missing data (either because subtotals weren't available in queryResponse at all, or inidivudal missing rows)
-   *   - calculated subtotals where missing
+   * Checks for missing data (either because subtotals weren't available in queryResponse at all, or individual missing rows)
+   *   - calculates subtotals where missing
    */
   calculateSubtotalValues(queryResponse) {
     let subtotalSorts = this.rowSortOrder.filter(sort => sort.type === 'dimension')
@@ -1295,21 +1295,24 @@ class VisPluginTableModel {
           })
           let groupId = ['CollapsibleSubtotal', ...group].join('|')
           for (const [field, cell] of Object.entries(subtotals_entry)) {
-            if (typeof cell.value !== 'undefined') {
-              this.subtotalGroups[groupId].row.data[field] = new DataCell({
-                ...cell,
-                ...{ cell_style: ["total", "subtotal"] }
-              })
+            if (field === '$$$__grouping__$$$') {
+              this.subtotalGroups[groupId].grouping = cell
             } else {
-              for (const [pivot, pivotCell] of Object.entries(cell)) {
-                let key = [pivot, field].join('.')
-                this.subtotalGroups[groupId].row.data[key] = new DataCell({
-                  ...pivotCell,
+              if (typeof cell.value !== 'undefined') {
+                this.subtotalGroups[groupId].row.data[field] = new DataCell({
+                  ...cell,
                   ...{ cell_style: ["total", "subtotal"] }
                 })
+              } else {
+                for (const [pivot, pivotCell] of Object.entries(cell)) {
+                  let key = [pivot, field].join('.')
+                  this.subtotalGroups[groupId].row.data[key] = new DataCell({
+                    ...pivotCell,
+                    ...{ cell_style: ["total", "subtotal"] }
+                  })
+                }
               }
             }
-            
           }
         })
       }
@@ -1317,9 +1320,8 @@ class VisPluginTableModel {
 
     for (const [key, subtotalGroup] of Object.entries(this.subtotalGroups)) {
       let missingGroups = []
-      if (typeof subtotalGroup.row.data.$$$__grouping__$$$ === 'undefined') {
-        // TODO: Make sure we're mapping against the new collapsible groups
-        // console.log('subtotalGroup missing in queryResponse.subtotals_data:', key)
+      if (typeof subtotalGroup.grouping === 'undefined') {
+        console.log('subtotalGroup missing in queryResponse.subtotals_data:', key)
         missingGroups.push(subtotalGroup)
       }
 
