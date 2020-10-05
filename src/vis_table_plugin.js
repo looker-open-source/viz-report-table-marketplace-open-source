@@ -229,8 +229,6 @@ class VisPluginTableModel {
    * @param {*} config 
    */
   constructor(lookerData, queryResponse, config, updateConfig) {
-    
-
     this.visId = 'report_table'
     this.config = config
     this.updateConfig = updateConfig
@@ -253,6 +251,9 @@ class VisPluginTableModel {
     this.column_series = []
 
     this.firstVisibleDimension = ''
+
+    this.virtualCollapseSubtotals = config.collapseSubtotals
+    this.virtualCollapseAll = config.collapseAll
 
     this.useIndexColumn = config.indexColumn || false
     this.useHeadings = config.useHeadings || false
@@ -1199,8 +1200,6 @@ class VisPluginTableModel {
         desc: false
       }
     ]
-    
-    // console.log('sortRowsAndInitialiseSubtotals() rowSortOrder:', this.rowSortOrder)
 
     this.data.forEach(row => {
       row.collapsibleSort = []
@@ -1259,9 +1258,10 @@ class VisPluginTableModel {
             if (this.addSubtotalDepth >= 0) {
               if (this.addSubtotalDepth !== depth) { // invisible subtotals groups must also be expanded (to prevent hiding line_items)
                 newSubtotalGroup.row.hide = true
-                let collapseConfig = this.config.collapseSubtotals
-                collapseConfig[newSubtotalGroup.id] = false 
-                this.updateConfig('collapseSubtotals', collapseConfig)
+                this.virtualCollapseSubtotals[newSubtotalGroup.id] = false
+                // let collapseConfig = this.virtualCollapseSubtotals
+                // collapseConfig[newSubtotalGroup.id] = false 
+                // this.updateConfig([{collapseSubtotals: collapseConfig}])
               }
             } 
           }
@@ -1502,7 +1502,6 @@ class VisPluginTableModel {
         desc: false
       }
     ]
-    // console.log('updateRowSortValues() rowSortOrder:', this.rowSortOrder)
 
     this.data.forEach(row => {
       row.collapsibleSort = []
@@ -1610,7 +1609,6 @@ class VisPluginTableModel {
   }
 
   collapseAndExpand () {
-    let collapseAll = true
     const collapseGroup = (row) => {
       row.children.forEach(child => {
         child.hide = true
@@ -1618,26 +1616,30 @@ class VisPluginTableModel {
       })
     }
 
-    for (const [subtotalGroup, collapse] of Object.entries(this.config.collapseSubtotals)) {
+    for (const [subtotalGroup, collapse] of Object.entries(this.virtualCollapseSubtotals)) {
       var depth = typeof this.subtotalGroups[subtotalGroup] !== 'undefined' ? this.subtotalGroups[subtotalGroup].depth : -2
       if (depth >= this.addSubtotalDepth) {
         var isCollapsed = collapse
-        if (!isCollapsed && this.config.collapseAll) {
+        if (!isCollapsed && this.virtualCollapseAll) {
           isCollapsed = true
-          let collapseConfig = this.config.collapseSubtotals
-          collapseConfig[subtotalGroup] = isCollapsed 
-          this.updateConfig('collapseSubtotals', collapseConfig)
+          this.virtualCollapseSubtotals[subtotalGroup] = true
+          // let collapseConfig = this.config.collapseSubtotals
+          // collapseConfig[subtotalGroup] = isCollapsed 
+          // this.updateConfig([{collapseSubtotals: collapseConfig}])
         }
   
         if (isCollapsed) {
           collapseGroup(this.subtotalGroups[subtotalGroup].row)
         } else {
-          collapseAll = false
+          this.virtualCollapseAll = false
         }
       }
     }
 
-    this.updateConfig('collapseAll', collapseAll)
+    this.updateConfig([
+      { collapseSubtotals: this.virtualCollapseSubtotals },
+      { collapseAll: this.virtualCollapseAll }
+    ])
   }
 
   /**
@@ -2490,7 +2492,7 @@ class VisPluginTableModel {
           col_order[col.id] = col.pos
         } 
       })
-      this.updateConfig('columnOrder', col_order)
+      this.updateConfig([{columnOrder: col_order}])
     }
   }
 

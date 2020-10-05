@@ -295,33 +295,37 @@ const buildReportTable = function(config, dataTable, element) {
         }
       })
       .on('click', d => {
+        var configUpdates = false
         if (d.cell_style.includes('subtotal') && d.cell_style.includes('dimension')) {
           // EXPAND / COLLAPSE SUBTOTAL GROUP
-          var collapseConfig = dataTable.config.collapseSubtotals
-          collapseConfig[d.rowid] = !collapseConfig[d.rowid] 
-          if (!collapseConfig[d.rowid]) {
-            dataTable.updateConfig('collapseAll', false)
-          } else {
+          dataTable.virtualCollapseSubtotals[d.rowid] = !dataTable.virtualCollapseSubtotals[d.rowid] 
+          if (!dataTable.virtualCollapseSubtotals[d.rowid]) {
+            dataTable.virtualCollapseAll = false
           }
-          dataTable.updateConfig('collapseSubtotals', collapseConfig)
+          configUpdates = true
         } else if (d.cell_style.includes('total') && d.cell_style.includes('dimension')) {
           // EXPAND / COLLAPSE ALL
-          var isFullyCollapsed = dataTable.config.collapseAll
-          if (isFullyCollapsed) {
-            var collapseConfig = {}
+          if (dataTable.virtualCollapseAll) {
             for (const [subtotalGroup, value] of Object.entries(dataTable.subtotalGroups)) {
-              collapseConfig[subtotalGroup] = false
+              dataTable.virtualCollapseSubtotals[subtotalGroup] = false
             }
-            dataTable.updateConfig('collapseSubtotals', collapseConfig)
-            dataTable.updateConfig('collapseAll', false)
+            dataTable.virtualCollapseAll = false
           } else {
-            dataTable.updateConfig('collapseAll', true)
+            dataTable.virtualCollapseAll = true
           }
+          configUpdates = true
         } else {
           LookerCharts.Utils.openDrillMenu({
             links: d.links,
             event: d3.event
           })
+        }
+        if (configUpdates) {
+          var newConfig = [
+            { collapseSubtotals: dataTable.virtualCollapseSubtotals},
+            { collapseAll: dataTable.virtualCollapseAll }
+          ]
+          dataTable.updateConfig(newConfig)
         }
         d3.select("#tooltip").classed("hidden", true)
       })
@@ -490,12 +494,9 @@ looker.plugins.visualizations.add({
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
-    const updateConfig = (option, value) => {
-      let newConfig = {}
-      newConfig[option] = value
-      this.trigger('updateConfig', [newConfig])
+    const updateConfig = (newConfig) => {
+      this.trigger('updateConfig', newConfig)
     }
-
     
     // ERROR HANDLING
 
@@ -509,6 +510,7 @@ looker.plugins.visualizations.add({
       return
     }
 
+    // console.log('config', config)
     // console.log('queryResponse', queryResponse)
     // console.log('data', data)
 
@@ -536,14 +538,13 @@ looker.plugins.visualizations.add({
     // 2. Register options
     // 3. Build vis
 
-    // console.log(config)
     var dataTable = new VisPluginTableModel(data, queryResponse, config, updateConfig)
     this.trigger('registerOptions', dataTable.getConfigOptions())
     buildReportTable(config, dataTable, element)
     if(details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
     // DEBUG OUTPUT AND DONE
-    // console.log('dataTable', dataTable)
+    console.log('dataTable', dataTable)
     // console.log('container', document.getElementById('visContainer').parentNode)
     
     done();
