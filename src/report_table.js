@@ -295,38 +295,17 @@ const buildReportTable = function(config, dataTable, element) {
         }
       })
       .on('click', d => {
-        var configUpdates = false
         if (d.cell_style.includes('subtotal') && d.cell_style.includes('dimension')) {
-          // EXPAND / COLLAPSE SUBTOTAL GROUP
-          dataTable.virtualCollapseSubtotals[d.rowid] = !dataTable.virtualCollapseSubtotals[d.rowid] 
-          if (!dataTable.virtualCollapseSubtotals[d.rowid]) {
-            dataTable.virtualCollapseAll = false
-          }
-          configUpdates = true
+          dataTable.toggleCollapseExpandGroup(d.rowid)
         } else if (d.cell_style.includes('total') && d.cell_style.includes('dimension')) {
-          // EXPAND / COLLAPSE ALL
-          if (dataTable.virtualCollapseAll) {
-            for (const [subtotalGroup, value] of Object.entries(dataTable.subtotalGroups)) {
-              dataTable.virtualCollapseSubtotals[subtotalGroup] = false
-            }
-            dataTable.virtualCollapseAll = false
-          } else {
-            dataTable.virtualCollapseAll = true
-          }
-          configUpdates = true
+          dataTable.toggleCollapseExpandAll()
         } else {
           LookerCharts.Utils.openDrillMenu({
             links: d.links,
             event: d3.event
           })
         }
-        if (configUpdates) {
-          var newConfig = [
-            { collapseSubtotals: dataTable.virtualCollapseSubtotals},
-            { collapseAll: dataTable.virtualCollapseAll }
-          ]
-          dataTable.updateConfig(newConfig)
-        }
+        
         d3.select("#tooltip").classed("hidden", true)
       })
 

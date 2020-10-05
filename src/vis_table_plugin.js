@@ -88,11 +88,6 @@ const tableModelCoreOptions = {
   columnOrder: {},
 
   collapseSubtotals: {},
-
-  collapseAll: {
-    type: 'boolean',
-    default: false,
-  },
   
   rowSubtotals: {
     section: "Table",
@@ -239,7 +234,6 @@ class VisPluginTableModel {
     this.columns = []
     this.data = []
     this.rowSortOrder = []
-    // this.subtotals_data = {}
 
     this.transposed_headers = []
     this.transposed_columns = []
@@ -253,7 +247,6 @@ class VisPluginTableModel {
     this.firstVisibleDimension = ''
 
     this.virtualCollapseSubtotals = config.collapseSubtotals
-    this.virtualCollapseAll = config.collapseAll
 
     this.useIndexColumn = config.indexColumn || false
     this.useHeadings = config.useHeadings || false
@@ -1259,9 +1252,6 @@ class VisPluginTableModel {
               if (this.addSubtotalDepth !== depth) { // invisible subtotals groups must also be expanded (to prevent hiding line_items)
                 newSubtotalGroup.row.hide = true
                 this.virtualCollapseSubtotals[newSubtotalGroup.id] = false
-                // let collapseConfig = this.virtualCollapseSubtotals
-                // collapseConfig[newSubtotalGroup.id] = false 
-                // this.updateConfig([{collapseSubtotals: collapseConfig}])
               }
             } 
           }
@@ -1618,28 +1608,12 @@ class VisPluginTableModel {
 
     for (const [subtotalGroup, collapse] of Object.entries(this.virtualCollapseSubtotals)) {
       var depth = typeof this.subtotalGroups[subtotalGroup] !== 'undefined' ? this.subtotalGroups[subtotalGroup].depth : -2
-      if (depth >= this.addSubtotalDepth) {
-        var isCollapsed = collapse
-        if (!isCollapsed && this.virtualCollapseAll) {
-          isCollapsed = true
-          this.virtualCollapseSubtotals[subtotalGroup] = true
-          // let collapseConfig = this.config.collapseSubtotals
-          // collapseConfig[subtotalGroup] = isCollapsed 
-          // this.updateConfig([{collapseSubtotals: collapseConfig}])
-        }
-  
-        if (isCollapsed) {
-          collapseGroup(this.subtotalGroups[subtotalGroup].row)
-        } else {
-          this.virtualCollapseAll = false
-        }
+      if (collapse && depth >= this.addSubtotalDepth) {
+        collapseGroup(this.subtotalGroups[subtotalGroup].row)
       }
     }
 
-    this.updateConfig([
-      { collapseSubtotals: this.virtualCollapseSubtotals },
-      { collapseAll: this.virtualCollapseAll }
-    ])
+    this.updateConfig([{ collapseSubtotals: this.virtualCollapseSubtotals }])
   }
 
   /**
@@ -2347,6 +2321,33 @@ class VisPluginTableModel {
         }
       }
     })
+  }
+
+  toggleCollapseExpandGroup (groupId) {
+    this.virtualCollapseSubtotals[groupId] = !this.virtualCollapseSubtotals[groupId] 
+    this.updateConfig([{ collapseSubtotals: this.virtualCollapseSubtotals }])
+  }
+
+  toggleCollapseExpandAll () {
+    var collapseAll = false
+    for (const [subtotalGroup, value] of Object.entries(this.subtotalGroups)) {
+      if (!this.virtualCollapseSubtotals[subtotalGroup]) {
+        collapseAll = true
+        break
+      }
+    }
+
+    if (collapseAll) {
+      for (const [subtotalGroup, value] of Object.entries(this.subtotalGroups)) {
+        this.virtualCollapseSubtotals[subtotalGroup] = true
+      }
+    } else {
+      for (const [subtotalGroup, value] of Object.entries(this.subtotalGroups)) {
+        this.virtualCollapseSubtotals[subtotalGroup] = false
+      }
+    }
+
+    this.updateConfig([{ collapseSubtotals: this.virtualCollapseSubtotals }])
   }
 
   /**
