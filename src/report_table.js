@@ -489,9 +489,9 @@ looker.plugins.visualizations.add({
       return
     }
 
-    // console.log('config', config)
-    // console.log('queryResponse', queryResponse)
-    // console.log('data', data)
+    console.log('config', config)
+    console.log('queryResponse', queryResponse)
+    console.log('data', data)
 
     // INITIALISE THE VIS
 
