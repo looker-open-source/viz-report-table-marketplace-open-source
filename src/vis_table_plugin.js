@@ -605,8 +605,9 @@ class VisPluginTableModel {
             column.isRowTotal = isRowTotal
             column.pivot_key = pivot_value.key
             column.idx = col_idx
-            column.sort.push({name: 'section', value: isRowTotal ? 2 : 1})
+            // column.sort.push({name: 'section', value: isRowTotal ? 2 : 1})
 
+            var tempSort = []
             var level_sort_values = []
             this.headers.forEach(header => {
               switch (header.type) {
@@ -624,9 +625,11 @@ class VisPluginTableModel {
                   }))
                   level_sort_values.push(pivot_value.sort_values[header.modelField.name])
                   if (column.pivoted) {
-                    column.sort.push({name: header.modelField.name, value: pivot_value.sort_values[header.modelField.name]})
+                    tempSort.push({ name: header.modelField.name, value: pivot_value.sort_values[header.modelField.name] })
+                    // column.sort.push({name: header.modelField.name, value: pivot_value.sort_values[header.modelField.name]})
                   } else {
-                    column.sort.push({name: header.modelField.name, value: 0})
+                    tempSort.push({ name: header.modelField.name, value: 0 })
+                    // column.sort.push({name: header.modelField.name, value: 0})
                   }
                   break
 
@@ -636,10 +639,32 @@ class VisPluginTableModel {
 
                 case 'field':
                   column.levels.push(new HeaderCell({ column: column, type: 'field', modelField: measure}))
-                  column.sort.push({name: 'measure_idx', value: m})
+                  // column.sort.push({name: 'measure_idx', value: m})
                   break;
               }
             })
+
+            var sort = []
+            sort.push({ name: 'section', value: isRowTotal ? 2 : 1 })
+            if (this.addColSubtotals && this.pivot_fields.length === 2) {
+              // column subtotals present, therefore must sort by pivot0, pivot1 to get correct grouping 
+              sort = sort.concat(tempSort)
+            } else {
+              // no col subtotals, so add pivot values to the sort array in the order they are configured in this.sorts
+              this.sorts.forEach(s => {
+                this.pivot_fields.forEach(p => {
+                  if (p.name === s.name) {
+                    tempSort.forEach(t => {
+                      if (t.name === p.name) {
+                        sort.push(t)
+                      }
+                    })
+                  }
+                })
+              })
+            }
+            sort.push({ name: 'measure_idx', value: m })
+            column.sort = sort
 
             this.columns.push(column)
             col_idx += 10
@@ -1679,14 +1704,14 @@ class VisPluginTableModel {
 
   compareSortArrays (dataTable) {
     return function(a, b) {
-      var depth = Math.max(a.sortArray().length, b.sortArray().length)
+      var depth = Math.max(a.sort.length, b.sort.length)
       for (var i = 0; i < depth; i++) {
-          var field = typeof a.sortArray()[i].name !== 'undefined' ? a.sortArray()[i].name : ''
+          var field = typeof a.sort[i].name !== 'undefined' ? a.sort[i].name : ''
           var sort = dataTable.sorts.find(item => item.name === field)
           var desc = typeof sort !== 'undefined' ? sort.desc : false
 
-          var a_value = typeof a.sortArray()[i] !== 'undefined' ? a.sortArray()[i].value : 0
-          var b_value = typeof b.sortArray()[i] !== 'undefined' ? b.sortArray()[i].value : 0
+          var a_value = typeof a.sort[i] !== 'undefined' ? a.sort[i].value : 0
+          var b_value = typeof b.sort[i] !== 'undefined' ? b.sort[i].value : 0
 
           if (desc) {
             if (a_value < b_value) { return 1 }

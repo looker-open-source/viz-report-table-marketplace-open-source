@@ -350,10 +350,6 @@ class Column {
 
     return headerData
   }
-
-  sortArray () {
-    return this.sort
-  }
 }
 
 
