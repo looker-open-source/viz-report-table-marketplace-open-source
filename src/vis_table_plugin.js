@@ -636,7 +636,7 @@ class VisPluginTableModel {
 
                 case 'field':
                   column.levels.push(new HeaderCell({ column: column, type: 'field', modelField: measure}))
-                  column.sort.push({name: 'm', value: m})
+                  column.sort.push({name: 'measure_idx', value: m})
                   break;
               }
             })
@@ -701,13 +701,13 @@ class VisPluginTableModel {
         this.measures.push(meas) 
 
         var column = new Column(meas.name, this, meas)
-        column.sort.push(2)
+        column.sort.push({ name: 'section', value: 2 })
         this.headers.forEach(header => {
           switch (header.type) {
             case 'pivot0':
             case 'pivot1':
               column.levels.push(new HeaderCell({ column: column, type: header.type, modelField: { label: '' } }))
-              column.sort.push({name: 'section', value: 1})
+              column.sort.push({name: header.type, value: 0})
               break
             case 'heading':
               column.levels.push(new HeaderCell({ column: column, type: 'heading', modelField: meas }))
@@ -1396,7 +1396,7 @@ class VisPluginTableModel {
       this.headers.forEach((header, i) => {
         switch (header.type) {
           case 'pivot0':
-            var sort_value_from_column = subtotalColumn.subtotal_data.columns[0].levels[i].pivotData.sort_values[header.modelField.name]
+            var sortValueFromColumn = subtotalColumn.subtotal_data.columns[0].levels[i].pivotData.sort_values[header.modelField.name]
             subtotalColumn.levels.push(new HeaderCell({ 
               column: subtotalColumn, 
               type: header.type, 
@@ -1405,7 +1405,7 @@ class VisPluginTableModel {
                 label: subtotalColumn.subtotal_data.pivot,
               }
             }))
-            subtotalColumn.sort.push({name: 'sort_value_from_column', value: sort_value_from_column})
+            subtotalColumn.sort.push({name: header.modelField.name, value: sortValueFromColumn})
             break
 
           case 'pivot1':
@@ -1414,15 +1414,18 @@ class VisPluginTableModel {
               label: 'Subtotal',
             }}))
 
-            console.log('this.sorts', this.sorts)
-            console.log('header.modelField.name', header.modelField.name)
-            var sortDescending = this.sorts.find(sort => sort.name === header.modelField.name).desc
+            var sortOption = this.sorts.find(sort => sort.name === header.modelField.name)
+            if (typeof sortOption === 'undefined' || typeof sortOption.desc === 'undefined') {
+              var sortDescending = false
+            } else {
+              var sortDescending = Boolean(sortOption.desc)
+            }
             if (sortDescending) {
               var subtotalSortValue = typeof this.pivot_values[0].sort_values[header.modelField.name] === 'string' ? 'aaaaaaaa' : Number.NEGATIVE_INFINITY
             } else {
               var subtotalSortValue = typeof this.pivot_values[0].sort_values[header.modelField.name] === 'string' ? 'ZZZZZZZZ' : Number.POSITIVE_INFINITY
             }
-            subtotalColumn.sort.push({name: 'subtotalSortValue', value: subtotalSortValue})
+            subtotalColumn.sort.push({name: header.modelField.name, value: subtotalSortValue})
             break
 
           case 'heading':
@@ -1676,14 +1679,14 @@ class VisPluginTableModel {
 
   compareSortArrays (dataTable) {
     return function(a, b) {
-      var depth = Math.max(a.sort.length, b.sort.length)
+      var depth = Math.max(a.sortArray().length, b.sortArray().length)
       for (var i = 0; i < depth; i++) {
-          var field = typeof a.sort[i].name !== 'undefined' ? a.sort[i].name : ''
+          var field = typeof a.sortArray()[i].name !== 'undefined' ? a.sortArray()[i].name : ''
           var sort = dataTable.sorts.find(item => item.name === field)
           var desc = typeof sort !== 'undefined' ? sort.desc : false
 
-          var a_value = typeof a.sort[i] !== 'undefined' ? a.sort[i].value : 0
-          var b_value = typeof b.sort[i] !== 'undefined' ? b.sort[i].value : 0
+          var a_value = typeof a.sortArray()[i] !== 'undefined' ? a.sortArray()[i].value : 0
+          var b_value = typeof b.sortArray()[i] !== 'undefined' ? b.sortArray()[i].value : 0
 
           if (desc) {
             if (a_value < b_value) { return 1 }

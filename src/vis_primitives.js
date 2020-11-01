@@ -222,6 +222,10 @@ class Row {
     this.data = {}    // Indexed by Column.id
                       // { value: any, rendered: string, html?: string, links?: array }
   }
+
+  sortArray () {
+    return this.sort
+  }
 }
 
 /**
@@ -345,6 +349,10 @@ class Column {
     })
 
     return headerData
+  }
+
+  sortArray () {
+    return this.sort
   }
 }
 
