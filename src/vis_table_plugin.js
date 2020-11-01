@@ -605,7 +605,6 @@ class VisPluginTableModel {
             column.isRowTotal = isRowTotal
             column.pivot_key = pivot_value.key
             column.idx = col_idx
-            // column.sort.push({name: 'section', value: isRowTotal ? 2 : 1})
 
             var tempSort = []
             var level_sort_values = []
@@ -626,10 +625,8 @@ class VisPluginTableModel {
                   level_sort_values.push(pivot_value.sort_values[header.modelField.name])
                   if (column.pivoted) {
                     tempSort.push({ name: header.modelField.name, value: pivot_value.sort_values[header.modelField.name] })
-                    // column.sort.push({name: header.modelField.name, value: pivot_value.sort_values[header.modelField.name]})
                   } else {
                     tempSort.push({ name: header.modelField.name, value: 0 })
-                    // column.sort.push({name: header.modelField.name, value: 0})
                   }
                   break
 
@@ -639,7 +636,6 @@ class VisPluginTableModel {
 
                 case 'field':
                   column.levels.push(new HeaderCell({ column: column, type: 'field', modelField: measure}))
-                  // column.sort.push({name: 'measure_idx', value: m})
                   break;
               }
             })
