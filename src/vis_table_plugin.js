@@ -646,23 +646,35 @@ class VisPluginTableModel {
 
             var sort = []
             sort.push({ name: 'section', value: isRowTotal ? 2 : 1 })
-            if (this.addColSubtotals && this.pivot_fields.length === 2) {
-              // column subtotals present, therefore must sort by pivot0, pivot1 to get correct grouping 
-              sort = sort.concat(tempSort)
-            } else {
-              // no col subtotals, so add pivot values to the sort array in the order they are configured in this.sorts
-              this.sorts.forEach(s => {
-                this.pivot_fields.forEach(p => {
-                  if (p.name === s.name) {
-                    tempSort.forEach(t => {
-                      if (t.name === p.name) {
-                        sort.push(t)
-                      }
-                    })
-                  }
+            if (this.pivot_fields.length === 2) {
+              if (this.addColSubtotals) {
+                // column subtotals present, therefore must sort by pivot0, pivot1 to get correct grouping 
+                sort = sort.concat(tempSort)
+              } else {
+                // no col subtotals, so add pivot values to the sort array in the order they are configured in this.sorts
+                // if pivot0 is first sort, add pivot1 as second sort to ensure meausure grouping
+                var sortTracker = []
+                this.sorts.forEach(s => {
+                  this.pivot_fields.forEach(p => {
+                    if (p.name === s.name) {
+                      tempSort.forEach(t => {
+                        if (t.name === p.name) {
+                          sortTracker.push(t.name)
+                        }
+                      })
+                    }
+                  })
                 })
-              })
+                if (sortTracker[0] === this.pivot_fields[0].name) {
+                  sort = sort.concat(tempSort)
+                } else {
+                  sort = sort.concat(tempSort.reverse())
+                }
+              }
+            } else {
+              sort.push(tempSort[0])
             }
+            
             sort.push({ name: 'measure_idx', value: m })
             column.sort = sort
 
