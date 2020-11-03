@@ -10,11 +10,6 @@ const themes = {
   auto: require('./layout_auto.css')
 }
 
-const fonts = [
-  "https://fonts.googleapis.com/css?family=Noto+Sans+SC",
-  "https://fonts.googleapis.com/css?family=Noto+Sans+TC"
-]
-
 const BBOX_X_ADJUST = 10
 const BBOX_Y_ADJUST = 10
 
@@ -490,7 +485,6 @@ looker.plugins.visualizations.add({
     var dataTable = new VisPluginTableModel(data, queryResponse, config)
     this.trigger('registerOptions', dataTable.getConfigOptions())
     buildReportTable(config, dataTable, updateColumnOrder, element)
-    if(details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
     // DEBUG OUTPUT AND DONE
     // console.log('dataTable', dataTable)
