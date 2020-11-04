@@ -1,4 +1,6 @@
 import SSF from "ssf"
+import { cloneDeep } from "lodash"
+
 import { 
   ModelDimension, 
   ModelPivot, 
@@ -1571,14 +1573,14 @@ class VisPluginTableModel {
       column.variance_type = 'absolute'
       column.idx = baseline.idx + 1
       column.pos = baseline.pos + 1
-      var sortCopy = JSON.parse(JSON.stringify(baseline.sort))
+      var sortCopy = cloneDeep(baseline.sort)
       column.sort = [...sortCopy, {name: 'variance_absolute', value: 1}]
       column.hide = !this.config['var_num|' + baseline.modelField.name]
     } else {
       column.variance_type = 'percentage'
       column.idx = baseline.idx + 2
       column.pos = baseline.pos + 2
-      var sortCopy = JSON.parse(JSON.stringify(baseline.sort))
+      var sortCopy = cloneDeep(baseline.sort)
       column.sort = [...sortCopy, {name: 'variance_percentage', value: 2}]
       column.unit = '%'
       column.hide = !this.config['var_pct|' + baseline.modelField.name]
