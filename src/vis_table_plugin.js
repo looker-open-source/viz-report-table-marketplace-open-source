@@ -642,6 +642,9 @@ class VisPluginTableModel {
 
             var sort = []
             sort.push({ name: 'section', value: isRowTotal ? 2 : 1 })
+            if (this.sortColsBy === 'measures') {
+              sort.push({ name: 'measure_idx', value: m })
+            }
             if (this.pivot_fields.length === 2) {
               if (this.addColSubtotals) {
                 // column subtotals present, therefore must sort by pivot0, pivot1 to get correct grouping 
@@ -671,7 +674,9 @@ class VisPluginTableModel {
               sort.push(tempSort[0])
             }
             
-            sort.push({ name: 'measure_idx', value: m })
+            if (this.sortColsBy === 'pivots') {
+              sort.push({ name: 'measure_idx', value: m })
+            }
             column.sort = sort
 
             this.columns.push(column)
@@ -1467,7 +1472,7 @@ class VisPluginTableModel {
 
           case 'field':
             subtotalColumn.levels.push(new HeaderCell({ column: subtotalColumn, type: 'field', modelField: subtotalColumn.modelField}))
-            subtotalColumn.sort.push({name: 'measure.idx', value: subtotalColumn.subtotal_data.measure_idx})
+            subtotalColumn.sort.push({name: 'measure_idx', value: subtotalColumn.subtotal_data.measure_idx})
             break
         }
       })
