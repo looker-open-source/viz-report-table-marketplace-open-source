@@ -444,6 +444,7 @@ looker.plugins.visualizations.add({
       .append("div")
       .attr("id", "tooltip")
       .attr("class", "hidden")
+    
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
@@ -451,7 +452,7 @@ looker.plugins.visualizations.add({
       this.trigger('updateConfig', [{ columnOrder: newOrder }])
     }
 
-    
+
 
     // ERROR HANDLING
 
@@ -482,7 +483,18 @@ looker.plugins.visualizations.add({
     if (typeof config.columnOrder === 'undefined') {
       this.trigger('updateConfig', [{ columnOrder: {} }])
     }
-
+  
+    // Dashboard-next fails to register config if no one has touched it
+    // Check to reapply default settings to the config object
+    if (typeof config.theme === 'undefined') {
+      config = Object.assign({
+        bodyFontSize: 12,
+        headerFontSize: 12,
+        theme: "traditional",
+        showHighlight: true,
+        showTooltip: true
+      }, config)
+    }
 
     // BUILD THE VIS
     // 1. Create object
