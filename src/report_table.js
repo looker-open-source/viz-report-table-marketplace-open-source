@@ -269,9 +269,17 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         }
       })
       .on('click', d => {
+        // Looker applies padding based on the top of the viz when opening a drill field but 
+        // if part of the viz container is hidden underneath the iframe, the drill menu opens off screen
+        // We make a simple copy of the d3.event and account for pageYOffser as MouseEvent attributes are read only. 
+        let event = {
+          metaKey: d3.event.metaKey,
+          pageX: d3.event.pageX,
+          pageY: d3.event.pageY - window.pageYOffset
+        }
         LookerCharts.Utils.openDrillMenu({
           links: d.links,
-          event: d3.event
+          event: event
         })
       })
 
