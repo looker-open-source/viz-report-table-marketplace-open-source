@@ -9,6 +9,7 @@
   "devDependencies": {
     "css-loader": "^3.6.0",
     "style-loader": "^1.2.1",
+    "url-loader": "^4.1.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11"
   },
@@ -18,6 +19,7 @@
     "ssf": "^0.11.0"
   },
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "watch": "webpack  --watch --progress"
   }
 }
