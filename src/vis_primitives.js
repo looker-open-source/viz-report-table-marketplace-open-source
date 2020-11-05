@@ -151,7 +151,7 @@ class Series {
       this.count = line_items_only.length
       this.avg = line_items_only.length > 0 ? this.sum / line_items_only.length : null
     } else {
-      console.log('Could not construct series, arrays were of different length.')
+      ('Could not construct series, arrays were of different length.')
     }
   }
 }
@@ -221,6 +221,10 @@ class Row {
     this.sort = []    // [ section, subtotal group, row number ]
     this.data = {}    // Indexed by Column.id
                       // { value: any, rendered: string, html?: string, links?: array }
+  }
+
+  sortArray () {
+    return this.sort
   }
 }
 
