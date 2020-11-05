@@ -277,7 +277,9 @@ class VisPluginTableModel {
     if (this.hasTotals) { this.buildTotals(queryResponse) }
     if (this.spanRows) { this.setRowSpans() }
     if (this.addRowSubtotals) { this.addSubTotals() }
+    console.log('table in progress', this)
     if (this.addColSubtotals && this.pivot_fields.length === 2) { this.addColumnSubTotals() }
+    console.log('addColumnSubTotals() complete')
     if (this.variances) { this.addVarianceColumns() }
 
     // this.addColumnSeries()    // TODO: add column series for generated columns (eg column subtotals)
@@ -1409,15 +1411,18 @@ class VisPluginTableModel {
             columns: [],
           }
   
-          this.columns.forEach((column, i) => {  
+          this.columns.forEach((column, i) => { 
             var columnPivotValue = null
             for (var i = 0; i < column.levels.length; i++) {
               if (column.levels[i].type.startsWith('pivot')) {
-                columnPivotValue = column.levels[i].modelField.label
+                var pivotIdx = parseInt(column.levels[i].type.slice(-1))
+                var pivotDimension = this.pivot_fields[pivotIdx].name
+                if (typeof column.levels[i].pivotData.data !== 'undefined') {
+                  columnPivotValue = column.levels[i].pivotData.data[pivotDimension]
+                }
                 break
               }
             }
-
             if (column.pivoted && columnPivotValue === pivot) {
               if (column.modelField.name === measure.name) {
                 subtotalColumn.subtotal_data.columns.push(column)
@@ -1430,12 +1435,13 @@ class VisPluginTableModel {
     })
 
     // USE THE NEW DEFINITIONS TO ADD SUBTOTAL COLUMNS TO TABLE.COLUMNS
-    subtotalColumns.forEach((subtotalColumn, s) => {
+    subtotalColumns.forEach((subtotalColumn, s) => { 
       subtotalColumn.sort.push({name: 'section', value: 1})
 
       this.headers.forEach((header, i) => {
         switch (header.type) {
-          case 'pivot0':
+          case 'pivot0': 
+            console.log('subtotalColumn:', subtotalColumn) // TODO: REMOVE
             var sortValueFromColumn = subtotalColumn.subtotal_data.columns[0].levels[i].pivotData.sort_values[header.modelField.name]
             subtotalColumn.levels.push(new HeaderCell({ 
               column: subtotalColumn, 
@@ -1448,7 +1454,7 @@ class VisPluginTableModel {
             subtotalColumn.sort.push({name: header.modelField.name, value: sortValueFromColumn})
             break
 
-          case 'pivot1':
+          case 'pivot1': console.log('line1453')
             subtotalColumn.levels.push(new HeaderCell({ column: subtotalColumn, type: header.type, modelField: {
               name: 'subtotal',
               label: 'Subtotal',
