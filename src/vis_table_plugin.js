@@ -1,4 +1,6 @@
 import SSF from "ssf"
+import { cloneDeep } from "lodash"
+
 import { 
   ModelDimension, 
   ModelPivot, 
@@ -300,6 +302,7 @@ class VisPluginTableModel {
     }
     if (this.spanRows) { this.setRowSpans() }
     if (this.addColSubtotals && this.pivot_fields.length === 2) { this.addColumnSubTotals() }
+    // console.log('addColumnSubTotals() complete')
     if (this.variances) { this.addVarianceColumns() }
 
     this.sortColumns()
@@ -629,8 +632,8 @@ class VisPluginTableModel {
             column.isRowTotal = isRowTotal
             column.pivot_key = pivot_value.key
             column.idx = col_idx
-            column.sort.push({name: 'section', value: isRowTotal ? 2 : 1})
 
+            var tempSort = []
             var level_sort_values = []
             this.headers.forEach(header => {
               switch (header.type) {
@@ -648,9 +651,9 @@ class VisPluginTableModel {
                   }))
                   level_sort_values.push(pivot_value.sort_values[header.modelField.name])
                   if (column.pivoted) {
-                    column.sort.push({name: header.modelField.name, value: pivot_value.sort_values[header.modelField.name]})
+                    tempSort.push({ name: header.modelField.name, value: pivot_value.sort_values[header.modelField.name] })
                   } else {
-                    column.sort.push({name: header.modelField.name, value: 0})
+                    tempSort.push({ name: header.modelField.name, value: 0 })
                   }
                   break
 
@@ -660,10 +663,48 @@ class VisPluginTableModel {
 
                 case 'field':
                   column.levels.push(new HeaderCell({ column: column, type: 'field', modelField: measure}))
-                  column.sort.push({name: 'm', value: m})
                   break;
               }
             })
+
+            var sort = []
+            sort.push({ name: 'section', value: isRowTotal ? 2 : 1 })
+            if (this.sortColsBy === 'measures') {
+              sort.push({ name: 'measure_idx', value: m })
+            }
+            if (this.pivot_fields.length === 2) {
+              if (this.addColSubtotals) {
+                // column subtotals present, therefore must sort by pivot0, pivot1 to get correct grouping 
+                sort = sort.concat(tempSort)
+              } else {
+                // no col subtotals, so add pivot values to the sort array in the order they are configured in this.sorts
+                // if pivot0 is first sort, add pivot1 as second sort to ensure meausure grouping
+                var sortTracker = []
+                this.sorts.forEach(s => {
+                  this.pivot_fields.forEach(p => {
+                    if (p.name === s.name) {
+                      tempSort.forEach(t => {
+                        if (t.name === p.name) {
+                          sortTracker.push(t.name)
+                        }
+                      })
+                    }
+                  })
+                })
+                if (sortTracker[0] === this.pivot_fields[0].name) {
+                  sort = sort.concat(tempSort)
+                } else {
+                  sort = sort.concat(tempSort.reverse())
+                }
+              }
+            } else {
+              sort.push(tempSort[0])
+            }
+            
+            if (this.sortColsBy === 'pivots') {
+              sort.push({ name: 'measure_idx', value: m })
+            }
+            column.sort = sort
 
             this.columns.push(column)
             col_idx += 10
@@ -725,7 +766,7 @@ class VisPluginTableModel {
         this.measures.push(meas) 
 
         var column = new Column(meas.name, this, meas)
-        column.sort.push({name: 'section', value: 2})
+        column.sort.push({ name: 'section', value: 2 })
         this.headers.forEach(header => {
           switch (header.type) {
             case 'pivot0':
@@ -1712,15 +1753,18 @@ class VisPluginTableModel {
             columns: [],
           }
   
-          this.columns.forEach((column, i) => {  
+          this.columns.forEach((column, i) => { 
             var columnPivotValue = null
             for (var i = 0; i < column.levels.length; i++) {
               if (column.levels[i].type.startsWith('pivot')) {
-                columnPivotValue = column.levels[i].modelField.label
+                var pivotIdx = parseInt(column.levels[i].type.slice(-1))
+                var pivotDimension = this.pivot_fields[pivotIdx].name
+                if (typeof column.levels[i].pivotData.data !== 'undefined') {
+                  columnPivotValue = column.levels[i].pivotData.data[pivotDimension]
+                }
                 break
               }
             }
-
             if (column.pivoted && columnPivotValue === pivot) {
               if (column.modelField.name === measure.name) {
                 subtotalColumn.subtotal_data.columns.push(column)
@@ -1733,13 +1777,14 @@ class VisPluginTableModel {
     })
 
     // USE THE NEW DEFINITIONS TO ADD SUBTOTAL COLUMNS TO TABLE.COLUMNS
-    subtotalColumns.forEach((subtotalColumn, s) => {
+    subtotalColumns.forEach((subtotalColumn, s) => { 
       subtotalColumn.sort.push({name: 'section', value: 1})
 
       this.headers.forEach((header, i) => {
         switch (header.type) {
-          case 'pivot0':
-            var sort_value_from_column = subtotalColumn.subtotal_data.columns[0].levels[i].pivotData.sort_values[header.modelField.name]
+          case 'pivot0': 
+            // console.log('subtotalColumn:', subtotalColumn) // TODO: REMOVE
+            var sortValueFromColumn = subtotalColumn.subtotal_data.columns[0].levels[i].pivotData.sort_values[header.modelField.name]
             subtotalColumn.levels.push(new HeaderCell({ 
               column: subtotalColumn, 
               type: header.type, 
@@ -1748,7 +1793,7 @@ class VisPluginTableModel {
                 label: subtotalColumn.subtotal_data.pivot,
               }
             }))
-            subtotalColumn.sort.push({name: 'sort_value_from_column', value: sort_value_from_column})
+            subtotalColumn.sort.push({name: header.modelField.name, value: sortValueFromColumn})
             break
 
           case 'pivot1':
@@ -1756,8 +1801,19 @@ class VisPluginTableModel {
               name: 'subtotal',
               label: 'Subtotal',
             }}))
-            var subtotalSortValue = typeof this.pivot_values[0].sort_values[header.modelField.name] === 'string' ? 'ZZZZ' : 99999999
-            subtotalColumn.sort.push({name: 'subtotalSortValue', value: subtotalSortValue})
+
+            var sortOption = this.sorts.find(sort => sort.name === header.modelField.name)
+            if (typeof sortOption === 'undefined' || typeof sortOption.desc === 'undefined') {
+              var sortDescending = false
+            } else {
+              var sortDescending = Boolean(sortOption.desc)
+            }
+            if (sortDescending) {
+              var subtotalSortValue = typeof this.pivot_values[0].sort_values[header.modelField.name] === 'string' ? 'aaaaaaaa' : Number.NEGATIVE_INFINITY
+            } else {
+              var subtotalSortValue = typeof this.pivot_values[0].sort_values[header.modelField.name] === 'string' ? 'ZZZZZZZZ' : Number.POSITIVE_INFINITY
+            }
+            subtotalColumn.sort.push({name: header.modelField.name, value: subtotalSortValue})
             break
 
           case 'heading':
@@ -1766,7 +1822,7 @@ class VisPluginTableModel {
 
           case 'field':
             subtotalColumn.levels.push(new HeaderCell({ column: subtotalColumn, type: 'field', modelField: subtotalColumn.modelField}))
-            subtotalColumn.sort.push({name: 'measure.idx', value: subtotalColumn.subtotal_data.measure_idx})
+            subtotalColumn.sort.push({name: 'measure_idx', value: subtotalColumn.subtotal_data.measure_idx})
             break
         }
       })
@@ -1865,13 +1921,15 @@ class VisPluginTableModel {
       column.variance_type = 'absolute'
       column.idx = baseline.idx + 1
       column.pos = baseline.pos + 1
-      column.sort = [...baseline.sort, {name: 'variance_absolute', value: 1}]
+      var sortCopy = cloneDeep(baseline.sort)
+      column.sort = [...sortCopy, {name: 'variance_absolute', value: 1}]
       column.hide = !this.config['var_num|' + baseline.modelField.name]
     } else {
       column.variance_type = 'percentage'
       column.idx = baseline.idx + 2
       column.pos = baseline.pos + 2
-      column.sort = [...baseline.sort, {name: 'variance_percentage', value: 2}]
+      var sortCopy = cloneDeep(baseline.sort)
+      column.sort = [...sortCopy, {name: 'variance_percentage', value: 2}]
       column.unit = '%'
       column.hide = !this.config['var_pct|' + baseline.modelField.name]
     }
@@ -1884,7 +1942,7 @@ class VisPluginTableModel {
     column.super = baseline.super
     column.pivot_key = baseline.pivot_key
 
-    if (this.groupVarianceColumns) {    
+    if (this.groupVarianceColumns) {
         column.sort[0].value = 1.5
     }
 

@@ -10,11 +10,6 @@ const themes = {
   auto: require('./layout_auto.css')
 }
 
-const fonts = [
-  "https://fonts.googleapis.com/css?family=Noto+Sans+SC",
-  "https://fonts.googleapis.com/css?family=Noto+Sans+TC"
-]
-
 const BBOX_X_ADJUST = 10
 const BBOX_Y_ADJUST = 10
 
@@ -300,9 +295,17 @@ const buildReportTable = function(config, dataTable, element) {
         } else if (d.cell_style.includes('total') && d.cell_style.includes('dimension')) {
           dataTable.toggleCollapseExpandAll()
         } else {
+          // Looker applies padding based on the top of the viz when opening a drill field but 
+          // if part of the viz container is hidden underneath the iframe, the drill menu opens off screen
+          // We make a simple copy of the d3.event and account for pageYOffser as MouseEvent attributes are read only. 
+          let event = {
+            metaKey: d3.event.metaKey,
+            pageX: d3.event.pageX,
+            pageY: d3.event.pageY - window.pageYOffset
+          }
           LookerCharts.Utils.openDrillMenu({
             links: d.links,
-            event: d3.event
+            event: event
           })
         }
         
@@ -470,13 +473,16 @@ looker.plugins.visualizations.add({
       .append("div")
       .attr("id", "tooltip")
       .attr("class", "hidden")
+    
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
     const updateConfig = (newConfig) => {
       this.trigger('updateConfig', newConfig)
     }
-    
+
+
+
     // ERROR HANDLING
 
     this.clearErrors();
@@ -511,6 +517,18 @@ looker.plugins.visualizations.add({
       this.trigger('updateConfig', [{ collapseSubtotals: {} }])
     }
 
+  
+    // Dashboard-next fails to register config if no one has touched it
+    // Check to reapply default settings to the config object
+    if (typeof config.theme === 'undefined') {
+      config = Object.assign({
+        bodyFontSize: 12,
+        headerFontSize: 12,
+        theme: "traditional",
+        showHighlight: true,
+        showTooltip: true
+      }, config)
+    }
 
     // BUILD THE VIS
     // 1. Create object
@@ -520,7 +538,7 @@ looker.plugins.visualizations.add({
     var dataTable = new VisPluginTableModel(data, queryResponse, config, updateConfig)
     this.trigger('registerOptions', dataTable.getConfigOptions())
     buildReportTable(config, dataTable, element)
-    if(details.print) { fonts.forEach(e => loadStylesheet(e) ); }
+    if (details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
     // DEBUG OUTPUT AND DONE
     console.log('dataTable', dataTable)

@@ -16,6 +16,10 @@ module.exports = {
           'css-loader',
         ],
       },
+      {
+        test: /\.(woff|woff2|ttf|otf)$/,
+        loader: 'url-loader',
+      }
     ]
   }
 };

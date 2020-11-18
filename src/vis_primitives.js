@@ -17,11 +17,7 @@ class ModelField {
     this.vis = vis
     this.name = queryResponseField.name
     this.view = queryResponseField.view_label || ''
-    if (queryResponseField.label_from_parameter === null) {
-      this.label = queryResponseField.field_group_variant || queryResponseField.label_short || queryResponseField.label
-    } else {
-      this.label = queryResponseField.label_short || queryResponseField.label
-    }
+    this.label = queryResponseField.label_short || queryResponseField.label
     this.is_numeric = typeof queryResponseField.is_numeric !== 'undefined' ? queryResponseField.is_numeric : false
     this.is_array = ['list', 'number_list', 'location', 'tier'].includes(queryResponseField.type)
     this.value_format = queryResponseField.value_format ? queryResponseField.value_format : ''
@@ -155,7 +151,7 @@ class Series {
       this.count = line_items_only.length
       this.avg = line_items_only.length > 0 ? this.sum / line_items_only.length : null
     } else {
-      console.log('Could not construct series, arrays were of different length.')
+      ('Could not construct series, arrays were of different length.')
     }
   }
 }
@@ -227,6 +223,10 @@ class Row {
     this.data = {}    // Indexed by Column.id
                       // { value: any, rendered: string, html?: string, links?: array }
     this.children = []
+  }
+
+  sortArray () {
+    return this.sort
   }
 }
 
