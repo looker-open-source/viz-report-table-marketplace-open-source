@@ -302,7 +302,6 @@ class VisPluginTableModel {
     }
     if (this.spanRows) { this.setRowSpans() }
     if (this.addColSubtotals && this.pivot_fields.length === 2) { this.addColumnSubTotals() }
-    // console.log('addColumnSubTotals() complete')
     if (this.variances) { this.addVarianceColumns() }
 
     this.sortColumns()
@@ -1783,7 +1782,6 @@ class VisPluginTableModel {
       this.headers.forEach((header, i) => {
         switch (header.type) {
           case 'pivot0': 
-            // console.log('subtotalColumn:', subtotalColumn) // TODO: REMOVE
             var sortValueFromColumn = subtotalColumn.subtotal_data.columns[0].levels[i].pivotData.sort_values[header.modelField.name]
             subtotalColumn.levels.push(new HeaderCell({ 
               column: subtotalColumn, 
@@ -2065,29 +2063,6 @@ class VisPluginTableModel {
     variance_colpairs.forEach(colpair => {
       this.createVarianceColumn(colpair)
     })
-  }
-
-  compareSortArrays (dataTable) {
-    return function(a, b) {
-      var depth = Math.max(a.sort.length, b.sort.length)
-      for (var i = 0; i < depth; i++) {
-          var field = typeof a.sort[i].name !== 'undefined' ? a.sort[i].name : ''
-          var sort = dataTable.sorts.find(item => item.name === field)
-          var desc = typeof sort !== 'undefined' ? sort.desc : false
-
-          var a_value = typeof a.sort[i] !== 'undefined' ? a.sort[i].value : 0
-          var b_value = typeof b.sort[i] !== 'undefined' ? b.sort[i].value : 0
-
-          if (desc) {
-            if (a_value < b_value) { return 1 }
-            if (a_value > b_value) { return -1 }
-          } else {
-            if (a_value > b_value) { return 1 }
-            if (a_value < b_value) { return -1 }
-          }
-      }
-      return -1
-    }
   }
 
   /**
