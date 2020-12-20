@@ -5,7 +5,7 @@ import { VisPluginTableModel } from './vis_table_plugin'
 
 const agGridTheme = require('./ag-grid.css')
 const themes = {
-  alpine: require('./ag-theme-alpine.css'),
+  balham: require('./ag-theme-balham.css'),
 }
 
 const removeStyles = async function() {
@@ -83,10 +83,10 @@ const buildReportTable = function(config, dataTable, element) {
 
   removeStyles().then(() => {
     agGridTheme.use()
-    themes['alpine'].use()
+    themes['balham'].use()
     // if (typeof themes[config.theme] !== 'undefined') {
     //   // themes[config.theme].use()
-    //   themes['alpine'].use()
+    //   themes['balham'].use()
     // }
   })
 
@@ -173,7 +173,7 @@ const buildReportTable = function(config, dataTable, element) {
     suppressFieldDotNotation: true,
   };
   console.log('gridOptions', gridOptions)
-  element.classList.add('ag-theme-alpine')
+  element.classList.add('ag-theme-balham')
   new Grid(element, gridOptions)
 }
 
@@ -229,7 +229,7 @@ looker.plugins.visualizations.add({
       config = Object.assign({
         bodyFontSize: 12,
         headerFontSize: 12,
-        theme: "alpine",
+        theme: "balham",
         showHighlight: true,
         showTooltip: true
       }, config)
