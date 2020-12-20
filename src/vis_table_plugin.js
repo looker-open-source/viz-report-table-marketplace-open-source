@@ -2471,6 +2471,14 @@ class VisPluginTableModel {
     }
   }
 
+  getDataColumns () {
+    if (!this.transposeTable) {
+      return this.columns
+    } else {
+      return this.transposed_columns
+    }
+  }
+
   getDataRows () {
     if (!this.transposeTable) {
       var dataRows = this.data.filter(row => !row.hide)

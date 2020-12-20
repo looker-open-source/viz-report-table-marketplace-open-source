@@ -1,4 +1,5 @@
 import { Grid } from 'ag-grid-community'
+import 'ag-grid-enterprise';
 
 import { VisPluginTableModel } from './vis_table_plugin'
 
@@ -25,7 +26,60 @@ const loadStylesheet = function(link) {
 
 
 const buildReportTable = function(config, dataTable, element) {
-  const bounds = element.getBoundingClientRect()
+  const getSubtotalColumnId = function(rowNode, keys = []) {
+    keys.push(rowNode.key)
+    if (rowNode.level == 0) {
+      return ['CollapsibleSubtotal', ...keys.reverse()].join('|')
+    } else {
+      return getSubtotalColumnId(rowNode.parent, keys)
+    }
+  }
+
+  const getSubtotalValue = function(params) {
+    var value = ''
+    if (
+      // typeof params.rowNode.group !== 'undefined' 
+      // && typeof params.rowNode.footer !== 'undefined' 
+      // && params.colDef.rowGroup 
+      params.rowNode.level < 0
+      && params.column.colId === 'trans.type'
+    ) {
+      console.log('===============================================')
+      console.log('row level', params.rowNode.level)
+      console.log('row id', params.rowNode.id)
+      console.log('row key', params.rowNode.key)
+      console.log('colId', params.column.colId)
+      if (params.rowNode.level >= 0) {
+        var subtotalColumnId = getSubtotalColumnId(params.rowNode)
+        console.log('subtotalColumnId', subtotalColumnId)
+        console.log('subtotal rows', subtotalData)
+        var subtotalRow = subtotalData.find(row => row.id === subtotalColumnId)
+        console.log('subtotal row', subtotalRow)
+        if (typeof subtotalRow !== 'undefined') {
+          console.log('subtotal data', subtotalRow.data[params.column.colId])
+        }
+      } 
+      console.log('params', params)
+    }    
+    // find subtotalData row where id = 'CollapsibleSort|DimValue|DimValue'
+    // value = row[column.id].value
+
+    // params.rowNode
+
+    if (params.rowNode.level >= 0) {
+      var subtotalColumnId = getSubtotalColumnId(params.rowNode)
+      var subtotalRow = subtotalData.find(row => row.id === subtotalColumnId)
+      if (typeof subtotalRow !== 'undefined') {
+        value = subtotalRow.data[params.column.colId].value
+      }
+    } else if (params.rowNode.level === -1) {
+      if (typeof totalData.data !== 'undefined') {
+        value = totalData.data[params.column.colId].value
+      }
+    }
+
+    return { value: value }
+  }
 
   removeStyles().then(() => {
     agGridTheme.use()
@@ -53,24 +107,72 @@ const buildReportTable = function(config, dataTable, element) {
   //   event: event
   // })
 
-  var columnDefs = [
-    { headerName: 'Make', field: 'make' },
-    { headerName: 'Model', field: 'model' },
-    { headerName: 'Price', field: 'price' }
-  ];
-  
-  // specify the data
-  var rowData = [
-    { make: 'Toyota', model: 'Celica', price: 35000 },
-    { make: 'Ford', model: 'Mondeo', price: 32000 },
-    { make: 'Porsche', model: 'Boxter', price: 72000 }
-  ];
+  var columnDefs = []
+  // Group column renderer
+  // columnDefs.push({
+  //   headerName: 'Group',
+  //   showRowGroup: true,
+  //   cellRenderer: 'agGroupCellRenderer'
+  // })
+  dataTable.getDataColumns().forEach(column => {
+    columnDefs.push({
+      colId: column.id,
+      hide: column.modelField.type === 'dimension' ? true : column.hide,
+      headerName: column.modelField.lable,
+      headerTooltip: column.modelField.name,
+      field: column.id,
+      valueGetter: function(params) { 
+        return typeof params.data === 'undefined' ? '' : '' + params.data.data[column.id].value 
+      },
+      cellRenderer: function(params) { 
+        // console.log('cellRenderer params', params)
+        if (typeof params.node.aggData !== 'undefined') {
+          return '' + params.node.aggData[column.id].value
+        } else {
+          return typeof params.data === 'undefined' ? '' : '' + params.data.data[column.id].value 
+        }
+      },
+      filter: true,
+      sortable: true,
+      rowGroup: column.modelField.type === 'dimension',
+      aggFunc: 'getSubtotalValue',
+    })
+  })
+
+  var tableData = dataTable.getDataRows()
+  var rowData = tableData.filter(row => row.type === 'line_item')
+  var subtotalData = tableData.filter(row => row.type === 'subtotal')
+  var totalData = tableData.filter(row => row.type === 'total')[0]
+
+  console.log('subtotalData', subtotalData)
+  console.log('totalData', totalData)
   
   // let the grid know which columns and what data to use
   var gridOptions = {
+    aggFuncs: {
+      getSubtotalValue: getSubtotalValue
+    },
+    suppressAggFuncInHeader: true,
     columnDefs: columnDefs,
-    rowData: rowData
+    // groupHideOpenParents: true,
+    groupIncludeFooter: true,
+    groupIncludeTotalFooter: true,
+    autoGroupColumnDef: {
+      // headerName: 'THE GROUPS!',
+      cellRendererParams: {
+        // suppressCount: true,
+        checkbox: false,
+        innerRenderer: function(params) { 
+          console.log('autoGroupColumnDef cellRenderer params', params)
+          return params.value
+        },
+      },
+    },
+    enableRangeSelection: true,
+    rowData: rowData,
+    suppressFieldDotNotation: true,
   };
+  console.log('gridOptions', gridOptions)
   element.classList.add('ag-theme-alpine')
   new Grid(element, gridOptions)
 }
