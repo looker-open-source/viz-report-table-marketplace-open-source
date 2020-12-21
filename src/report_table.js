@@ -38,11 +38,11 @@ const buildReportTable = function(config, dataTable, element) {
   const getSubtotalValue = function(params) {
     var value = ''
     if (
-      // typeof params.rowNode.group !== 'undefined' 
+      params.column.colId === 'Q1|FIELD|January|FIELD|1.trans.total_transaction_value'
+      // && typeof params.rowNode.group !== 'undefined' 
       // && typeof params.rowNode.footer !== 'undefined' 
       // && params.colDef.rowGroup 
-      params.rowNode.level < 0
-      && params.column.colId === 'trans.type'
+      // params.rowNode.level < 0
     ) {
       console.log('===============================================')
       console.log('row level', params.rowNode.level)
@@ -56,6 +56,8 @@ const buildReportTable = function(config, dataTable, element) {
         var subtotalRow = subtotalData.find(row => row.id === subtotalColumnId)
         console.log('subtotal row', subtotalRow)
         if (typeof subtotalRow !== 'undefined') {
+          // console.log('subtotal key', params.column.colId)
+          // console.log('subtotal keys', subtotalRow.data.keys())
           console.log('subtotal data', subtotalRow.data[params.column.colId])
         }
       } 
@@ -117,7 +119,7 @@ const buildReportTable = function(config, dataTable, element) {
   dataTable.getDataColumns().forEach(column => {
     columnDefs.push({
       colId: column.id,
-      hide: column.modelField.type === 'dimension' ? true : column.hide,
+      hide: ['trans.type', 'trans.category'].includes(column.id) ? true : column.hide,
       headerName: column.modelField.lable,
       headerTooltip: column.modelField.name,
       field: column.id,
@@ -134,7 +136,8 @@ const buildReportTable = function(config, dataTable, element) {
       },
       filter: true,
       sortable: true,
-      rowGroup: column.modelField.type === 'dimension',
+      // rowGroup: column.modelField.type === 'dimension',
+      rowGroup: ['trans.type', 'trans.category'].includes(column.id),
       aggFunc: 'getSubtotalValue',
     })
   })
@@ -154,9 +157,10 @@ const buildReportTable = function(config, dataTable, element) {
     },
     suppressAggFuncInHeader: true,
     columnDefs: columnDefs,
-    // groupHideOpenParents: true,
+    groupHideOpenParents: true,
     groupIncludeFooter: true,
     groupIncludeTotalFooter: true,
+    groupDefaultExpanded: -1,
     autoGroupColumnDef: {
       // headerName: 'THE GROUPS!',
       cellRendererParams: {
@@ -171,6 +175,10 @@ const buildReportTable = function(config, dataTable, element) {
     enableRangeSelection: true,
     rowData: rowData,
     suppressFieldDotNotation: true,
+    getRowHeight: function(params) {
+      console.log('getRowHeight params', params)
+      return params.node.field === 'trans.type' ? 0 : 32;
+    }
   };
   console.log('gridOptions', gridOptions)
   element.classList.add('ag-theme-balham')
