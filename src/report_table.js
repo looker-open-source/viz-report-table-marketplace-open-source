@@ -26,62 +26,6 @@ const loadStylesheet = function(link) {
 
 
 const buildReportTable = function(config, dataTable, element) {
-  const getSubtotalColumnId = function(rowNode, keys = []) {
-    keys.push(rowNode.key)
-    if (rowNode.level == 0) {
-      return ['CollapsibleSubtotal', ...keys.reverse()].join('|')
-    } else {
-      return getSubtotalColumnId(rowNode.parent, keys)
-    }
-  }
-
-  const getSubtotalValue = function(params) {
-    var value = ''
-    if (
-      params.column.colId === 'Q1|FIELD|January|FIELD|1.trans.total_transaction_value'
-      // && typeof params.rowNode.group !== 'undefined' 
-      // && typeof params.rowNode.footer !== 'undefined' 
-      // && params.colDef.rowGroup 
-      // params.rowNode.level < 0
-    ) {
-      console.log('===============================================')
-      console.log('row level', params.rowNode.level)
-      console.log('row id', params.rowNode.id)
-      console.log('row key', params.rowNode.key)
-      console.log('colId', params.column.colId)
-      if (params.rowNode.level >= 0) {
-        var subtotalColumnId = getSubtotalColumnId(params.rowNode)
-        console.log('subtotalColumnId', subtotalColumnId)
-        console.log('subtotal rows', subtotalData)
-        var subtotalRow = subtotalData.find(row => row.id === subtotalColumnId)
-        console.log('subtotal row', subtotalRow)
-        if (typeof subtotalRow !== 'undefined') {
-          // console.log('subtotal key', params.column.colId)
-          // console.log('subtotal keys', subtotalRow.data.keys())
-          console.log('subtotal data', subtotalRow.data[params.column.colId])
-        }
-      } 
-      console.log('params', params)
-    }    
-    // find subtotalData row where id = 'CollapsibleSort|DimValue|DimValue'
-    // value = row[column.id].value
-
-    // params.rowNode
-
-    if (params.rowNode.level >= 0) {
-      var subtotalColumnId = getSubtotalColumnId(params.rowNode)
-      var subtotalRow = subtotalData.find(row => row.id === subtotalColumnId)
-      if (typeof subtotalRow !== 'undefined') {
-        value = subtotalRow.data[params.column.colId].value
-      }
-    } else if (params.rowNode.level === -1) {
-      if (typeof totalData.data !== 'undefined') {
-        value = totalData.data[params.column.colId].value
-      }
-    }
-
-    return { value: value }
-  }
 
   removeStyles().then(() => {
     agGridTheme.use()
@@ -109,17 +53,10 @@ const buildReportTable = function(config, dataTable, element) {
   //   event: event
   // })
 
-  var columnDefs = []
-  // Group column renderer
-  // columnDefs.push({
-  //   headerName: 'Group',
-  //   showRowGroup: true,
-  //   cellRenderer: 'agGroupCellRenderer'
-  // })
-  dataTable.getDataColumns().forEach(column => {
-    columnDefs.push({
+  const getColDef = column => {
+    return  {
       colId: column.id,
-      hide: ['trans.type', 'trans.category'].includes(column.id) ? true : column.hide,
+      hide: column.hide,
       headerName: column.modelField.lable,
       headerTooltip: column.modelField.name,
       field: column.id,
@@ -128,56 +65,111 @@ const buildReportTable = function(config, dataTable, element) {
       },
       cellRenderer: function(params) { 
         // console.log('cellRenderer params', params)
-        if (typeof params.node.aggData !== 'undefined') {
-          return '' + params.node.aggData[column.id].value
+        if (typeof params.data !== 'undefined') {
+          return '' + params.data.data[column.id].value
         } else {
-          return typeof params.data === 'undefined' ? '' : '' + params.data.data[column.id].value 
+          return 'RENDER ERROR'
         }
       },
       filter: true,
       sortable: true,
-      // rowGroup: column.modelField.type === 'dimension',
-      rowGroup: ['trans.type', 'trans.category'].includes(column.id),
-      aggFunc: 'getSubtotalValue',
+      colSpan: function(params) {
+        try {
+          var colspan = params.data.data[column.id].colspan 
+        } catch {
+          var colspan = 1 
+        }
+        return colspan 
+      },
+      rowSpan: function(params) {
+        try {
+          var rowspan = params.data.data[column.id].rowspan 
+        } catch {
+          var rowspan = 1 
+        }
+        return rowspan 
+      },
+    }
+  }
+
+  var columnDefs = []
+
+  if (dataTable.headers.length === 1) {
+    dataTable.getDataColumns.forEach(column => columnDefs.push(getColDef(column)))
+  } else {
+    // DIMENSIONS
+    var dimensionGroup = {
+      headerName: 'Dimensions',
+      children: []
+    }
+    var dimensions = dataTable.getDataColumns()
+        .filter(column => column.modelField.type === 'dimension')
+    dimensions.forEach(column => {
+      dimensionGroup.children.push(getColDef(column))
     })
-  })
+    columnDefs.push(dimensionGroup)
 
-  var tableData = dataTable.getDataRows()
-  var rowData = tableData.filter(row => row.type === 'line_item')
-  var subtotalData = tableData.filter(row => row.type === 'subtotal')
-  var totalData = tableData.filter(row => row.type === 'total')[0]
+    // MEASURES
+    const getMeasureGroup = (parent, level=0) => {
+      // var headerName = parent.levels[level].label === "" ? 'BLANK' : parent.levels[level].label
+      var headerName = parent.levels[level].label
+      var branchIndex = parent.levels.slice(0, level + 1).map(level => level.label).join('|')
+      var children = measures
+        .filter(column => column.levels[level + 1].colspan > 0)
+        .filter(column => {
+          var columnIndex = column.levels.slice(0, level + 1).map(level => level.label).join('|')
+          return columnIndex === branchIndex 
+        })
 
-  console.log('subtotalData', subtotalData)
-  console.log('totalData', totalData)
+      if (level + 2 === dataTable.headers.length) {
+        return {
+          headerName: headerName,
+          children: children.map(child => getColDef(child))
+        }
+      } else {
+        return {
+          headerName: headerName,
+          children: children.map(child => getMeasureGroup(child, level + 1))
+        }
+      }
+    }
+
+    var measures = dataTable.getDataColumns()
+      .filter(column => column.modelField.type === 'measure')
+      .filter(column => column.pivoted)
+      .filter(column => !column.super)
+
+    var measureGroups = measures.filter(column => column.levels[0].colspan > 0)
+    measureGroups.forEach(group => columnDefs.push(getMeasureGroup(group)))
+
+    // SUPERMEASURES
+    var supermeasureGroup = {
+      headerName: 'Supermeasures',
+      children: []
+    }
+    var supermeasures = dataTable.getDataColumns()
+        .filter(column => column.modelField.type === 'measure')
+        .filter(column => !column.pivoted)
+        .filter(column => column.super)
+    supermeasures.forEach(column => {
+      supermeasureGroup.children.push(getColDef(column))
+    })
+    columnDefs.push(supermeasureGroup)
+  }
+  var rowData = dataTable.getDataRows()
   
   // let the grid know which columns and what data to use
   var gridOptions = {
-    aggFuncs: {
-      getSubtotalValue: getSubtotalValue
-    },
-    suppressAggFuncInHeader: true,
     columnDefs: columnDefs,
-    groupHideOpenParents: true,
-    groupIncludeFooter: true,
-    groupIncludeTotalFooter: true,
-    groupDefaultExpanded: -1,
-    autoGroupColumnDef: {
-      // headerName: 'THE GROUPS!',
-      cellRendererParams: {
-        // suppressCount: true,
-        checkbox: false,
-        innerRenderer: function(params) { 
-          console.log('autoGroupColumnDef cellRenderer params', params)
-          return params.value
-        },
-      },
-    },
     enableRangeSelection: true,
     rowData: rowData,
     suppressFieldDotNotation: true,
-    getRowHeight: function(params) {
-      console.log('getRowHeight params', params)
-      return params.node.field === 'trans.type' ? 0 : 32;
+    suppressRowTransform: true,
+    getRowStyle: function(params) {
+      // console.log('getRowStyle() params', params)
+      if (params.data.type !== 'line_item') {
+        return { background: 'lightgrey' }
+      }
     }
   };
   console.log('gridOptions', gridOptions)
