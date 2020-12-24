@@ -92,55 +92,65 @@ const buildReportTable = function(config, dataTable, element) {
     }
   }
 
+  const getColumnGroup = (columns, parent, level=0) => {
+    // var headerName = parent.levels[level].label === "" ? 'BLANK' : parent.levels[level].label
+    var headerName = parent.levels[level].label
+    var branchIndex = parent.levels.slice(0, level + 1).map(level => level.label).join('|')
+    console.log('Branch Index', branchIndex)
+    var children = columns
+      .filter(column => column.levels[level + 1].colspan > 0)
+      .filter(column => {
+        var columnIndex = column.levels.slice(0, level + 1).map(level => level.label).join('|')
+        return columnIndex === branchIndex 
+      })
+
+    if (level + 2 === dataTable.headers.length) {
+      return {
+        headerName: headerName,
+        children: children.map(child => getColDef(child))
+      }
+    } else {
+      return {
+        headerName: headerName,
+        children: children.map(child => getColumnGroup(columns, child, level + 1))
+      }
+    }
+  }
+
   var columnDefs = []
 
   if (dataTable.headers.length === 1) {
     dataTable.getDataColumns.forEach(column => columnDefs.push(getColDef(column)))
   } else {
+    
+
     // DIMENSIONS
     var dimensionGroup = {
       headerName: 'Dimensions',
       children: []
     }
     var dimensions = dataTable.getDataColumns()
-        .filter(column => column.modelField.type === 'dimension')
+      .filter(column => ['dimension', 'transposed_table_index'].includes(column.modelField.type))
     dimensions.forEach(column => {
       dimensionGroup.children.push(getColDef(column))
     })
     columnDefs.push(dimensionGroup)
 
     // MEASURES
-    const getMeasureGroup = (parent, level=0) => {
-      // var headerName = parent.levels[level].label === "" ? 'BLANK' : parent.levels[level].label
-      var headerName = parent.levels[level].label
-      var branchIndex = parent.levels.slice(0, level + 1).map(level => level.label).join('|')
-      var children = measures
-        .filter(column => column.levels[level + 1].colspan > 0)
-        .filter(column => {
-          var columnIndex = column.levels.slice(0, level + 1).map(level => level.label).join('|')
-          return columnIndex === branchIndex 
-        })
-
-      if (level + 2 === dataTable.headers.length) {
-        return {
-          headerName: headerName,
-          children: children.map(child => getColDef(child))
-        }
-      } else {
-        return {
-          headerName: headerName,
-          children: children.map(child => getMeasureGroup(child, level + 1))
-        }
-      }
-    }
-
-    var measures = dataTable.getDataColumns()
+    if (!dataTable.transposeTable) {
+      var measures = dataTable.getDataColumns()
       .filter(column => column.modelField.type === 'measure')
       .filter(column => column.pivoted)
-      .filter(column => !column.super)
+      .filter(column => !column.super)      
+    } else {
+      var measures = dataTable.getDataColumns()
+      .filter(column => column.modelField.type === 'transposed_table_measure')
+    }
+    console.log('measures for grouping', measures)
 
     var measureGroups = measures.filter(column => column.levels[0].colspan > 0)
-    measureGroups.forEach(group => columnDefs.push(getMeasureGroup(group)))
+    console.log('measure groups', measureGroups)
+    measureGroups.forEach(group => columnDefs.push(getColumnGroup(measures, group)))
 
     // SUPERMEASURES
     var supermeasureGroup = {
