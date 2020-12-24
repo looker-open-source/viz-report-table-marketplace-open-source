@@ -1671,7 +1671,7 @@ class VisPluginTableModel {
     var span_tracker = {}
 
     // 1)
-    leaves = this.data
+    leaves = this.data.filter(row => !row.hide)
 
     // 2)
     tiers = this.dimensions.filter(d => !d.hide)
