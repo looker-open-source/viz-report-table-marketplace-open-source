@@ -1,5 +1,5 @@
 import { Grid } from 'ag-grid-community'
-import 'ag-grid-enterprise';
+// import 'ag-grid-enterprise';
 
 import { VisPluginTableModel } from './vis_table_plugin'
 
@@ -92,27 +92,41 @@ const buildReportTable = function(config, dataTable, element) {
     }
   }
 
-  const getColumnGroup = (columns, parent, level=0) => {
+  const getColumnGroup = (columns, level=0) => {
     // var headerName = parent.levels[level].label === "" ? 'BLANK' : parent.levels[level].label
-    var headerName = parent.levels[level].label
-    var branchIndex = parent.levels.slice(0, level + 1).map(level => level.label).join('|')
-    console.log('Branch Index', branchIndex)
-    var children = columns
-      .filter(column => column.levels[level + 1].colspan > 0)
-      .filter(column => {
-        var columnIndex = column.levels.slice(0, level + 1).map(level => level.label).join('|')
-        return columnIndex === branchIndex 
-      })
+    var headerName = columns[0].levels[level].label
+    var branchIndex = columns[0].levels.slice(0, level + 1).map(level => level.label).join('|')
+    if (level === 0) { console.log('Branch: ', branchIndex) }
+
+    // if this is a transposed subtotal, then can return with itself as sole child
+    if (dataTable.transposeTable && columns[0].levels[0].rowspan === dataTable.headers.length) {
+      return {
+        headerName:headerName,
+        children: [getColDef(columns[0])]
+      }
+    }
+    
+    var children = []
+    var idx = 0
+    while (idx < columns.length && columns[idx].levels[level].label === columns[0].levels[level].label ) {
+      if (columns[idx].levels[level + 1].colspan > 0) {
+        children.push({
+          index: idx, 
+          column: columns[idx]
+        })
+      }
+      idx = idx + 1
+    }
 
     if (level + 2 === dataTable.headers.length) {
       return {
         headerName: headerName,
-        children: children.map(child => getColDef(child))
+        children: children.map(child => getColDef(child.column))
       }
     } else {
       return {
         headerName: headerName,
-        children: children.map(child => getColumnGroup(columns, child, level + 1))
+        children: children.map(child => getColumnGroup(columns.slice(child.index, columns.length), level + 1))
       }
     }
   }
@@ -122,8 +136,6 @@ const buildReportTable = function(config, dataTable, element) {
   if (dataTable.headers.length === 1) {
     dataTable.getDataColumns.forEach(column => columnDefs.push(getColDef(column)))
   } else {
-    
-
     // DIMENSIONS
     var dimensionGroup = {
       headerName: 'Dimensions',
@@ -146,11 +158,12 @@ const buildReportTable = function(config, dataTable, element) {
       var measures = dataTable.getDataColumns()
       .filter(column => column.modelField.type === 'transposed_table_measure')
     }
-    console.log('measures for grouping', measures)
 
-    var measureGroups = measures.filter(column => column.levels[0].colspan > 0)
-    console.log('measure groups', measureGroups)
-    measureGroups.forEach(group => columnDefs.push(getColumnGroup(measures, group)))
+    measures.forEach((measure, idx) => {
+      if (measure.levels[0].colspan > 0) {
+        columnDefs.push(getColumnGroup(measures.slice(idx, measures.length)))
+      }
+    })
 
     // SUPERMEASURES
     var supermeasureGroup = {
