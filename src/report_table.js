@@ -53,24 +53,42 @@ const buildReportTable = function(config, dataTable, element) {
   //   event: event
   // })
 
+  const cellRenderer = (column, params) => { 
+    // console.log('cellRenderer params', params)
+    var text = ''
+    var data = params.data.data[column.id]
+    if (typeof params.data !== 'undefined') {
+      if (data.rendered || data.rendered === '') {     // could be deliberate choice to render empty string
+        text = data.rendered
+      } else {
+        text = data.value   
+      }
+    } else {
+      text = 'RENDER ERROR'
+    }
+    return text
+  }
+
+  const cellStyler = (column, params) => {
+    var data = params.data.data[column.id]
+    return {
+      'text-align': data.align,
+    }
+  }
+
   const getColDef = column => {
     return  {
       colId: column.id,
+      suppressMovable: true,
       hide: column.hide,
-      headerName: column.modelField.lable,
+      headerName: column.levels[dataTable.headers.length-1].label,
       headerTooltip: column.modelField.name,
       field: column.id,
       valueGetter: function(params) { 
         return typeof params.data === 'undefined' ? '' : '' + params.data.data[column.id].value 
       },
-      cellRenderer: function(params) { 
-        // console.log('cellRenderer params', params)
-        if (typeof params.data !== 'undefined') {
-          return '' + params.data.data[column.id].value
-        } else {
-          return 'RENDER ERROR'
-        }
-      },
+      cellRenderer: params => cellRenderer(column, params),
+      cellStyle: params => cellStyler(column, params),
       filter: true,
       sortable: true,
       colSpan: function(params) {
@@ -95,13 +113,14 @@ const buildReportTable = function(config, dataTable, element) {
   const getColumnGroup = (columns, level=0) => {
     // var headerName = parent.levels[level].label === "" ? 'BLANK' : parent.levels[level].label
     var headerName = columns[0].levels[level].label
-    var branchIndex = columns[0].levels.slice(0, level + 1).map(level => level.label).join('|')
-    if (level === 0) { console.log('Branch: ', branchIndex) }
+    // var branchIndex = columns[0].levels.slice(0, level + 1).map(level => level.label).join('|')
+    // if (level === 0) { console.log('Branch: ', branchIndex) }
 
     // if this is a transposed subtotal, then can return with itself as sole child
     if (dataTable.transposeTable && columns[0].levels[0].rowspan === dataTable.headers.length) {
       return {
-        headerName:headerName,
+        headerName: headerName,
+        marryChildren: true,
         children: [getColDef(columns[0])]
       }
     }
@@ -121,6 +140,7 @@ const buildReportTable = function(config, dataTable, element) {
     if (level + 2 === dataTable.headers.length) {
       return {
         headerName: headerName,
+        marryChildren: true,
         children: children.map(child => getColDef(child.column))
       }
     } else {
@@ -139,6 +159,7 @@ const buildReportTable = function(config, dataTable, element) {
     // DIMENSIONS
     var dimensionGroup = {
       headerName: 'Dimensions',
+      marryChildren: true,
       children: []
     }
     var dimensions = dataTable.getDataColumns()
@@ -168,6 +189,7 @@ const buildReportTable = function(config, dataTable, element) {
     // SUPERMEASURES
     var supermeasureGroup = {
       headerName: 'Supermeasures',
+      marryChildren: true,
       children: []
     }
     var supermeasures = dataTable.getDataColumns()
