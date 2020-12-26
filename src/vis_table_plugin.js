@@ -20,12 +20,14 @@ const tableModelCoreOptions = {
     display: "select",
     label: "Theme",
     values: [
-      { 'Traditional': 'traditional' },
-      { 'Looker': 'looker' },
-      { 'Contemporary': 'contemporary' },
-      { 'Use custom theme': 'custom'}
+      { 'Finance': 'finance' },
+      { 'Balham': 'balham' },
+      // { 'Traditional': 'traditional' },
+      // { 'Looker': 'looker' },
+      // { 'Contemporary': 'contemporary' },
+      // { 'Use custom theme': 'custom'}
     ],
-    default: "traditional",
+    default: "finance",
     order: 1,
   },
   customTheme: {
@@ -2319,8 +2321,8 @@ class VisPluginTableModel {
   }
 
   validateConfig() {
-    if (!['traditional', 'looker', 'contemporary', 'custom'].includes(this.config.theme)) {
-      this.config.theme = 'traditional'
+    if (!['finance', 'balham', 'traditional', 'looker', 'contemporary', 'custom'].includes(this.config.theme)) {
+      this.config.theme = 'finance'
     }
 
     if (!['fixed', 'auto'].includes(this.config.layout)) {

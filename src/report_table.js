@@ -1,11 +1,12 @@
 import { Grid } from 'ag-grid-community'
-// import 'ag-grid-enterprise';
+import { csvParse } from 'd3'
 
 import { VisPluginTableModel } from './vis_table_plugin'
 
-const agGridTheme = require('./ag-grid.css')
+const agGridTheme = require('./styles/ag-grid.css')
 const themes = {
-  balham: require('./ag-theme-balham.css'),
+  finance: require('./styles/finance.scss'),
+  balham: require('./styles/ag-theme-balham.css'),
 }
 
 const removeStyles = async function() {
@@ -29,25 +30,11 @@ const buildReportTable = function(config, dataTable, element) {
 
   removeStyles().then(() => {
     agGridTheme.use()
-    themes['balham'].use()
-    // if (typeof themes[config.theme] !== 'undefined') {
-    //   // themes[config.theme].use()
-    //   themes['balham'].use()
-    // }
+    if (typeof themes[config.theme] !== 'undefined') {
+      themes[config.theme].use()
+    }
   })
 
-  // var column_groups = dataTable.getTableColumnGroups()
-  // var header_rows = dataTable.getHeaderTiers()
-  // var header_cells = dataTable.getTableHeaderCells(i).map(column => column.levels[i]))
-  // var table_rows = dataTable.getDataRows()
-  // dataTable.getTableRowColumns(row).map(column => row.data[column.id])
-  // var html = dataTable.getCellToolTip(d.rowid, d.colid)
-
-  // let event = {
-  //   metaKey: d3.event.metaKey,
-  //   pageX: d3.event.pageX,
-  //   pageY: d3.event.pageY - window.pageYOffset
-  // }
   // LookerCharts.Utils.openDrillMenu({
   //   links: d.links,
   //   event: event
@@ -58,7 +45,11 @@ const buildReportTable = function(config, dataTable, element) {
     var text = ''
     var data = params.data.data[column.id]
     if (typeof params.data !== 'undefined') {
-      if (data.rendered || data.rendered === '') {     // could be deliberate choice to render empty string
+      if (data.html) {                              // cell has HTML defined
+        var parser = new DOMParser()
+        var parsed_html = parser.parseFromString(data.html, 'text/html')
+        text = parsed_html.documentElement.textContent
+      } else if (data.rendered || data.rendered === '') {     // could be deliberate choice to render empty string
         text = data.rendered
       } else {
         text = data.value   
@@ -69,26 +60,27 @@ const buildReportTable = function(config, dataTable, element) {
     return text
   }
 
-  const cellStyler = (column, params) => {
-    var data = params.data.data[column.id]
-    return {
-      'text-align': data.align,
-    }
-  }
-
   const getColDef = column => {
     return  {
       colId: column.id,
       suppressMovable: true,
+      columnGroupShow: 'open',
       hide: column.hide,
       headerName: column.levels[dataTable.headers.length-1].label,
       headerTooltip: column.modelField.name,
+      headerClass: 'text-' + column.modelField.align,
       field: column.id,
       valueGetter: function(params) { 
         return typeof params.data === 'undefined' ? '' : '' + params.data.data[column.id].value 
       },
       cellRenderer: params => cellRenderer(column, params),
-      cellStyle: params => cellStyler(column, params),
+      cellClass: params => {
+        var cell_styles = params.data.data[column.id].cell_style
+        if (dataTable.transposeTable) {
+          cell_styles.push('transposed')
+        }
+        return cell_styles
+      },
       filter: true,
       sortable: true,
       colSpan: function(params) {
@@ -111,16 +103,14 @@ const buildReportTable = function(config, dataTable, element) {
   }
 
   const getColumnGroup = (columns, level=0) => {
-    // var headerName = parent.levels[level].label === "" ? 'BLANK' : parent.levels[level].label
     var headerName = columns[0].levels[level].label
-    // var branchIndex = columns[0].levels.slice(0, level + 1).map(level => level.label).join('|')
-    // if (level === 0) { console.log('Branch: ', branchIndex) }
 
     // if this is a transposed subtotal, then can return with itself as sole child
     if (dataTable.transposeTable && columns[0].levels[0].rowspan === dataTable.headers.length) {
       return {
         headerName: headerName,
         marryChildren: true,
+        openByDefault: true,
         children: [getColDef(columns[0])]
       }
     }
@@ -210,12 +200,7 @@ const buildReportTable = function(config, dataTable, element) {
     rowData: rowData,
     suppressFieldDotNotation: true,
     suppressRowTransform: true,
-    getRowStyle: function(params) {
-      // console.log('getRowStyle() params', params)
-      if (params.data.type !== 'line_item') {
-        return { background: 'lightgrey' }
-      }
-    }
+    getRowClass: params => params.data.type,
   };
   console.log('gridOptions', gridOptions)
   element.classList.add('ag-theme-balham')
@@ -226,8 +211,8 @@ looker.plugins.visualizations.add({
   //Removes custom CSS theme for now over supportability concerns
   options: (function() { 
     let ops = VisPluginTableModel.getCoreConfigOptions();
-    ops.theme.values.pop()
-    delete ops.customTheme
+    // ops.theme.values.pop()
+    // delete ops.customTheme
     return ops
   })(),
   
@@ -292,7 +277,8 @@ looker.plugins.visualizations.add({
 
     // DEBUG OUTPUT AND DONE
     console.log('dataTable', dataTable)
-    // console.log('container', document.getElementById('visContainer').parentNode)
+    console.log('element', element)
+    console.log('document', document)
     
     done();
   }
