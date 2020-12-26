@@ -38,9 +38,6 @@ body {
   font-family: Open Sans,Helvetica,Arial,Noto Sans TC, Noto Sans SC,sans-serif;
 }
 
-// font-weight, padding work as expected
-// border partially works - complete grid not seen
-// border-collapse, border-spacing: no impact, table only css?
 .ag-header-group-cell {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -51,13 +48,6 @@ body {
   font-weight: bold;
   padding-left: 6px;
 }
-
-// no impact
-// .ag-header-group-cell-with-group {
-//   border-bottom: 1px solid #000000 !important;
-//   font-weight: bold;
-//   padding: 5px;
-// }
 
 .ag-header-cell {
   box-sizing: border-box;
@@ -130,5 +120,5 @@ body {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
-  box-shadow: 0px 2px 0px #000000 inset;
+  box-shadow: none;
 }

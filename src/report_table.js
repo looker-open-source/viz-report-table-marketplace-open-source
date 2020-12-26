@@ -147,17 +147,14 @@ const buildReportTable = function(config, dataTable, element) {
     dataTable.getDataColumns.forEach(column => columnDefs.push(getColDef(column)))
   } else {
     // DIMENSIONS
-    var dimensionGroup = {
-      headerName: 'Dimensions',
-      marryChildren: true,
-      children: []
-    }
     var dimensions = dataTable.getDataColumns()
       .filter(column => ['dimension', 'transposed_table_index'].includes(column.modelField.type))
-    dimensions.forEach(column => {
-      dimensionGroup.children.push(getColDef(column))
+
+    dimensions.forEach((dimension, idx) => {
+      if (dimension.levels[0].colspan > 0) {
+        columnDefs.push(getColumnGroup(dimensions.slice(idx, dimensions.length)))
+      }
     })
-    columnDefs.push(dimensionGroup)
 
     // MEASURES
     if (!dataTable.transposeTable) {
@@ -177,19 +174,16 @@ const buildReportTable = function(config, dataTable, element) {
     })
 
     // SUPERMEASURES
-    var supermeasureGroup = {
-      headerName: 'Supermeasures',
-      marryChildren: true,
-      children: []
-    }
     var supermeasures = dataTable.getDataColumns()
         .filter(column => column.modelField.type === 'measure')
         .filter(column => !column.pivoted)
-        .filter(column => column.super)
-    supermeasures.forEach(column => {
-      supermeasureGroup.children.push(getColDef(column))
+        .filter(column => column.super || column.isRowTotal)
+
+    supermeasures.forEach((supermeasure, idx) => {
+      if (supermeasure.levels[0].colspan > 0) {
+        columnDefs.push(getColumnGroup(supermeasures.slice(idx, supermeasures.length)))
+      }
     })
-    columnDefs.push(supermeasureGroup)
   }
   var rowData = dataTable.getDataRows()
   
