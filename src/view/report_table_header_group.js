@@ -1,6 +1,7 @@
 function ReportTableHeaderGroup() {}
 
 ReportTableHeaderGroup.prototype.init = function (params) {
+  console.log('ReportTableHeaderGroup()', params)
   this.params = params;
   this.eGui = document.createElement('div');
   this.eGui.className = 'ag-header-group-cell-label';

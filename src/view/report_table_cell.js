@@ -1,7 +1,10 @@
-const ReportTableCell = (column, params) => { 
-  // console.log('cellRenderer params', params)
+function ReportTableCell () {}
+
+ReportTableCell.prototype.init = function(params) {
+  console.log('ReportTableCell()', params)  
+  // get value for the cell
   var text = ''
-  var data = params.data.data[column.id]
+  var data = params.data.data[params.dataTableColumn.id]
   if (typeof params.data !== 'undefined') {
     if (data.html) {                              // cell has HTML defined
       var parser = new DOMParser()
@@ -15,7 +18,18 @@ const ReportTableCell = (column, params) => {
   } else {
     text = 'RENDER ERROR'
   }
-  return text
-}
+
+  // create the cell
+  this.eGui = document.createElement('div');
+  this.eGui.innerHTML = ''
+  + '<span class="my-value"></span>';
+
+  this.eValue = this.eGui.querySelector('.my-value');
+  this.eValue.innerHTML = text;
+};
+
+ReportTableCell.prototype.getGui = function() {
+    return this.eGui;
+};
 
 export { ReportTableCell }

@@ -33,21 +33,17 @@ const buildReportTable = (config, dataTable, element) => {
   const getColDef = column => {
     return  {
       colId: column.id,
+      headerComponentParams : { dataTableColumn: column },
       hide: column.hide,
       headerName: column.levels[dataTable.headers.length-1].label,
       headerTooltip: column.modelField.name,
-      headerClass: 'text-' + column.modelField.align,
       field: column.id,
       valueGetter: function(params) { 
         return typeof params.data === 'undefined' ? '' : '' + params.data.data[column.id].value 
       },
-      cellRenderer: params => ReportTableCell(column, params),
-      cellClass: params => {
-        var cell_styles = params.data.data[column.id].cell_style
-        if (dataTable.transposeTable) {
-          cell_styles.push('transposed')
-        }
-        return cell_styles
+      cellRenderer: 'reportTableCellComponent',
+      cellRendererParams: {
+        dataTableColumn: column
       },
       colSpan: function(params) {
         try {
@@ -70,16 +66,27 @@ const buildReportTable = (config, dataTable, element) => {
 
   const getColumnGroup = (columns, level=0) => {
     var headerName = columns[0].levels[level].label
+    var columnGroup = {
+      headerName: headerName,
+      headerGroupComponent: 'reportTableHeaderGroupComponent',
+      headerGroupComponentParams : { dataTableColumn: columns[0] },
+      marryChildren: true,
+      children: []
+    }
 
     // if this is a transposed subtotal, then can return with itself as sole child
     if (dataTable.transposeTable && columns[0].levels[0].rowspan === dataTable.headers.length) {
-      return {
-        headerName: headerName,
-        // headerGroupComponent: 'reportTableHeaderGroupComponent',
-        marryChildren: true,
-        openByDefault: true,
-        children: [getColDef(columns[0])]
-      }
+      columnGroup.openByDefault = true
+      columnGroup.children = [getColDef(columns[0])]
+      return columnGroup
+      // {
+      //   headerName: headerName,
+      //   headerGroupComponent: 'reportTableHeaderGroupComponent',
+      //   headerGroupComponentParams : { dataTableColumn: columns[0] },
+      //   marryChildren: true,
+      //   openByDefault: true,
+      //   children: [getColDef(columns[0])]
+      // }
     }
     
     var children = []
@@ -95,18 +102,24 @@ const buildReportTable = (config, dataTable, element) => {
     }
 
     if (level + 2 === dataTable.headers.length) {
-      return {
-        headerName: headerName,
-        // headerGroupComponent: 'reportTableHeaderGroupComponent',
-        marryChildren: true,
-        children: children.map(child => getColDef(child.column))
-      }
+      columnGroup.children = children.map(child => getColDef(child.column))
+      return columnGroup
+      // {
+      //   headerName: headerName,
+      //   headerGroupComponent: 'reportTableHeaderGroupComponent',
+      //   headerGroupComponentParams : { dataTableColumn: columns[0] },
+      //   marryChildren: true,
+      //   children: children.map(child => getColDef(child.column))
+      // }
     } else {
-      return {
-        headerName: headerName,
-        // headerGroupComponent: 'reportTableHeaderGroupComponent',
-        children: children.map(child => getColumnGroup(columns.slice(child.index, columns.length), level + 1))
-      }
+      columnGroup.children = children.map(child => getColumnGroup(columns.slice(child.index, columns.length), level + 1))
+      return columnGroup
+      // {
+      //   headerName: headerName,
+      //   headerGroupComponent: 'reportTableHeaderGroupComponent',
+      //   headerGroupComponentParams : { dataTableColumn: columns[0] },
+      //   children: children.map(child => getColumnGroup(columns.slice(child.index, columns.length), level + 1))
+      // }
     }
   }
 
@@ -167,13 +180,15 @@ const buildReportTable = (config, dataTable, element) => {
     defaultColDef: {
       suppressMovable: true,
       columnGroupShow: 'open',
-      components: {
-        reportTableHeaderGroupComponent: ReportTableHeaderGroup,
-        reportTableHeader: ReportTableHeader,
-      },
       filter: false,
       sortable: false,
-    }
+      headerComponent: 'reportTableHeaderComponent',
+    },
+    components: {
+      reportTableHeaderGroupComponent: ReportTableHeaderGroup,
+      reportTableHeaderComponent: ReportTableHeader,
+      reportTableCellComponent: ReportTableCell
+    },
   };
   console.log('gridOptions', gridOptions)
   element.classList.add('ag-theme-balham')
