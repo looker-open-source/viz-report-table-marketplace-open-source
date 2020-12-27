@@ -79,14 +79,6 @@ const buildReportTable = (config, dataTable, element) => {
       columnGroup.openByDefault = true
       columnGroup.children = [getColDef(columns[0])]
       return columnGroup
-      // {
-      //   headerName: headerName,
-      //   headerGroupComponent: 'reportTableHeaderGroupComponent',
-      //   headerGroupComponentParams : { dataTableColumn: columns[0] },
-      //   marryChildren: true,
-      //   openByDefault: true,
-      //   children: [getColDef(columns[0])]
-      // }
     }
     
     var children = []
@@ -104,22 +96,9 @@ const buildReportTable = (config, dataTable, element) => {
     if (level + 2 === dataTable.headers.length) {
       columnGroup.children = children.map(child => getColDef(child.column))
       return columnGroup
-      // {
-      //   headerName: headerName,
-      //   headerGroupComponent: 'reportTableHeaderGroupComponent',
-      //   headerGroupComponentParams : { dataTableColumn: columns[0] },
-      //   marryChildren: true,
-      //   children: children.map(child => getColDef(child.column))
-      // }
     } else {
       columnGroup.children = children.map(child => getColumnGroup(columns.slice(child.index, columns.length), level + 1))
       return columnGroup
-      // {
-      //   headerName: headerName,
-      //   headerGroupComponent: 'reportTableHeaderGroupComponent',
-      //   headerGroupComponentParams : { dataTableColumn: columns[0] },
-      //   children: children.map(child => getColumnGroup(columns.slice(child.index, columns.length), level + 1))
-      // }
     }
   }
 
@@ -191,7 +170,7 @@ const buildReportTable = (config, dataTable, element) => {
     },
   };
   console.log('gridOptions', gridOptions)
-  element.classList.add('ag-theme-balham')
+  element.classList.add('ag-theme-' + dataTable.config.theme)
   new Grid(element, gridOptions)
 }
 
