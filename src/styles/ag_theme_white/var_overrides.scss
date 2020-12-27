@@ -1,0 +1,25 @@
+////////////////////////////////////////
+// Colors
+////////////////////////////////////////
+// Base
+$row-number-font-color: #c2c2c2 !default;
+
+// Borders
+$column-border: 1px solid rgba(0, 0, 0, 0.1) !default;
+$totals-border: 1px solid #999 !default;
+$header-bottom-border: 1px !default;
+
+// Dimensions (default)
+$dimension: white !default;
+$dimension-dark: $dimension !default;
+$dimension-light: $dimension !default;
+
+// Hover
+$hover-color: #d2d3d4 !default;
+
+$odd-rows: #f6f6f7 !default;
+
+////////////////////////////////////////
+// Variable overrides
+////////////////////////////////////////
+$odd-row-background-color: $odd-rows !default;

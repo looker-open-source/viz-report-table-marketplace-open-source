@@ -22,10 +22,10 @@ ReportTableCell.prototype.init = function(params) {
   console.log('text', text)
 
   // create the cell
-  data.cell_style.push('ag-cell-label')
+  // data.cell_style.push('ag-cell-label')
   console.log('class', data.cell_style.join(' '))
   this.eGui = document.createElement('div');
-  this.eGui.className = data.cell_style.join(' ')
+  this.eGui.className = 'eGui' // data.cell_style.join(' ')
   this.eGui.style = 'height: 100%; width: 100%; font-size: 12px; color: #000000;'
   // this.eGui.innerHTML = '<span class="my-value">' + text + '</span>';
   this.eGui.innerHTML = text

@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   entry: [
     './src/report_table.js',
-    './src/styles/finance.scss'
+    // './src/styles/finance.scss'
   ],
   output: {
     filename: 'report_table.js',
@@ -17,7 +17,7 @@ module.exports = {
 				use: [
           { 
             loader: 'style-loader', 
-            options: { injectType: 'lazyStyleTag' } 
+            // options: { injectType: 'lazyStyleTag' } 
           },
           { loader: 'css-loader?sourceMap=true' },
           { loader: 'resolve-url-loader' },
@@ -29,7 +29,7 @@ module.exports = {
         use: [
           { 
             loader: 'style-loader', 
-            options: { injectType: 'lazyStyleTag' } 
+            // options: { injectType: 'lazyStyleTag' } 
           },
           {
             loader: 'css-loader'

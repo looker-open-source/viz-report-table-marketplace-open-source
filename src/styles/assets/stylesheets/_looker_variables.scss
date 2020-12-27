@@ -1,0 +1,151 @@
+// @import "stylesheets/_brand_color_variables";
+// @import "stylesheets/_brand_font_variables";
+
+// NOTE: Please check that there isn't already an appropriate
+// Bootstrap variable for your use case before adding something here.
+
+// Colors
+$lk-dark-primary: #2e343f;
+$lk-medium-primary: #7f889b;
+$lk-medium-light-primary: #A4A6A9;
+$lk-light-primary: #d2d3d4;
+$lk-pale-primary: #f6f6f7;
+
+$lk-dark-gray: #61656d;
+$lk-medium-gray: #e4e5e6;
+$lk-light-gray: #f6f6f7;
+
+$lk-secondary: #475063;
+$lk-secondary-purple: #6C43E0; // $var-brand-color-key;
+$lk-secondary-green: #8cba5a;
+
+$lk-link-color: #0059b2; // $var-brand-color-link;
+$lk-light-text-color: #696969;
+$lk-sudo-color: #a14242;
+$lk-dev-dir-color: #d96a1d;
+$lk-lic-warn-color: #ed3d5b;
+
+$lk-spaces-content-color: #1c2027;
+
+// Style Guide Font colors
+$lk-light-font-color: #a4a5a8;
+$lk-medium-font-color: #7f7977;
+$lk-dark-font-color: #3e3f40;
+
+// Style Guide Button colors
+$lk-purple-primary: #6C43E0; // $var-brand-color-key;
+$lk-purple-light: #9785F2; // $var-brand-color-keyFocus;
+$lk-purple-dark: #4F2ABA; // $var-brand-color-keyInteractive;
+$lk-purple-bright: #7E64E0; 
+$lk-red-dark: #CC1F36; // $var-brand-color-criticalInteractive;
+$lk-red-primary: #CC1F36; // $var-brand-color-critical;
+$lk-red-light: #FF667A; // $var-brand-color-criticalFocus;
+
+// Alert Banners
+$lk-alert-banner-height: 29px;
+
+// Nav
+$lk-main-navigation-min-width: 768px;
+$lk-left-navigation-width: 0;
+$lk-main-navigation-height: 50px;
+
+$nav-background-default: $lk-dark-primary;
+$nav-background-flyout: $lk-secondary;
+$nav-background-active: #3b4251;
+
+$nav-text-color-default: mix(white, $lk-dark-primary, 60%);
+$nav-text-color-hover: white;
+$nav-text-color-active: white;
+
+// Looker Form Colors
+$lk-input-border-focus: #a3d4da; /* rgb(163, 212, 218) */
+$lk-input-boxshadow-focus: 0px 0px 4px 0px rgba(163, 212, 218, 0.7);
+$lk-select-match-item-background: #e6ebf1;
+$lk-select-match-item-background-hover: #d5dfe8;
+
+// Nav Breakpoints
+// (Measured when sudo bar and dev-mode warning are *active*.)
+$lk-main-navigation-small: 640px;
+$lk-main-navigation-medium: 755px;
+
+// Gutter
+$lk-page-gutter-width: 20px;
+
+// offsets
+$lk-page-offset-bottom: 108px;
+
+// Title
+$lk-title-height: $lk-main-navigation-height;
+$lk-title-bg: $lk-pale-primary;
+$lk-title-color: $lk-dark-font-color;
+$lk-title-hint-color: $lk-dark-font-color;
+
+$lk-title-breadcrumb-color: $lk-medium-font-color;
+$lk-title-breadcrumb-hover-color: $lk-dark-font-color;
+$lk-title-breadcrumb-open-color: $lk-dark-font-color;
+
+// Sidebar
+$lk-field-column-width: 190px;
+$lk-field-column-width-wide: 325px;
+$lk-field-column-width-collapsed: 36px;
+
+$lk-field-column-background-color: transparent;
+$lk-field-column-hover-color: $lk-light-gray;
+$lk-field-column-active-color: $lk-pale-primary;
+$lk-field-column-pressed-color: darken($lk-pale-primary, 10%);
+$lk-field-column-header-color: #dde0e3;
+$lk-field-column-header-focus-color: #e7eaed;
+
+$lk-rule-border-width: 1px;
+$lk-rule-border: $lk-rule-border-width solid $lk-medium-gray;
+
+// Filter Pane
+$description-snug-value: -5px;
+$description-nudge-value: 3px;
+
+// Guide
+$lk-guide-height: 40px;
+
+// Control Bar
+$lk-control-bar-height: 51px;
+
+// Explore page header
+$lk-header-background-color: #303440;
+
+// Footer warnings (explore, modal)
+$lk-footer-warning-color: #C99E50;
+
+// Typography
+@mixin lk-light-font {
+  font-weight: 100;
+}
+
+@mixin lk-normal-font {
+  font-weight: normal;
+}
+
+@mixin lk-semibold-font {
+  font-weight: 600; // $var-brand-font-weight-semiBold;
+}
+
+@mixin lk-bold-font {
+  font-weight: 700; // $var-brand-font-weight-bold;
+}
+
+// Padding
+$padding-extra-small: 5px;
+$padding-small: 10px;
+$padding-medium: $lk-page-gutter-width;
+$padding-large: 25px;
+$padding-extra-large: 50px;
+
+// Font icon sizes
+$medium-icon-font-size: 16px;
+
+// Sub section variables
+$lk-expandable-pane-titlebar-height: 28px;
+
+// Snackbar
+$lk-snackbar-turquoise-light: #5DCCCC;
+$lk-snackbar-yellow: #FFD822;
+$lk-snackbar-red-lighter: #FF5E58;

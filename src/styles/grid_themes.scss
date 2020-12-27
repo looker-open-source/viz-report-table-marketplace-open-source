@@ -1,0 +1,574 @@
+@import "./assets/stylesheets/looker_variables";
+
+// The ag grid icons path should be re-adjusted when importing the scss file.
+// This is a common problem, described in the Sass(scss) loader project.
+// The theme exposes the $ag-icons-path variable to address that.
+// https://github.com/ag-grid/ag-grid/issues/1950
+
+$ag-bal-icons-path: '~ag-grid-community/src/styles/ag-theme-balham/icons/';
+$ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
+
+// These styles determine floating position, etc. Do not modify
+@import '~ag-grid-community/src/styles/ag-grid.scss';
+// Shared Grid styles
+.ag-grid-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+
+  /* See https://browserstrangeness.github.io/css_hacks.html
+     We want here to get rid of the scrollbars appearing on
+     Edge. */
+  @supports (not (-webkit-hyphens:none)) and (not (-moz-appearance:none)) and (list-style-type:"*") {
+    .ag-center-cols-viewport {
+      /* Seems like ag-grid computes the width of the content of the viewport
+         with 1 pixel too many on Edge/Chromium, resulting in the scrollbar
+         appearing. So we help the viewport here by telling it to adjust and
+         fit the content exactly. */
+      max-width: fit-content;
+    }
+
+    .ag-horizontal-left-spacer,
+    .ag-body-horizontal-scroll-viewport {
+      overflow-x: auto
+    }
+  }
+
+}
+.ag-grid-vis {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  .ag-body-viewport {
+    overflow-x: hidden;
+  }
+  @media print {
+    .ag-body-viewport {
+      display: inherit;
+    }
+  }
+
+  // Slows down copy animation
+  .ag-cell-highlight,
+  .ag-cell-highlight-animation {
+    transition: 0.5s;
+  }
+
+  .row-number-header {
+    // Hides row number gear
+    .fa-gear,
+    .sort-icon {
+      visibility: hidden;
+    }
+  }
+
+  // Ensure conditional formatting goes full width
+  .ag-row {
+    .ag-cell {
+      padding-left: 0px;
+      padding-right: 0px;
+      // Conditional formatting inheritance
+      &.looker-cell,
+      .looker-cell {
+        .grid-turtle {
+          text-align: left;
+        }
+        .bar-display:after {
+          content: '.';
+          visibility: hidden;
+        }
+        display: inline-block;
+        padding: 0 8px;
+        height: 100%;
+        width: 100%;
+        a {
+          color: inherit;
+        }
+
+        .bar-vis {
+          display: -ms-flexbox;
+          display: flex;
+          height: 100%;
+          align-items: center;
+          padding: 2px 0;
+          div {
+            display: flex;
+            height: 100%;
+          }
+        }
+      }
+    }
+
+    .ag-cell .looker-renderer {
+      align-self: baseline;
+    }
+
+    // per ag-grid API, cell styles are added to ag-cell but text-decoration is a
+    // non-inherit property so adding the chain here for it to cascade down
+    .ag-cell .looker-renderer,
+    .looker-cell,
+    .drillable-item,
+    .drillable-item-content {
+      text-decoration: inherit;
+      width: 100%; // allows html style to span width of cell DX-2255
+    }
+  }
+
+  .ag-cell:not(.row-number) {
+    .ag-pinned-bottom-totals {
+      .cell-clickable-content:hover {
+        text-decoration: underline dotted;
+      }
+      .ag-totals {
+        padding-left: 8px;
+        font-weight: 800; // $var-brand-font-weight-bold;
+      }
+      a {
+        color: inherit;
+      }
+    }
+  }
+
+  /**
+   * Crossfitlers styles:
+   * :after pseudo elements required (instead of normal borders)
+   * to avoid double borders in crossfilter-active cells and rows
+   *
+   * #start-crossfilter-styles
+   */
+  .cell-crossfilter-selected:after,
+  .row-crossfilter-selected:after {
+     bottom: 0;
+     content: '';
+     display: block;
+     left: 0;
+     pointer-events: none;
+     position: absolute;
+     top: 0;
+     right: 0;
+  }
+
+  .row-crossfilter-selected:after {
+    border-bottom: 1px solid #4c535b;
+    border-top: 1px solid #4c535b;
+    right: -1px; /* to join cells borders */
+  }
+
+  .row-crossfilter-selected.crossfilter-first-column:after {
+    border-left: 1px solid #4c535b;
+  }
+
+  .row-crossfilter-selected.crossfilter-last-column:after {
+    border-right: 1px solid #4c535b;
+    right: 0;
+  }
+
+  .cell-crossfilter-selected,
+  .row-crossfilter-selected,
+  .row-crossfilter-selected.ag-cell.row-number {
+    color: #4c535b;
+    font-weight: 800; // $var-brand-font-weight-bold;
+    overflow: inherit;
+    &.ag-cell-focus {
+      /* suppress default grid cell selection */
+      border-style: inherit!important;
+    }
+  }
+
+  .cell-crossfilter-selected:after {
+    border: 1px solid #4c535b;
+  }
+
+  /**
+   * Styles below required to avoid double border
+   * for cells with active cross filter.
+   */
+  .cell-crossfilter-selected:after,
+  .row-crossfilter-selected:after {
+    top: -1px;
+  }
+
+  .ag-row:first-child .cell-crossfilter-selected:after,
+  .ag-row:first-child .row-crossfilter-selected:after {
+    top: 0;
+  }
+
+  /* #end-crossfilter-styles */
+
+  .drillable-link,
+  a {
+    text-decoration: none;
+    .drillable-link:hover,
+    a:hover {
+      text-decoration: underline dotted;
+    }
+  }
+
+  .drillable-item a:hover {
+    text-decoration: underline dotted;
+  }
+
+  .ag-pinned-left-cols-container {
+    .ag-row {
+      .ag-cell.row-number {
+        text-align: right;
+        width: 100%;
+      }
+    }
+  }
+  .ag-header-cell {
+    .custom-header-menu-button {
+      visibility: hidden;
+    }
+    &:hover {
+      .custom-header-menu-button {
+        visibility: visible;
+      }
+    }
+    .ag-react-container {
+      height: 100%;
+    }
+  }
+  .sort {
+    padding-left: 1px;
+    // Hide the icon so we don't get jitters while sorting
+    &.lk-icon-minus.unsorted {
+      display: none;
+    }
+  }
+  .ag-header-group-cell-no-group {
+    .pivot-header {
+      height: unset;
+    }
+  }
+  .pivot-expanded {
+    word-break: break-all;
+  }
+  .header,
+  .pivot-header,
+  .ag-header-cell-label {
+    .header-sort-label {
+      text-overflow: ellipsis;
+      display: flex;
+      flex: 1 1 auto;
+      overflow: hidden;
+      padding-right: 5px;
+      &.ag-center-align {
+        align-items: center;
+        flex-direction: column;
+        text-align: center;
+      }
+      &.ag-right-align {
+        align-items: flex-end;
+        flex-direction: column;
+        text-align: right;
+      }
+    }
+    .sort-wrapperunsortable {
+      .ag-header-cell-label {
+        &.ag-center-align {
+          align-items: center;
+          flex-direction: column;
+        }
+        &.ag-right-align {
+          align-items: flex-end;
+          flex-direction: column;
+        }
+      }
+    }
+    .header-menu {
+      display: flex;
+      flex: 0 0 10px;
+    }
+    .sort-wrapper {
+      display: inline-flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .field-label {
+      width: 100%;
+      flex: 0 1 auto;
+      padding-left: 8px;
+
+      &.ag-header-cell-label {
+        &.center-align {
+          align-items: center;
+          flex-direction: column;
+        }
+        &.right-align {
+          align-items: flex-end;
+          flex-direction: column;
+        }
+      }
+    }
+  }
+
+  .pivot-truncated,
+  .row-truncated {
+    .field-label {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    span:not(.sort-icon) {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
+  .cell-clickable-content {
+    cursor: pointer;
+  }
+
+  // drill-menu-bauble css class is shared with table-legacy
+  // see drill_menu.scss for the base properties that are "inherited"
+  .drill-menu-bauble {
+    position: inherit;
+    span {
+      top: -9px;
+    }
+  }
+
+  .ag-cell:not(.subtotal-cell) {
+    // DX-2255 Allows html style to span width of cell.
+    // DX-4008 Sets 100% width only on the root span below the ag-cell
+    // to avoid all spans in the hierarchy being 100% width.
+    > span {
+      width: 100%;
+    }
+  }
+
+  .ag-cell {
+    span {
+      // Tread carefully, styles set here will apply all spans in a cell
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      &.ag-row-group-indent-0,
+      &.ag-group-child-count {
+        display: inline-flex;
+      }
+      .drillable-item-content {
+        max-height: 100%;
+        width: 100%;
+      }
+    }
+  }
+
+  /* DX-3553: We're replicating the way the single record
+     was shown on the legacy dashboard: the data must be
+     wrapped */
+  .single-record-row {
+    .ag-cell {
+      span {
+        white-space: normal;
+      }
+    }
+  }
+
+  .row-expanded {
+    span {
+      a,
+      .column-label,
+      .drillable-item-content,
+      span {
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+    }
+  }
+}
+
+.ag-grid-vis .ag-row .ag-cell.subtotal-cell {
+  display: inline-flex;
+  padding-left: 10px;
+
+  // Remove the checkbox margin that ag-grid enforces even if there is no checkbox.
+  .ag-group-checkbox.ag-invisible {
+    display: none;
+  }
+
+  .ag-group-expanded,
+  .ag-group-contracted {
+    min-width: 12px;
+  }
+
+  .ag-group-child-count {
+    min-width: 20px;
+  }
+}
+
+// TODO: When drill_menu.scss is no longer used, migrate the .drill-menu-bauble css definitions here.
+.ag-grid-vis .ag-cell .drillable-item {
+  display: block;
+
+  .drill-menu-bauble {
+    vertical-align: middle;
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+.ag-root {
+  .measure,
+  .table-measure {
+    text-align: right;
+    .drillable-item,
+    .sort-wrapperunsortable {
+      width: 100%;
+    }
+    .drillable-item-content {
+      width: 100%;
+    }
+  }
+  .ag-header-cell {
+    padding-left: 0px !important;
+
+    text-align: left;
+  }
+}
+
+.ag-popup-editor {
+  textarea {
+    min-width: 140px;
+    min-height: 25px;
+    border: none;
+    white-space: normal;
+  }
+}
+
+.ag-pinned-left-floating-bottom {
+  font-weight: 800; // $var-brand-font-weight-bold;
+}
+
+.ag-header-group-cell {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+  .ag-react-container {
+    display: flex;
+    height: 100%;
+    div {
+      border-bottom: 1px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      .pivot-header {
+        padding-left: 8px;
+        padding-right: 8px;
+        &.ag-right-align {
+          text-align: right;
+        }
+        &.ag-center-align {
+          text-align: center;
+        }
+        .field-label {
+          padding-left: 0px;
+        }
+        > span:not(.sort-wrapper) {
+          display: inline-flex;
+          flex: 1;
+        }
+      }
+    }
+  }
+}
+
+// Mobile Tweaks
+#looker.mobile-app-view {
+  .ag-grid-vis {
+    .ag-header {
+      .ag-header-row {
+        .ag-header-cell {
+          .ag-cell-label-container {
+            display: flex;
+            align-items: center;
+
+            .ag-header-cell-label {
+              height: unset;
+            }
+
+            .ag-header-cell-label.ag-center-align {
+              padding-left: 0 !important;
+              padding-right: 0;
+            }
+
+            .header-menu {
+              .custom-header-menu-button {
+                display: none;
+              }
+            }
+
+            > span {
+              height: 100%;
+              width: 100%;
+            }
+          }
+        }
+
+        .ag-header-cell::after, .ag-header-group-cell::after {
+          height: 100%;
+          margin-top: 0;
+        }
+      }
+    }
+
+    .ag-row {
+      .ag-cell {
+        &.looker-cell, .looker-cell {
+          display: flex;
+          align-items: center;
+
+          .bar-vis {
+            width: 100%;
+
+            .drillable-item-content {
+              display: flex;
+              align-items: center;
+              height: 100%;
+            }
+          }
+        }
+      }
+    }
+
+    .ag-floating-bottom {
+      .ag-row {
+        .ag-cell {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+}
+
+.ag-theme-classic {
+  @import './ag_theme_classic/ag_theme_classic.scss';
+  @include ag-theme-classic($params);
+}
+
+.ag-theme-white {
+  @import './ag_theme_white/ag_theme_white.scss';
+  @include ag-theme-white($params);
+}
+
+.ag-theme-gray {
+  @import './ag_theme_gray/ag_theme_gray.scss';
+  @include ag-theme-gray($params);
+}
+.ag-theme-transparent {
+  @import './ag_theme_transparent/ag_theme_transparent.scss';
+  @include ag-theme-transparent($params);
+}
+
+.ag-theme-unstyled {
+  @import './ag_theme_unstyled/ag_theme_unstyled.scss';
+  @include ag-theme-unstyled($params);
+}

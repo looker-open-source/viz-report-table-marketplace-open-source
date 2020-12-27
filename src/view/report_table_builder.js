@@ -4,26 +4,30 @@ import { ReportTableHeaderGroup } from './report_table_header_group'
 import { ReportTableHeader } from './report_table_header'
 import { ReportTableCell } from './report_table_cell'
 
-const agGridTheme = require('../styles/ag-grid.css')
-const themes = {
-  finance: require('../styles/finance.scss'),
-  balham: require('../styles/ag-theme-balham.css'),
-}
+require('../styles/report_table_themes.scss')
 
-const removeStyles = async function() {
-  const links = document.getElementsByTagName('link')
-  while (links[0]) links[0].parentNode.removeChild(links[0])
+// const agGridTheme = require('../styles/ag-grid.css')
+// const themes = {
+//   finance: require('../styles/finance.scss'),
+//   balham: require('../styles/ag-theme-balham.css'),
+// }
 
-  Object.keys(themes).forEach(async (theme) => await themes[theme].unuse() )
-}
+// require('../styles/styles.css')
+
+// const removeStyles = async function() {
+//   const links = document.getElementsByTagName('link')
+//   while (links[0]) links[0].parentNode.removeChild(links[0])
+
+//   Object.keys(themes).forEach(async (theme) => await themes[theme].unuse() )
+// }
 
 const buildReportTable = (config, dataTable, element) => {
-  removeStyles().then(() => {
-    agGridTheme.use()
-    if (typeof themes[config.theme] !== 'undefined') {
-      themes[config.theme].use()
-    }
-  })
+  // removeStyles().then(() => {
+  //   agGridTheme.use()
+  //   if (typeof themes[config.theme] !== 'undefined') {
+  //     themes[config.theme].use()
+  //   }
+  // })
 
   // LookerCharts.Utils.openDrillMenu({
   //   links: d.links,

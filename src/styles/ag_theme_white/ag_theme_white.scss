@@ -1,0 +1,114 @@
+// All themes currently based on balham
+@import './var_overrides';
+@import '../common_vars';
+@import '~ag-grid-community/src/styles/ag-theme-balham/sass/legacy/ag-theme-balham-v22-compat';
+@mixin ag-theme-white($params) {
+  @include ag-theme-balham($params);
+
+  ///////////////////////////
+  // Colors
+  //////////////////////////
+  .drillable-link,
+  a {
+    color: $foreground-color;
+  }
+
+  .ag-filter-toolpanel-body {
+    background-color: $background-color;
+  }
+
+  .pivot-header {
+    background-color: $dimension;
+    color: $secondary-foreground-color;
+    .drillable-link,
+    a {
+      color: inherit;
+    }
+    &:nth-child(odd) {
+      background-color: $dimension-dark;
+    }
+  }
+
+  .ag-header-row {
+    .ag-header-cell {
+      padding-right: 0px;
+    }
+    .ag-header-group-cell {
+      background-color: $dimension-dark;
+    }
+    &:nth-child(even),
+    &:only-child {
+      // i.e. dimensions, row nums, etc.
+      .ag-header-cell {
+        background-color: $dimension-dark;
+      }
+    }
+  }
+
+  .ag-header-cell {
+    .unsortable {
+      cursor: disabled;
+      color: $font-color-disabled;
+    }
+  }
+
+  // Pinned Left Totals
+  .ag-pinned-left-floating-bottom {
+    .ag-cell {
+      .ag-react-container {
+        color: $foreground-color;
+      }
+    }
+  }
+
+  // Bolds subtotals and totals rows
+  .ag-row-group-expanded,
+  .ag-row-group-contracted,
+  .ag-floating-bottom-container {
+    &.ag-row-level-0 {
+      font-weight: $font-bold;
+    }
+  }
+
+  //////////////////////////
+  // Borders
+  //////////////////////////
+  .ag-root,
+  .ag-side-bar,
+  .ag-status-bar {
+    border: $outer-border-style;
+  }
+
+  .ag-header-group-cell::after {
+    border-right: $pivot-draggable-dash;
+  }
+
+  .ag-cell,
+  .ag-header-group-cell {
+    &.ag-cell-no-focus {
+      border: none;
+      border-right: $column-border;
+      &.last-column {
+        border-right: none;
+      }
+    }
+
+    &.row-number {
+      color: $row-number-font-color;
+    }
+  }
+
+  .ag-header-row:last-of-type {
+    border-bottom-width: $header-bottom-border;
+  }
+
+  .ag-cell.ag-row-total,
+  .ag-row-total {
+    border-left: $totals-border;
+  }
+
+  // Column totals
+  .ag-floating-bottom {
+    border-top: $totals-border;
+  }
+}

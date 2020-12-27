@@ -1,0 +1,15 @@
+// All themes currently based on balham
+@import './var_overrides';
+@import '../ag_theme_white/ag_theme_white.scss';
+@import '~ag-grid-community/src/styles/ag-theme-balham/sass/legacy/ag-theme-balham-v22-compat';
+@mixin ag-theme-gray($params) {
+  @include ag-theme-balham($params);
+  @include ag-theme-white($params);
+
+  ///////////////////////////
+  // Borders
+  //////////////////////////
+  .ag-header {
+    border-bottom: $header-bottom-border;
+  }
+}

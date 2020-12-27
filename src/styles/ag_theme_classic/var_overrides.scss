@@ -1,0 +1,23 @@
+////////////////////////////////////////
+// Colors
+////////////////////////////////////////
+// Base
+$hover-color: #e6e8ec;
+
+// Dimensions (default)
+$dimension: #e4ecf3;
+$dimension-light: lighten($dimension, 5);
+$dimension-dark: desaturate(darken($dimension, 10), 5%);
+
+// Measures
+$measure: #e4d0bd !default;
+$measure-light: lighten($measure, 12) !default;
+
+// Table Calcs
+$table-calc: #c9dfc5;
+$table-calc-light: lighten($table-calc, 12);
+
+////////////////////////////////////////
+// Variable overrides
+////////////////////////////////////////
+$odd-row-background-color: $dimension-light;

@@ -1,0 +1,20 @@
+////////////////////////////////////////
+// Colors
+////////////////////////////////////////
+// Dimensions (default)
+$dimension: rgb(246, 246, 247);
+$dimension-light: lighten($dimension, 5);
+$dimension-dark: desaturate(darken($dimension, 10), 5%);
+
+// Borders
+$header-bottom-border: 0px;
+
+// Hover
+$hover-color: #e4e5e6;
+
+$odd-rows: #f6f6f7;
+
+////////////////////////////////////////
+// Variable overrides
+////////////////////////////////////////
+$odd-row-background-color: $odd-rows;

@@ -1,0 +1,21 @@
+////////////////////////////////////////
+// Colors
+////////////////////////////////////////
+// Base
+$transparent: transparent;
+
+// Dimensions (default)
+$dimension: $transparent;
+$dimension-dark: $transparent;
+$dimension-light: $transparent;
+
+$odd-rows: rgba(0, 0, 0, 0.05);
+
+////////////////////////////////////////
+// Variable overrides
+////////////////////////////////////////
+$odd-row-background-color: $odd-rows;
+$odd-row-background-color: $transparent;
+$background-color: $transparent;
+$header-background-color: $transparent;
+$odd-row-background-color: $odd-rows;
