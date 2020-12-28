@@ -16,6 +16,61 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
   @include ag-theme-finance();
 }
 
+.rt-finance-cell-container {
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 3px 1fr 3px;
+  grid-template-rows: 3px minmax(2px,1fr) 3px;
+
+  .top-left {
+    grid-column: 1;
+    grid-row: 1;
+    // background-color: lightgreen;
+  }
+  .top {
+    grid-column: 2;
+    grid-row: 1;
+    // background-color: grey;
+  }
+  .top-right {
+    grid-column: 3;
+    grid-row: 1;
+    // background-color: cyan;
+  }
+  .left {
+    grid-column: 1;
+    grid-row: 2;
+    // background-color: khaki;
+  }
+  .center {
+    grid-column: 2;
+    grid-row: 2;
+    padding: 1px;
+    background-color: #fff;
+  }
+  .right {
+    grid-column: 3;
+    grid-row: 2;
+    // background-color: lightcoral;
+  }
+  .bottom-left {
+    grid-column: 1;
+    grid-row: 3;
+    // background-color: lightgreen;
+  }
+  .bottom {
+    grid-column: 2;
+    grid-row: 3;
+    // background-color: orange;
+  }
+  .bottom-right {
+    grid-column: 3;
+    grid-row: 3;
+    // background-color: cyan;
+  }
+}
+
 .nonNumeric {
   text-align: left;
 }

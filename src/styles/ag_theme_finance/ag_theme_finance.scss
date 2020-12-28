@@ -41,9 +41,15 @@
     padding-right: 0px;
   }
 
-  .rt-header-container {
-    height: 100%;
-    width: 100%;
+
+
+  .rt-header-cell-label {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-shadow: 0px -2px 0px #000000 inset;
+
+    display: flex
   }
 
   // .ag-header-group-cell-label { justify-content: center !important; }
@@ -79,6 +85,7 @@
     // // border-right: 6px solid #ffffff !important;
     // padding-left: 6px;
     // padding-right: 6px;
+    font-size: 14px;
     background-color: #ffffff; // for some reason this makes rowspanning work again
   }
 }

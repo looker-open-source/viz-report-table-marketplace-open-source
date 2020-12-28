@@ -1,16 +1,24 @@
 function ReportTableHeaderGroup() {}
 
 ReportTableHeaderGroup.prototype.init = function (params) {
-  console.log('ReportTableHeaderGroup()', params)
+  // console.log('ReportTableHeaderGroup()', params)
   this.params = params;
   this.eGui = document.createElement('div');
-  this.eGui.className = 'ag-header-group-cell-label';
-  this.eGui.innerHTML =
-    '' +
-    '<div class="customHeaderLabel">' +
-    this.params.displayName +
-    '</div>' +
-    '<div class="customExpandButton"><i class="fa fa-arrow-right"></i></div>';
+  this.eGui.className = 'rt-finance-cell-container';
+  this.eGui.innerHTML = ''
+    + '<div class="top-left"></div>'
+    + '<div class="top"></div>'
+    + '<div class="top-right"></div>'
+    + '<div class="left"></div>'
+    + '<div class="center ag-header-group-cell-label">'
+    +   this.params.displayName
+    +   '<div class="customExpandButton"><i class="fa fa-arrow-right"></i></div>'
+    + '</div>'
+    + '<div class="right"></div>'
+    + '<div class="bottom-left"></div>'
+    + '<div class="bottom"></div>'
+    + '<div class="bottom-right"></div>'
+    ;
 
   this.onExpandButtonClickedListener = this.expandOrCollapse.bind(this);
   this.eExpandButton = this.eGui.querySelector('.customExpandButton');
