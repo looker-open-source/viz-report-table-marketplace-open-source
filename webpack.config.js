@@ -1,10 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: [
-    './src/report_table.js',
-    // './src/styles/finance.scss'
-  ],
+  entry: './src/report_table.js',
   output: {
     filename: 'report_table.js',
     path: path.resolve(__dirname),
@@ -12,6 +9,22 @@ module.exports = {
   devtool: 'source-map',
   module: {
     rules: [
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            "presets": [
+              "@babel/preset-env", 
+              "@babel/preset-react",
+              {
+                'plugins': ["babel-plugin-styled-components"]
+              }
+            ]
+          }
+        }
+      },
       {
 				test: /\.scss$/,
 				use: [
@@ -36,6 +49,7 @@ module.exports = {
           }
         ],
       },
+
       {
         test: /\.(woff|woff2|ttf|otf)$/,
         loader: 'url-loader',
