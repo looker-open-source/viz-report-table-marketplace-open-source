@@ -1,13 +1,13 @@
 import React, { useState } from "react"
 
-import { AgGridReact, AgGridColumn } from '@ag-grid-community/react'
+import { AgGridReact } from '@ag-grid-community/react'
 import { ModuleRegistry } from '@ag-grid-community/core';
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 ModuleRegistry.registerModules([ClientSideRowModelModule])
 
-import { ReportTableHeaderGroup } from './report_table_header_group'
-import { ReportTableHeader } from './report_table_header'
-import { ReportTableCell } from './report_table_cell'
+import ReportTableHeaderGroup from './report_table_header_group'
+import ReportTableHeader from './report_table_header'
+import ReportTableCell from './report_table_cell'
 import { ReportTableColumnMenu } from './report_table_column_menu'
 
 require('../styles/report_table_themes.scss')
@@ -31,12 +31,8 @@ const ReportTable = ( { dataTable } ) => {
       headerTooltip: column.modelField.name,
       field: column.id,
       valueGetter: function(params) { 
-        // console.log('valueGetter()')
-        // console.log('column', column)
-        // console.log('params', params)
         return typeof params.data === 'undefined' ? '' : '' + params.data.data[column.id].value 
       },
-      cellRenderer: 'reportTableCellComponent',
       cellRendererParams: {
         dataTableColumn: column
       },
@@ -64,7 +60,10 @@ const ReportTable = ( { dataTable } ) => {
     var columnGroup = {
       headerName: headerName,
       headerGroupComponent: 'reportTableHeaderGroupComponent',
-      headerGroupComponentParams : { dataTableColumn: columns[0] },
+      headerGroupComponentParams : { 
+        level: level,
+        dataTableColumn: columns[0] 
+      },
       marryChildren: true,
       children: []
     }
@@ -149,13 +148,16 @@ const ReportTable = ( { dataTable } ) => {
     filter: false,
     sortable: false,
     headerComponent: 'reportTableHeaderComponent',
+    cellRenderer: 'reportTableCellComponent',
   }
 
-  var components = {
+  var frameworkComponents = {
     reportTableHeaderGroupComponent: ReportTableHeaderGroup,
     reportTableHeaderComponent: ReportTableHeader,
     reportTableCellComponent: ReportTableCell
   }
+
+  var getRowClass = (params) => params.data.type
 
   var modules = [ClientSideRowModelModule]
 
@@ -164,22 +166,21 @@ const ReportTable = ( { dataTable } ) => {
   console.log('columnDefs', columnDefs)
   console.log('rowData', rowData)
   console.log('modules', modules)
-  console.log('components', components)
+  console.log('frameworkComponents', frameworkComponents)
   console.log('defaultColDef', defaultColDef)
   
   console.log('AgGridReact', AgGridReact)
 
-
-  //         getRowClass={params.data.type}
   return (
       <AgGridReact
         onGridReady={onGridReady}
         columnDefs={columnDefs}
         rowData={rowData}
         modules={modules}
-        components={components}
+        frameworkComponents={frameworkComponents}
         defaultColDef={defaultColDef}
-
+        getRowClass={getRowClass}
+        // rowHeight={30}
         suppressFieldDotNotation
         suppressRowTransform
       />

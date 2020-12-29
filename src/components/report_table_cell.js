@@ -1,11 +1,12 @@
-function ReportTableCell () {}
+import React from 'react'
 
-ReportTableCell.prototype.init = function(params) {
+const ReportTableCell = (params) => {
   // console.log('ReportTableCell()', params)  
   // get value for the cell
   var text = ''
+  var row = params.data
   var data = params.data.data[params.dataTableColumn.id]
-  // console.log('data', data)
+  console.log('cell params', params)
   if (typeof params.data !== 'undefined') {
     if (data.html) {                                     // cell has HTML defined
       var parser = new DOMParser()
@@ -21,26 +22,33 @@ ReportTableCell.prototype.init = function(params) {
   }
   // console.log('text', text)
 
-  // create the cell
-  this.eGui = document.createElement('div');
-  this.eGui.className = 'rt-finance-cell-container'
-  this.eGui.innerHTML = ''
-    + '<div class="top-left"></div>'
-    + '<div class="top"></div>'
-    + '<div class="top-right"></div>'
-    + '<div class="left"></div>'
-    + '<div class="center">'
-    +   text
-    + '</div>'
-    + '<div class="right"></div>'
-    + '<div class="bottom-left"></div>'
-    + '<div class="bottom"></div>'
-    + '<div class="bottom-right"></div>'
-    ;
+  const textClass = data.cell_style.join(' ')
+  if (data.cell_style.includes('total')) {
+    console.log('cell_style', data.cell_style)
+    var topline = 'top total-overline'
+    var bottomline = data.cell_style.includes('subtotal') && row.id !== 'Total' ? 'bottom' : 'bottom total-underline'
+  } else {
+    var topline = 'top'
+    var bottomline = 'bottom'
+  }
+
+  return (
+    <div className="rt-finance-cell-container">
+      <div class="top-left"></div>
+      <div class={topline}></div>
+      <div class="top-right"></div>
+      <div class="left"></div>
+      <div class={"center " + textClass}>{text}</div>
+      <div class="right"></div>
+      <div class="bottom-left"></div>
+      <div class={bottomline}></div>
+      <div class="bottom-right"></div>
+    </div>
+  )
 };
 
-ReportTableCell.prototype.getGui = function() {
-    return this.eGui;
-};
+// ReportTableCell.prototype.getGui = function() {
+//     return this.eGui;
+// };
 
-export { ReportTableCell }
+export default ReportTableCell

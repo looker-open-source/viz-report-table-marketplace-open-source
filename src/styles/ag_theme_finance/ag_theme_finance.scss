@@ -18,37 +18,18 @@
   font-family: Open Sans,Helvetica,Arial,Noto Sans TC, Noto Sans SC,sans-serif;
 
   .ag-header-group-cell {
-    // box-sizing: border-box;
-    // -moz-box-sizing: border-box;
-    // -webkit-box-sizing: border-box;
-    // border-left: 6px solid #ffffff !important;
-    // border-right: 6px solid #ffffff !important;
-    // box-shadow: 0px -2px 0px #000000 inset;
     font-weight: bold;
     padding-left: 0px;
     padding-right: 0px;
   }
 
   .ag-header-cell {
-    // box-sizing: border-box;
-    // -moz-box-sizing: border-box;
-    // -webkit-box-sizing: border-box;
-  //   border-left: 6px solid #ffffff !important;
-  //   // border-right: 6px solid #ffffff !important;
-    // box-shadow: 0px -2px 0px #000000 inset;
     font-weight: bold;
     padding-left: 0px;
     padding-right: 0px;
   }
 
-
-
   .rt-header-cell-label {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-shadow: 0px -2px 0px #000000 inset;
-
     display: flex
   }
 
@@ -78,13 +59,6 @@
   }
 
   .ag-cell-value {
-    // box-sizing: border-box;
-    // -moz-box-sizing: border-box;
-    // -webkit-box-sizing: border-box;
-    // border-left: 6px solid #ffffff !important;
-    // // border-right: 6px solid #ffffff !important;
-    // padding-left: 6px;
-    // padding-right: 6px;
     font-size: 14px;
     background-color: #ffffff; // for some reason this makes rowspanning work again
   }

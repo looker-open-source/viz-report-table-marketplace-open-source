@@ -16,6 +16,11 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
   @include ag-theme-finance();
 }
 
+.ag-react-container {
+  height: 100%;
+  width: 100%;
+}
+
 .rt-container {
   height: 100%;
   width: 100%;
@@ -67,7 +72,6 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
   .bottom {
     grid-column: 2;
     grid-row: 3;
-    // background-color: orange;
   }
   .bottom-right {
     grid-column: 3;
@@ -78,12 +82,34 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
 
 .rt-column-menu-button {
   width: 15px;
-  background-color: orange;
   text-align: center;
 }
 
 .hidden {
   display: none;
+}
+
+.underline {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-shadow: 0px -1px 0px #000000 inset;  
+}
+
+.strong-underline {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-shadow: 0px -2px 0px #000000 inset;
+}
+
+.total-overline {
+  border-top: 1px solid #0000ff; 
+}
+
+.total-underline {
+  border-top: 1px solid #0000ff;
+  border-bottom: 1px solid #0000ff;
 }
 
 .nonNumeric {
@@ -92,6 +118,19 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
 
 .numeric {
   text-align: right;
+}
+
+.centerText {
+  text-align: center;
+}
+
+.subtotal {
+  font-style: italic;
+  font-weight: bold !important;
+}
+
+.total {
+  font-weight: bold !important;
 }
 
 #columnMenu {
