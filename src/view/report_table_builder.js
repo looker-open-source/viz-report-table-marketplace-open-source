@@ -3,6 +3,7 @@ import { Grid } from 'ag-grid-community'
 import { ReportTableHeaderGroup } from './report_table_header_group'
 import { ReportTableHeader } from './report_table_header'
 import { ReportTableCell } from './report_table_cell'
+import { ReportTableColumnMenu } from './report_table_column_menu'
 
 require('../styles/report_table_themes.scss')
 

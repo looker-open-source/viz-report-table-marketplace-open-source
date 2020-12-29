@@ -71,10 +71,38 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
   }
 }
 
+.rt-column-menu-button {
+  width: 15px;
+  background-color: orange;
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
+
 .nonNumeric {
   text-align: left;
 }
 
 .numeric {
   text-align: right;
+}
+
+#columnMenu {
+  position: absolute;
+  height: auto;
+  width: auto;
+  padding: 5px;
+  background-color: #eee;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  font-family: sans-serif;
+  font-size: 12px;
+  z-index: 2;
 }

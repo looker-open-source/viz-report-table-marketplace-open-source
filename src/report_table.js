@@ -1,5 +1,6 @@
 import { VisPluginTableModel } from './model/vis_table_plugin'
 import { buildReportTable } from './view/report_table_builder'
+import { buildColumnMenu } from './view/report_table_column_menu'
 
 
 const loadStylesheet = function(link) {
@@ -20,7 +21,9 @@ looker.plugins.visualizations.add({
     return ops
   })(),
   
-  create: function(element, config) {},
+  create: function(element, config) {
+    element.appendChild(buildColumnMenu())
+  },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
     const updateConfig = (newConfig) => {
