@@ -16,6 +16,11 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
   @include ag-theme-finance();
 }
 
+.rt-container {
+  height: 100%;
+  width: 100%;
+}
+
 .rt-finance-cell-container {
   height: 100%;
   width: 100%;

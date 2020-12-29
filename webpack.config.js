@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/report_table.js',
+  entry: './src/report_table_container.js',
   output: {
     filename: 'report_table.js',
     path: path.resolve(__dirname),

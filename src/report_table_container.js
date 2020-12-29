@@ -1,6 +1,9 @@
+import React from "react"
+import ReactDOM from "react-dom"
+
 import { VisPluginTableModel } from './model/vis_table_plugin'
-import { buildReportTable } from './view/report_table_builder'
-import { buildColumnMenu } from './view/report_table_column_menu'
+import ReportTable from './components/report_table'
+import { buildColumnMenu } from './components/report_table_column_menu'
 
 
 const loadStylesheet = function(link) {
@@ -22,6 +25,8 @@ looker.plugins.visualizations.add({
   })(),
   
   create: function(element, config) {
+    this.chart = ReactDOM.render(<div />, element);
+
     element.appendChild(buildColumnMenu())
   },
 
@@ -42,10 +47,10 @@ looker.plugins.visualizations.add({
     }
 
     // PREVENT MULTIPLE TABLES BEING RENDERED
-    try {
-      var elem = document.querySelector('.ag-root-wrapper');
-      elem.parentNode.removeChild(elem);  
-    } catch(e) {}
+    // try {
+    //   var elem = document.querySelector('.ag-root-wrapper');
+    //   elem.parentNode.removeChild(elem);  
+    // } catch(e) {}
 
     console.log('config', config)
     console.log('queryResponse', queryResponse)
@@ -66,7 +71,7 @@ looker.plugins.visualizations.add({
       config = Object.assign({
         bodyFontSize: 12,
         headerFontSize: 12,
-        theme: "balham",
+        theme: "finance",
         showHighlight: true,
         showTooltip: true
       }, config)
@@ -78,9 +83,16 @@ looker.plugins.visualizations.add({
 
     this.trigger('registerOptions', dataTable.getConfigOptions())
     
-    buildReportTable(config, dataTable, element)
+    // buildReportTable(config, dataTable, element)
     
     if (details.print) { fonts.forEach(e => loadStylesheet(e) ); }
+
+    this.chart = ReactDOM.render(
+      <div className={'rt-container ag-theme-' + config.theme}>
+        <ReportTable dataTable={dataTable} />
+      </div>,
+      element
+    );
     
     console.log('element', element)
     

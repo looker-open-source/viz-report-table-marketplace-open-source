@@ -1,4 +1,9 @@
-import { Grid } from 'ag-grid-community'
+import React, { useState } from "react"
+
+import { AgGridReact, AgGridColumn } from '@ag-grid-community/react'
+import { ModuleRegistry } from '@ag-grid-community/core';
+import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
+ModuleRegistry.registerModules([ClientSideRowModelModule])
 
 import { ReportTableHeaderGroup } from './report_table_header_group'
 import { ReportTableHeader } from './report_table_header'
@@ -7,33 +12,15 @@ import { ReportTableColumnMenu } from './report_table_column_menu'
 
 require('../styles/report_table_themes.scss')
 
-// const agGridTheme = require('../styles/ag-grid.css')
-// const themes = {
-//   finance: require('../styles/finance.scss'),
-//   balham: require('../styles/ag-theme-balham.css'),
-// }
+const ReportTable = ( { dataTable } ) => {
+  const [gridApi, setGridApi] = useState(null);
+  const [gridColumnApi, setGridColumnApi] = useState(null);
 
-// require('../styles/styles.css')
-
-// const removeStyles = async function() {
-//   const links = document.getElementsByTagName('link')
-//   while (links[0]) links[0].parentNode.removeChild(links[0])
-
-//   Object.keys(themes).forEach(async (theme) => await themes[theme].unuse() )
-// }
-
-const buildReportTable = (config, dataTable, element) => {
-  // removeStyles().then(() => {
-  //   agGridTheme.use()
-  //   if (typeof themes[config.theme] !== 'undefined') {
-  //     themes[config.theme].use()
-  //   }
-  // })
-
-  // LookerCharts.Utils.openDrillMenu({
-  //   links: d.links,
-  //   event: event
-  // })
+  const onGridReady = (params) => {
+    console.log('onGridReady() params', params)
+    setGridApi(params.api);
+    setGridColumnApi(params.columnApi);
+  }
 
   const getColDef = column => {
     return  {
@@ -44,6 +31,9 @@ const buildReportTable = (config, dataTable, element) => {
       headerTooltip: column.modelField.name,
       field: column.id,
       valueGetter: function(params) { 
+        // console.log('valueGetter()')
+        // console.log('column', column)
+        // console.log('params', params)
         return typeof params.data === 'undefined' ? '' : '' + params.data.data[column.id].value 
       },
       cellRenderer: 'reportTableCellComponent',
@@ -152,31 +142,48 @@ const buildReportTable = (config, dataTable, element) => {
     })
   }
   var rowData = dataTable.getDataRows()
+
+  var defaultColDef = {
+    suppressMovable: true,
+    columnGroupShow: 'open',
+    filter: false,
+    sortable: false,
+    headerComponent: 'reportTableHeaderComponent',
+  }
+
+  var components = {
+    reportTableHeaderGroupComponent: ReportTableHeaderGroup,
+    reportTableHeaderComponent: ReportTableHeader,
+    reportTableCellComponent: ReportTableCell
+  }
+
+  var modules = [ClientSideRowModelModule]
+
+  console.log('Ready for AgGridReact...')
+  console.log('onGridReady', onGridReady)
+  console.log('columnDefs', columnDefs)
+  console.log('rowData', rowData)
+  console.log('modules', modules)
+  console.log('components', components)
+  console.log('defaultColDef', defaultColDef)
   
-  // let the grid know which columns and what data to use
-  var gridOptions = {
-    columnDefs: columnDefs,
-    enableRangeSelection: true,
-    rowData: rowData,
-    suppressFieldDotNotation: true,
-    suppressRowTransform: true,
-    getRowClass: params => params.data.type,
-    defaultColDef: {
-      suppressMovable: true,
-      columnGroupShow: 'open',
-      filter: false,
-      sortable: false,
-      headerComponent: 'reportTableHeaderComponent',
-    },
-    components: {
-      reportTableHeaderGroupComponent: ReportTableHeaderGroup,
-      reportTableHeaderComponent: ReportTableHeader,
-      reportTableCellComponent: ReportTableCell
-    },
-  };
-  console.log('gridOptions', gridOptions)
-  element.classList.add('ag-theme-' + dataTable.config.theme)
-  new Grid(element, gridOptions)
+  console.log('AgGridReact', AgGridReact)
+
+
+  //         getRowClass={params.data.type}
+  return (
+      <AgGridReact
+        onGridReady={onGridReady}
+        columnDefs={columnDefs}
+        rowData={rowData}
+        modules={modules}
+        components={components}
+        defaultColDef={defaultColDef}
+
+        suppressFieldDotNotation
+        suppressRowTransform
+      />
+  )
 }
 
-export { buildReportTable }
+export default ReportTable

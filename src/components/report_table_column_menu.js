@@ -1,5 +1,5 @@
 const buildColumnMenu = () => {
-  const menu = document.createElement('dev')
+  const menu = document.createElement('div')
   menu.className = 'hidden'
   menu.id = 'columnMenu'
 
