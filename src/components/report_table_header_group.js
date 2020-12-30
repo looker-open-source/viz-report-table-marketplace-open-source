@@ -1,7 +1,7 @@
 import React from 'react'
 
 const ReportTableHeaderGroup = (params) => {
-  console.log('ReportTableHeaderGroup()', params)
+  // console.log('ReportTableHeaderGroup()', params)
 
   // this.onExpandButtonClickedListener = this.expandOrCollapse.bind(this);
   // this.eExpandButton = this.eGui.querySelector('.customExpandButton');
@@ -21,7 +21,13 @@ const ReportTableHeaderGroup = (params) => {
   const column = params.dataTableColumn
   const colspan = column.levels[level].colspan
 
-  const textClass = colspan > 1 ? 'centerText' : ''
+  if (colspan > 1) {
+    var textClass = 'centerText'
+  } else {
+    var textClass = column.modelField.is_numeric ? 'numeric' : 'nonNumeric'
+  }
+
+  var bottomClass = params.displayName === '' ? 'bottom' : 'bottom underline'
 
   return (
     <div className='rt-finance-cell-container'>
@@ -35,7 +41,7 @@ const ReportTableHeaderGroup = (params) => {
       </div>
       <div class="right"></div>
       <div class="bottom-left"></div>
-      <div class="bottom underline"></div>
+      <div class={bottomClass}></div>
       <div class="bottom-right"></div>
     </div>
   )

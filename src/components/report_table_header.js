@@ -4,7 +4,7 @@ import { updateColumnMenu } from './report_table_column_menu'
 
   
 const ReportTableHeader = (params) => {
-  console.log('ReportTableHeader() Params', params)
+  // console.log('ReportTableHeader() Params', params)
 
   const column = params.dataTableColumn
   

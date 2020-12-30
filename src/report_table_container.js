@@ -1,9 +1,10 @@
-import React from "react"
-import ReactDOM from "react-dom"
+// REACT VERSION
+// import React from "react"
+// import ReactDOM from "react-dom"
 
 import { VisPluginTableModel } from './model/vis_table_plugin'
-import ReportTable from './components/report_table'
-import { buildColumnMenu } from './components/report_table_column_menu'
+import ReportTable from './renderers/report_table'
+import { buildColumnMenu } from './renderers/report_table_column_menu'
 
 
 const loadStylesheet = function(link) {
@@ -25,7 +26,8 @@ looker.plugins.visualizations.add({
   })(),
   
   create: function(element, config) {
-    this.chart = ReactDOM.render(<div />, element);
+    // REACT VERSION
+    // this.chart = ReactDOM.render(<div />, element);
 
     element.appendChild(buildColumnMenu())
   },
@@ -45,12 +47,6 @@ looker.plugins.visualizations.add({
       });
       return
     }
-
-    // PREVENT MULTIPLE TABLES BEING RENDERED
-    // try {
-    //   var elem = document.querySelector('.ag-root-wrapper');
-    //   elem.parentNode.removeChild(elem);  
-    // } catch(e) {}
 
     console.log('config', config)
     console.log('queryResponse', queryResponse)
@@ -82,17 +78,24 @@ looker.plugins.visualizations.add({
     console.log('dataTable', dataTable)
 
     this.trigger('registerOptions', dataTable.getConfigOptions())
-    
-    // buildReportTable(config, dataTable, element)
-    
+        
     if (details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
-    this.chart = ReactDOM.render(
-      <div className={'rt-container ag-theme-' + config.theme}>
-        <ReportTable dataTable={dataTable} />
-      </div>,
-      element
-    );
+    // PREVENT MULTIPLE TABLES BEING RENDERED
+    try {
+      var elem = document.querySelector('.ag-root-wrapper')
+      elem.parentNode.removeChild(elem); 
+    } catch(e) {}
+
+    ReportTable(dataTable, element)
+
+    // REACT VERSION
+    // this.chart = ReactDOM.render(
+    //   <div className={'rt-container ag-theme-' + config.theme}>
+    //     <ReportTable dataTable={dataTable} />
+    //   </div>,
+    //   element
+    // );
     
     console.log('element', element)
     
