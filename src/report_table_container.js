@@ -1,10 +1,12 @@
-// REACT VERSION
-// import React from "react"
-// import ReactDOM from "react-dom"
+import React from "react"
+import ReactDOM from "react-dom"
 
 import { VisPluginTableModel } from './model/vis_table_plugin'
-import ReportTable from './renderers/report_table'
+import ReportTableVanilla from './renderers/report_table' // this are aliases of default 'ReportTable'
+import ReportTableReact from './components/report_table'  // in both vanillajs and react
 import { buildColumnMenu } from './renderers/report_table_column_menu'
+
+const ENGINE = 'react' // vanilla | react
 
 
 const loadStylesheet = function(link) {
@@ -26,6 +28,9 @@ looker.plugins.visualizations.add({
   })(),
   
   create: function(element, config) {
+    if (ENGINE === 'react') {
+      this.chart = ReactDOM.render(<div />, element);
+    }
     element.appendChild(buildColumnMenu())
   },
 
@@ -70,21 +75,199 @@ looker.plugins.visualizations.add({
       }, config)
     }
 
-    // BUILD THE VIS
+    // BUILD THE TABLE DATA OBJECT
     var dataTable = new VisPluginTableModel(data, queryResponse, config, updateConfig)
     console.log('dataTable', dataTable)
 
     this.trigger('registerOptions', dataTable.getConfigOptions())
+
+    // PREPARE PROPS 
+
+    const getColDef = (column) => {
+      return  {
+        colId: column.id,
+        headerComponentParams : { 
+          rtColumn: {
+            id: column.id,
+            is_numeric: column.modelFieldis_numeric,
+            levels: column.levels.map(level => level.colspan) 
+          }
+        },
+        hide: column.hide,
+        headerName: column.levels[dataTable.headers.length-1].label,
+        headerTooltip: column.modelField.name,
+        field: column.id,
+        valueGetter: function(params) { 
+          return typeof params.data === 'undefined' ? '' : '' + params.data.data[column.id].value 
+        },
+        cellRendererParams: { 
+          rtColumn: {
+            id: column.id,
+            is_numeric: column.modelField.is_numeric,
+            levels: column.levels.map(level => level.colspan)
+          }
+        },
+        colSpan: function(params) {
+          try {
+            var colspan = params.data.data[column.id].colspan 
+          } catch {
+            var colspan = 1 
+          }
+          return colspan 
+        },
+        rowSpan: function(params) {
+          try {
+            var rowspan = params.data.data[column.id].rowspan 
+          } catch {
+            var rowspan = 1 
+          }
+          return rowspan 
+        },
+      }
+    }
+    
+    const getColumnGroup = (columns, level=0) => {
+      var headerName = columns[0].levels[level].label
+      var columnGroup = {
+        headerName: headerName,
+        headerGroupComponent: 'reportTableHeaderGroupComponent',
+        headerGroupComponentParams : { 
+          level: level,
+          rtColumn: { 
+            id: columns[0].id,
+            is_numeric: columns[0].modelField.is_numeric,
+            levels: columns[0].levels.map(level => level.colspan) 
+          }
+        },
+        marryChildren: true,
+        children: []
+      }
+    
+      // if this is a transposed subtotal, then can return with itself as sole child
+      if (dataTable.transposeTable && columns[0].levels[0].rowspan === dataTable.headers.length) {
+        columnGroup.openByDefault = true
+        columnGroup.children = [getColDef(columns[0])]
+        return columnGroup
+      }
+      
+      var children = []
+      var idx = 0
+      while (idx < columns.length && columns[idx].levels[level].label === columns[0].levels[level].label ) {
+        if (columns[idx].levels[level + 1].colspan > 0) {
+          children.push({
+            index: idx, 
+            column: columns[idx]
+          })
+        }
+        idx = idx + 1
+      }
+    
+      if (level + 2 === dataTable.headers.length) {
+        columnGroup.children = children.map(child => getColDef(child.column))
+        return columnGroup
+      } else {
+        columnGroup.children = children.map(child => getColumnGroup(columns.slice(child.index, columns.length), level + 1))
+        return columnGroup
+      }
+    }
+  
+    const getRowClass = (params) => { return params.data.type }
+    
+    var columnDefs = []
+    
+    if (dataTable.headers.length === 1) {
+      dataTable.getDataColumns.forEach(column => columnDefs.push(getColDef(column)))
+    } else {
+      // DIMENSIONS
+      var dimensions = dataTable.getDataColumns()
+        .filter(column => ['dimension', 'transposed_table_index'].includes(column.modelField.type))
+  
+      dimensions.forEach((dimension, idx) => {
+        if (dimension.levels[0].colspan > 0) {
+          columnDefs.push(getColumnGroup(dimensions.slice(idx, dimensions.length)))
+        }
+      })
+  
+      // MEASURES
+      if (!dataTable.transposeTable) {
+        var measures = dataTable.getDataColumns()
+        .filter(column => column.modelField.type === 'measure')
+        .filter(column => column.pivoted)
+        .filter(column => !column.super)      
+      } else {
+        var measures = dataTable.getDataColumns()
+        .filter(column => column.modelField.type === 'transposed_table_measure')
+      }
+  
+      measures.forEach((measure, idx) => {
+        if (measure.levels[0].colspan > 0) {
+          columnDefs.push(getColumnGroup(measures.slice(idx, measures.length)))
+        }
+      })
+  
+      // SUPERMEASURES
+      var supermeasures = dataTable.getDataColumns()
+          .filter(column => column.modelField.type === 'measure')
+          .filter(column => !column.pivoted)
+          .filter(column => column.super || column.isRowTotal)
+  
+      supermeasures.forEach((supermeasure, idx) => {
+        if (supermeasure.levels[0].colspan > 0) {
+          columnDefs.push(getColumnGroup(supermeasures.slice(idx, supermeasures.length)))
+        }
+      })
+    }
+  
+    const rowData = dataTable.getDataRows()
+    console.log('rowData', rowData)
+  
+    const rtProps = {
+      columnDefs: columnDefs, // columnDefs,
+      rowData: rowData,
+      getRowClass: getRowClass,
+      suppressFieldDotNotation: true,
+      suppressRowTransform: true,
+      suppressColumnVirtualisation: true,
+      suppressAnimationFrame: true,
+      defaultColDef: {
+        suppressMovable: true,
+        columnGroupShow: 'open',
+        filter: false,
+        sortable: false,
+        headerComponent: 'reportTableHeaderComponent',
+        cellRenderer: 'reportTableCellComponent',
+      },
+    }
         
     if (details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
-    // PREVENT MULTIPLE TABLES BEING RENDERED
-    try {
-      var elem = document.querySelector('.ag-root-wrapper')
-      elem.parentNode.removeChild(elem); 
-    } catch(e) {}
+    console.log('COLUMN DEFINITIONS')
+    console.log(rtProps.columnDefs)
+    console.log('ROW DATA')
+    console.log(rtProps.rowData)
 
-    ReportTable(dataTable, element)
+    switch (ENGINE) {
+      case 'vanilla':
+        // PREVENT MULTIPLE TABLES BEING RENDERED
+        try {
+          var elem = document.querySelector('.ag-root-wrapper')
+          elem.parentNode.removeChild(elem); 
+        } catch(e) {}
+    
+        ReportTableVanilla(rtProps, element)
+        break;
+
+      case 'react':
+        // REACT HANDLES 'MULTIPLE TABLES' isse
+        // CURRENTLY EXPERIENCING TERRIBLE shouldComponentUpdate() cycles
+        this.chart = ReactDOM.render(
+          <div className={'rt-container ag-theme-' + config.theme}>
+            <ReportTableReact {...rtProps} />
+          </div>,
+          element
+        );
+        break;
+    }
     
     console.log('element', element)
     

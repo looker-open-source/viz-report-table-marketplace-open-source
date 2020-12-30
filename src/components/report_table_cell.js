@@ -6,7 +6,7 @@ const ReportTableCell = (params) => {
     // get value for the cell
     var text = ''
     var row = params.data
-    var data = params.data.data[params.dataTableColumn.id]
+    var data = params.data.data[params.rtColumn.id]
     // console.log('cell params', params)
     if (typeof params.data !== 'undefined') {
       if (data.html) {                                     // cell has HTML defined

@@ -258,7 +258,7 @@ class VisPluginTableModel {
     this.useViewName = config.useViewName || false
     this.addRowSubtotals = config.rowSubtotals || false
     this.addSubtotalDepth = typeof config.subtotalDepth !== 'undefined' ? parseInt(config.subtotalDepth) : this.dimensions.length - 1
-    this.subtotalGroups = []
+    this.subtotalGroups = {}
     this.addColSubtotals = config.colSubtotals || false
     this.spanRows = false || config.spanRows
     this.spanCols = false || config.spanCols
@@ -1325,20 +1325,37 @@ class VisPluginTableModel {
           let groupId = ['CollapsibleSubtotal', ...group].join('|')
           for (const [field, cell] of Object.entries(subtotals_entry)) {
             if (field === '$$$__grouping__$$$') {
-              this.subtotalGroups[groupId].grouping = cell
+              if (typeof this.subtotalGroups[groupId] !== 'undefined') {
+                this.subtotalGroups[groupId].grouping = cell
+              } else {
+                console.log('Bad value. groupId, cell, subtotals_entry.', groupId, cell, subtotals_entry)
+              }
             } else {
               if (typeof cell.value !== 'undefined') {
-                this.subtotalGroups[groupId].row.data[field] = new DataCell({
-                  ...cell,
-                  ...{ cell_style: ["total", "subtotal"] }
-                })
-              } else {
-                for (const [pivot, pivotCell] of Object.entries(cell)) {
-                  let key = [pivot, field].join('.')
-                  this.subtotalGroups[groupId].row.data[key] = new DataCell({
-                    ...pivotCell,
+              //   console.log('calculateSubtotalValues() queryResponse.subtotals_data', queryResponse.subtotals_data)
+              //   console.log('calculateSubtotalValues() group', group)
+              //   console.log('calculateSubtotalValues() groupId', groupId)
+              //   console.log('calculateSubtotalValues() this.subtotalGroups.keys()', Object.keys(this.subtotalGroups))
+                if (typeof this.subtotalGroups[groupId] !== 'undefined') {
+                  this.subtotalGroups[groupId].row.data[field] = new DataCell({
+                    ...cell,
                     ...{ cell_style: ["total", "subtotal"] }
                   })
+                } else {
+                  console.log('Bad value. groupId, cell, subtotals_entry.', groupId, cell, subtotals_entry)
+                }
+                
+              } else {
+                for (const [pivot, pivotCell] of Object.entries(cell)) {
+                  if (typeof this.subtotalGroups[groupId] !== 'undefined') {
+                    let key = [pivot, field].join('.')
+                    this.subtotalGroups[groupId].row.data[key] = new DataCell({
+                      ...pivotCell,
+                      ...{ cell_style: ["total", "subtotal"] }
+                    })
+                  } else {
+                    console.log('Bad value. groupId, cell, subtotals_entry.', groupId, cell, subtotals_entry)
+                  }
                 }
               }
             }
@@ -1347,12 +1364,19 @@ class VisPluginTableModel {
       }
     }
 
+    // Loop through all the subtotal groups. Any group where grouping is undefined
+    // is one that should exist in the data, but does not for some reason
+    // Reasons seen for data gaps include hitting the row limit for the query,
+    // or having order_by_field parameters that do not provide 1-1 mappings.
     for (const [key, subtotalGroup] of Object.entries(this.subtotalGroups)) {
       let missingGroups = []
       if (typeof subtotalGroup.grouping === 'undefined') {
         missingGroups.push(subtotalGroup)
       }
 
+      // Build the 'spine' of dimensions, starting with the dimensions in the array defining
+      // the group, and then adding empty cells to round out the full set of dimensions
+      // e.g. in a table with three dimensions, the dimension data might be Dim 1, Dim 2, EMPTY
       missingGroups.forEach(missingGroup => {
         this.dimensions.forEach((dimension, i) => {
           if (typeof missingGroup.values[i] !== 'undefined') {

@@ -18,13 +18,13 @@ const ReportTableHeaderGroup = (params) => {
   // this.syncExpandButtons();
 
   const level = params.level
-  const column = params.dataTableColumn
+  const column = params.rtColumn
   const colspan = column.levels[level].colspan
 
   if (colspan > 1) {
     var textClass = 'centerText'
   } else {
-    var textClass = column.modelField.is_numeric ? 'numeric' : 'nonNumeric'
+    var textClass = column.is_numeric ? 'numeric' : 'nonNumeric'
   }
 
   var bottomClass = params.displayName === '' ? 'bottom' : 'bottom underline'

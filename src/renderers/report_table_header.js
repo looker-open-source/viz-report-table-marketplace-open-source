@@ -3,7 +3,7 @@ function ReportTableHeader () {}
 ReportTableHeader.prototype.init = function(params) {
   // console.log('ReportTableHeader() Params', params)
 
-  const column = params.dataTableColumn
+  const column = params.rtColumn
   
   // this.eMenuButton = this.eGui.querySelector('.rt-column-menu-button');
   // this.eMenuButton.addEventListener('click', event => updateColumnMenu(event, agParams));
@@ -15,7 +15,7 @@ ReportTableHeader.prototype.init = function(params) {
   //   // this.eGui.removeChild(this.eMenuButton);
   // }
   
-  const textClass = column.modelField.is_numeric ? 'numeric' : 'nonNumeric'
+  const textClass = column.is_numeric ? 'numeric' : 'nonNumeric'
 
   this.eGui = document.createElement('div')
   this.eGui.className = 'rt-finance-cell-container rt-header-cell-container'

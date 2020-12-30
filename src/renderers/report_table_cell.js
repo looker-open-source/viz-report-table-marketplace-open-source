@@ -3,7 +3,7 @@ function ReportTableCell () {}
 ReportTableCell.prototype.init = function(params) {
     var text = ''
     const row = params.data
-    const data = params.data.data[params.dataTableColumn.id]
+    const data = params.data.data[params.rtColumn.id]
     // console.log('cell params', params)
     if (typeof params.data !== 'undefined') {
       if (data.html) {                                     // cell has HTML defined
