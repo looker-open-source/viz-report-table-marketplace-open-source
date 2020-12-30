@@ -26,9 +26,6 @@ looker.plugins.visualizations.add({
   })(),
   
   create: function(element, config) {
-    // REACT VERSION
-    // this.chart = ReactDOM.render(<div />, element);
-
     element.appendChild(buildColumnMenu())
   },
 
@@ -88,14 +85,6 @@ looker.plugins.visualizations.add({
     } catch(e) {}
 
     ReportTable(dataTable, element)
-
-    // REACT VERSION
-    // this.chart = ReactDOM.render(
-    //   <div className={'rt-container ag-theme-' + config.theme}>
-    //     <ReportTable dataTable={dataTable} />
-    //   </div>,
-    //   element
-    // );
     
     console.log('element', element)
     

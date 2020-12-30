@@ -14,6 +14,10 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
 .ag-theme-finance {
   @import './ag_theme_finance/ag_theme_finance.scss';
   @include ag-theme-finance();
+
+  .ag-row.total {
+    line-height: 30px;
+  }
 }
 
 .ag-react-container {

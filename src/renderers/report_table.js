@@ -88,6 +88,17 @@ const ReportTable = (dataTable, element) => {
 
   const getRowClass = (params) => { return params.data.type }
 
+  const onFirstDataRendered = (params) => {
+    console.log('onFirstDataRendered() params', params)
+    // params.api.sizeColumnsToFit();
+
+    var allColumnIds = [];
+    gridOptions.columnApi.getAllColumns().forEach(function (column) {
+      allColumnIds.push(column.colId);
+    });
+    gridOptions.columnApi.autoSizeColumns(allColumnIds, true)
+  }
+
   var columnDefs = []
   
   if (dataTable.headers.length === 1) {
@@ -139,6 +150,7 @@ const ReportTable = (dataTable, element) => {
     getRowClass: getRowClass,
     suppressFieldDotNotation: true,
     suppressRowTransform: true,
+    suppressColumnVirtualisation: true,
     defaultColDef: {
       suppressMovable: true,
       columnGroupShow: 'open',
@@ -151,7 +163,8 @@ const ReportTable = (dataTable, element) => {
       reportTableHeaderGroupComponent: ReportTableHeaderGroup,
       reportTableHeaderComponent: ReportTableHeader,
       reportTableCellComponent: ReportTableCell
-    }
+    },
+    onFirstDataRendered: onFirstDataRendered,
   }
 
   element.classList.add('ag-theme-finance')
