@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { ComponentsProvider, Icon } from '@looker/components'
+
 import { updateColumnMenu } from '../renderers/report_table_column_menu'
 
   
@@ -19,21 +21,23 @@ const ReportTableHeader = (params) => {
   // }
   
   const textClass = column.is_numeric ? 'numeric' : 'nonNumeric'
-
+  //<div className="rt-column-menu-button">⦿</div>
   return (
     <div className='rt-finance-cell-container rt-header-cell-container'>
+      <ComponentsProvider>
       <div className="top-left"></div>
       <div className="top"></div>
       <div className="top-right"></div>
       <div className="left"></div>
       <div className="center rt-header-cell-label">
-        <div className="rt-column-menu-button">⦿</div>
+        <div className="showOnHover"><Icon name="DotsVert" size="xxsmall" /></div>
         <div className={textClass} style={{width: '100%'}}>{params.displayName}</div>
       </div>
       <div className="right"></div>
       <div className="bottom-left"></div>
       <div className="bottom strong-underline"></div>
       <div className="bottom-right"></div>
+      </ComponentsProvider>
     </div>
   )
 }

@@ -137,6 +137,14 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
   font-weight: bold !important;
 }
 
+.showOnHover {
+  opacity: 0.0;
+}
+
+.showOnHover:hover {
+  opacity: 1.0;
+}
+
 #columnMenu {
   position: absolute;
   height: auto;
