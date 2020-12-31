@@ -8,8 +8,8 @@ ModuleRegistry.registerModules([ClientSideRowModelModule])
 // import { ChangeDetectionService } from 'ag-grid-react/lib/changeDetectionService'
 // import { ChangeDetectionStrategyType } from 'ag-grid-react/lib/changeDetectionService'
 
-import ReportTableHeaderGroup from '../renderers/report_table_header_group'
-import ReportTableHeader from '../renderers/report_table_header'
+import ReportTableHeaderGroup from './report_table_header_group'
+import ReportTableHeader from './report_table_header'
 import ReportTableCell from '../renderers/report_table_cell'
 import { ReportTableColumnMenu } from '../renderers/report_table_column_menu'
 import { slice } from "lodash";
@@ -30,9 +30,11 @@ class ReportTable extends Component {
     this.onGridReady = this.onGridReady.bind(this);
     this.modules = [ClientSideRowModelModule]
     this.components = {
+      reportTableCellComponent: ReportTableCell
+    }
+    this.frameworkComponents = {
       reportTableHeaderGroupComponent: ReportTableHeaderGroup,
       reportTableHeaderComponent: ReportTableHeader,
-      reportTableCellComponent: ReportTableCell
     }
   }
 
@@ -50,7 +52,7 @@ class ReportTable extends Component {
     console.log('defaultColDef', this.props.defaultColDef)
     console.log('getRowClass', this.props.getRowClass)
     console.log('modules', this.modules)
-    console.log('components', this.components)
+    // console.log('components', this.components)
     console.log('onGridReady', this.onGridReady)
     return (
       <AgGridReact
@@ -64,6 +66,7 @@ class ReportTable extends Component {
         suppressAnimationFrame
         modules={this.modules}
         components={this.components}
+        frameworkComponents={this.frameworkComponents}
         onGridReady={this.onGridReady}
       />
     )

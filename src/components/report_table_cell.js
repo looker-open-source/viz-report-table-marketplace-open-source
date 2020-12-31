@@ -33,23 +33,6 @@ const ReportTableCell = (params) => {
       var bottomline = 'bottom'
     }
 
-  //   this.eGui = document.createElement('div')
-  //   this.eGui.className = 'rt-finance-cell-container'
-  //   this.eGui.innerHTML = ''
-  //     // + '<div className="rt-finance-cell-container">'
-  //     + '  <div class="top-left"></div>'
-  //     + '  <div class=' + this.topline + '></div>'
-  //     + '  <div class="top-right"></div>'
-  //     + '  <div class="left"></div>'
-  //     + '  <div class="center ' + this.textClass + '">' + this.text + '</div>'
-  //     + '  <div class="right"></div>'
-  //     + '  <div class="bottom-left"></div>'
-  //     + '  <div class="' + this.bottomline + '"></div>'
-  //     + '  <div class="bottom-right"></div>'
-  //     // + '</div>'
-  //     ;
-  // }
-
   // getGui() {
   //   console.log(this.eGui)
   //   return this.eGui
@@ -57,15 +40,15 @@ const ReportTableCell = (params) => {
 
   return (
     <div className="rt-finance-cell-container">
-      <div class="top-left"></div>
-      <div class={topline}></div>
-      <div class="top-right"></div>
-      <div class="left"></div>
-      <div class={"center " + textClass}>{text}</div>
-      <div class="right"></div>
-      <div class="bottom-left"></div>
-      <div class={bottomline}></div>
-      <div class="bottom-right"></div>
+      <div className="top-left"></div>
+      <div className={topline}></div>
+      <div className="top-right"></div>
+      <div className="left"></div>
+      <div className={"center " + textClass}>{text}</div>
+      <div className="right"></div>
+      <div className="bottom-left"></div>
+      <div className={bottomline}></div>
+      <div className="bottom-right"></div>
     </div>
   )
 };

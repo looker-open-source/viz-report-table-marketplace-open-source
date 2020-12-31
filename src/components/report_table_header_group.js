@@ -31,18 +31,18 @@ const ReportTableHeaderGroup = (params) => {
 
   return (
     <div className='rt-finance-cell-container'>
-      <div class="top-left"></div>
-      <div class="top"></div>
-      <div class="top-right"></div>
-      <div class="left"></div>
-      <div class="center ag-header-group-cell-label">
-        <div class={textClass} style={{width: '100%'}}>{params.displayName}</div>
-        {/* <div class="customExpandButton"><i class="fa fa-arrow-right"></i></div> */}
+      <div className="top-left"></div>
+      <div className="top"></div>
+      <div className="top-right"></div>
+      <div className="left"></div>
+      <div className="center ag-header-group-cell-label">
+        <div className={textClass} style={{width: '100%'}}>{params.displayName}</div>
+        {/* <div className="customExpandButton"><i className="fa fa-arrow-right"></i></div> */}
       </div>
-      <div class="right"></div>
-      <div class="bottom-left"></div>
-      <div class={bottomClass}></div>
-      <div class="bottom-right"></div>
+      <div className="right"></div>
+      <div className="bottom-left"></div>
+      <div className={bottomClass}></div>
+      <div className="bottom-right"></div>
     </div>
   )
 };

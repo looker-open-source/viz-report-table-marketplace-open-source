@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { updateColumnMenu } from './report_table_column_menu'
+import { updateColumnMenu } from '../renderers/report_table_column_menu'
 
   
 const ReportTableHeader = (params) => {
@@ -22,18 +22,18 @@ const ReportTableHeader = (params) => {
 
   return (
     <div className='rt-finance-cell-container rt-header-cell-container'>
-      <div class="top-left"></div>
-      <div class="top"></div>
-      <div class="top-right"></div>
-      <div class="left"></div>
-      <div class="center rt-header-cell-label">
-        <div class="rt-column-menu-button">⦿</div>
-        <div class={textClass} style={{width: '100%'}}>{params.displayName}</div>
+      <div className="top-left"></div>
+      <div className="top"></div>
+      <div className="top-right"></div>
+      <div className="left"></div>
+      <div className="center rt-header-cell-label">
+        <div className="rt-column-menu-button">⦿</div>
+        <div className={textClass} style={{width: '100%'}}>{params.displayName}</div>
       </div>
-      <div class="right"></div>
-      <div class="bottom-left"></div>
-      <div class="bottom strong-underline"></div>
-      <div class="bottom-right"></div>
+      <div className="right"></div>
+      <div className="bottom-left"></div>
+      <div className="bottom strong-underline"></div>
+      <div className="bottom-right"></div>
     </div>
   )
 }
