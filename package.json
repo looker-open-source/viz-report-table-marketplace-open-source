@@ -29,6 +29,7 @@
     "@ag-grid-community/all-modules": "^24.1.0",
     "@ag-grid-community/core": "^24.1.0",
     "@ag-grid-community/react": "^24.1.1",
+    "@looker/components": "^0.9.29",
     "ag-grid-community": "^24.1.0",
     "ag-grid-enterprise": "^24.1.0",
     "ag-grid-react": "^24.1.1",
