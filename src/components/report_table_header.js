@@ -1,15 +1,14 @@
 import React from 'react'
-
-import { ComponentsProvider, Icon } from '@looker/components'
-
-import { updateColumnMenu } from '../renderers/report_table_column_menu'
+import { ComponentsProvider, Icon, Menu, MenuDisclosure, MenuList, MenuItem } from '@looker/components'
+// import ReportTableHeaderMenuButton from './report_table_header_menu_button'
+// import { updateColumnMenu } from '../renderers/report_table_column_menu'
 
   
 const ReportTableHeader = (params) => {
   // console.log('ReportTableHeader() Params', params)
 
   const column = params.rtColumn
-  
+  const hoverRef = React.useRef()
   // this.eMenuButton = this.eGui.querySelector('.rt-column-menu-button');
   // this.eMenuButton.addEventListener('click', event => updateColumnMenu(event, agParams));
 
@@ -22,23 +21,33 @@ const ReportTableHeader = (params) => {
   
   const textClass = column.is_numeric ? 'numeric' : 'nonNumeric'
   //<div className="rt-column-menu-button">⦿</div>
+  //           <ReportTableHeaderMenuButton rtColumn={params.rtColumn} column={params.column} />
   return (
-    <div className='rt-finance-cell-container rt-header-cell-container'>
-      <ComponentsProvider>
-      <div className="top-left"></div>
-      <div className="top"></div>
-      <div className="top-right"></div>
-      <div className="left"></div>
-      <div className="center rt-header-cell-label">
-        <div className="showOnHover"><Icon name="DotsVert" size="xxsmall" /></div>
-        <div className={textClass} style={{width: '100%'}}>{params.displayName}</div>
+    <ComponentsProvider>
+      <div className='rt-finance-cell-container rt-header-cell-container' ref={hoverRef}>
+        <div className="top-left" />
+        <div className="top" />
+        <div className="top-right" />
+        <div className="left" />
+        <div className="center rt-header-cell-label">
+          <Menu hoverDisclosureRef={hoverRef}>
+            <MenuDisclosure tooltip="Column Settings">
+              <Icon name="DotsVert" size="xxsmall" />
+            </MenuDisclosure>
+            <MenuList compact>
+              <MenuItem icon="FavoriteOutline" description="Set column width to fit contents">Auto Size</MenuItem>
+              <MenuItem icon="FavoriteOutline" description="Hidden items can still be found in config panel">Hide</MenuItem>
+              <MenuItem icon="FavoriteOutline" description="Option to group columns under a heading">Set Heading</MenuItem>
+            </MenuList>
+          </Menu>
+          <div className={textClass} style={{width: '100%'}}>{params.displayName}</div>
+        </div>
+        <div className="right" />
+        <div className="bottom-left" />
+        <div className="bottom strong-underline" />
+        <div className="bottom-right" />
       </div>
-      <div className="right"></div>
-      <div className="bottom-left"></div>
-      <div className="bottom strong-underline"></div>
-      <div className="bottom-right"></div>
-      </ComponentsProvider>
-    </div>
+    </ComponentsProvider>
   )
 }
 

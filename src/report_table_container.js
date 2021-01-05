@@ -83,15 +83,21 @@ looker.plugins.visualizations.add({
 
     // PREPARE PROPS 
 
+    const getColumnConfig = (column) => {
+      return {
+        id: column.id,
+        is_numeric: column.modelField.is_numeric,
+        levels: column.levels.map(level => level.colspan),
+        visConfig: column.vis.config
+      }
+    }
+
     const getColDef = (column) => {
+      var columnConfig = getColumnConfig(column)
       return  {
         colId: column.id,
         headerComponentParams : { 
-          rtColumn: {
-            id: column.id,
-            is_numeric: column.modelFieldis_numeric,
-            levels: column.levels.map(level => level.colspan) 
-          }
+          rtColumn: columnConfig
         },
         hide: column.hide,
         headerName: column.levels[dataTable.headers.length-1].label,
@@ -101,11 +107,7 @@ looker.plugins.visualizations.add({
           return typeof params.data === 'undefined' ? '' : '' + params.data.data[column.id].value 
         },
         cellRendererParams: { 
-          rtColumn: {
-            id: column.id,
-            is_numeric: column.modelField.is_numeric,
-            levels: column.levels.map(level => level.colspan)
-          }
+          rtColumn: columnConfig
         },
         colSpan: function(params) {
           try {
@@ -128,16 +130,13 @@ looker.plugins.visualizations.add({
     
     const getColumnGroup = (columns, level=0) => {
       var headerName = columns[0].levels[level].label
+      var columnConfig = getColumnConfig(columns[0])
       var columnGroup = {
         headerName: headerName,
         headerGroupComponent: 'reportTableHeaderGroupComponent',
         headerGroupComponentParams : { 
           level: level,
-          rtColumn: { 
-            id: columns[0].id,
-            is_numeric: columns[0].modelField.is_numeric,
-            levels: columns[0].levels.map(level => level.colspan) 
-          }
+          rtColumn: columnConfig
         },
         marryChildren: true,
         children: []
