@@ -2,11 +2,8 @@ import React from "react"
 import ReactDOM from "react-dom"
 
 import { VisPluginTableModel } from './model/vis_table_plugin'
-import ReportTableVanilla from './renderers/report_table' // this are aliases of default 'ReportTable'
-import ReportTableReact from './components/report_table'  // in both vanillajs and react
-import { buildColumnMenu } from './renderers/report_table_column_menu'
-
-const ENGINE = 'react' // vanilla | react
+import ReportTable from './components/report_table'
+// import { buildColumnMenu } from './renderers/report_table_column_menu'
 
 
 const loadStylesheet = function(link) {
@@ -28,10 +25,9 @@ looker.plugins.visualizations.add({
   })(),
   
   create: function(element, config) {
-    if (ENGINE === 'react') {
-      this.chart = ReactDOM.render(<div />, element);
-    }
-    element.appendChild(buildColumnMenu())
+    this.chart = ReactDOM.render(<div />, element);
+
+    // element.appendChild(buildColumnMenu())
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
@@ -245,28 +241,12 @@ looker.plugins.visualizations.add({
     console.log('ROW DATA')
     console.log(rtProps.rowData)
 
-    switch (ENGINE) {
-      case 'vanilla':
-        // PREVENT MULTIPLE TABLES BEING RENDERED
-        try {
-          var elem = document.querySelector('.ag-root-wrapper')
-          elem.parentNode.removeChild(elem); 
-        } catch(e) {}
-    
-        ReportTableVanilla(rtProps, element)
-        break;
-
-      case 'react':
-        // REACT HANDLES 'MULTIPLE TABLES' isse
-        // CURRENTLY EXPERIENCING TERRIBLE shouldComponentUpdate() cycles
-        this.chart = ReactDOM.render(
-          <div className={'rt-container ag-theme-' + config.theme}>
-            <ReportTableReact {...rtProps} />
-          </div>,
-          element
-        );
-        break;
-    }
+    this.chart = ReactDOM.render(
+      <div className={'rt-container ag-theme-' + config.theme}>
+        <ReportTable {...rtProps} />
+      </div>,
+      element
+    );
     
     console.log('element', element)
     
