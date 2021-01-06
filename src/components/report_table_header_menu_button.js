@@ -16,8 +16,8 @@ const ReportTableHeaderMenuButton = (props) => {
             <Icon name="DotsVert" size="xxsmall" />
           </MenuDisclosure>
           <MenuList compact>
-            <MenuItem icon="FavoriteOutline">Gouda</MenuItem>
-            <MenuItem icon="FavoriteOutline">Swiss</MenuItem>
+            <MenuItem icon="FavoriteOutline">Option One</MenuItem>
+            <MenuItem icon="FavoriteOutline">Option Two</MenuItem>
           </MenuList>
         </Menu>
       </div>
