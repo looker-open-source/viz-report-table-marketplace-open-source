@@ -237,7 +237,7 @@ class VisPluginTableModel {
     this.measures = []
     this.columns = []
     this.data = []
-    this.rowSortOrder = []
+    this.rowSorts = []
 
     this.transposed_headers = []
     this.transposed_columns = []
@@ -299,7 +299,7 @@ class VisPluginTableModel {
       this.calculateSubtotalValues(queryResponse)
       this.enrichSubtotalRows()
       this.updateRowSortValues()
-      this.collapsibleSortData()
+      this.sortData()
       this.collapseAndExpand()
     }
     if (this.spanRows) { this.setRowSpans() }
@@ -1152,51 +1152,28 @@ class VisPluginTableModel {
     this.sortData()
   }
 
-  compareSortArrays (dataTable) {
+  compareSortArrays (sortConfig) {
+    console.log('compareSortArrays() sortConfig', sortConfig)
     return function(a, b) {
       var depth = Math.max(a.sort.length, b.sort.length)
       for (var i = 0; i < depth; i++) {
-          var field = typeof a.sort[i].name !== 'undefined' ? a.sort[i].name : ''
-          var sort = dataTable.sorts.find(item => item.name === field)
-          var desc = typeof sort !== 'undefined' ? sort.desc : false
+        var field = typeof a.sort[i].name !== 'undefined' ? a.sort[i].name : ''
+        var sort = sortConfig.find(item => item.name === field)
+        var desc = typeof sort !== 'undefined' ? sort.desc : false
 
-          var a_value = typeof a.sort[i] !== 'undefined' ? a.sort[i].value : 0
-          var b_value = typeof b.sort[i] !== 'undefined' ? b.sort[i].value : 0
+        var a_value = typeof a.sort[i] !== 'undefined' ? a.sort[i].value : 0
+        var b_value = typeof b.sort[i] !== 'undefined' ? b.sort[i].value : 0
 
-          if (desc) {
-            if (a_value < b_value) { return 1 }
-            if (a_value > b_value) { return -1 }
-          } else {
-            if (a_value > b_value) { return 1 }
-            if (a_value < b_value) { return -1 }
-          }
+        if (desc) {
+          if (a_value < b_value) { return 1 }
+          if (a_value > b_value) { return -1 }
+        } else {
+          if (a_value > b_value) { return 1 }
+          if (a_value < b_value) { return -1 }
+        }
       }
       return -1
     }
-  }
-
-  compareCollapsibleSortArrays (dataTable) {
-    return function(a, b) {
-      var depth = Math.max(a.collapsibleSort.length, b.collapsibleSort.length)
-      for(var i = 0; i < depth; i++) {
-          var a_value = typeof a.collapsibleSort[i] !== 'undefined' ? a.collapsibleSort[i].value : 0
-          var b_value = typeof b.collapsibleSort[i] !== 'undefined' ? b.collapsibleSort[i].value : 0
-
-          if (dataTable.rowSortOrder[i].desc === false) {
-            if (a_value > b_value) { return 1 }
-            if (a_value < b_value) { return -1 }
-          } else {
-            if (a_value < b_value) { return 1 }
-            if (a_value > b_value) { return -1 } 
-          }
-      }
-      return -1
-    }
-  }
-
-  collapsibleSortData () {
-    this.data.sort(this.compareCollapsibleSortArrays(this))
-    if (this.spanRows) { this.setRowSpans() }
   }
 
   /**
@@ -1222,7 +1199,7 @@ class VisPluginTableModel {
       })
     }
 
-    this.rowSortOrder = [
+    this.rowSorts = [
       {
         type: 'total',
         name: 'total',
@@ -1237,27 +1214,27 @@ class VisPluginTableModel {
     ]
 
     this.data.forEach(row => {
-      row.collapsibleSort = []
-      this.rowSortOrder.forEach(sort => {
+      row.sort = []
+      this.rowSorts.forEach(sort => {
         switch (sort.type) {
           case 'dimension':
             let value = typeof row.data[sort.name].sort_value !== 'undefined' ? row.data[sort.name].sort_value : row.data[sort.name].value
-            row.collapsibleSort.push({ name: 'unknown1205', value: value })
+            row.sort.push({ type: 'dimension', name: sort.name, value: value })
             break
           case 'measure':
-            row.collapsibleSort.push({ name: 'unkown1208', value: row.data[sort.name].value })
+            row.sort.push({ type: 'measure', name: sort.name, value: row.data[sort.name].value })
             break
           case 'total':
-            row.collapsibleSort.push({ name: 'unknown1211', value: row.type === 'total' ? Number.POSITIVE_INFINITY : 0 })
+            row.sort.push({ type: 'total', name: sort.name, value: row.type === 'total' ? Number.POSITIVE_INFINITY : 0 })
             break
           case 'originalRow':
-            row.collapsibleSort.push({ name: 'originalRow', value: row.originalRow })
+            row.sort.push({ name: 'originalRow', value: row.originalRow })
             break
         }
       })
     })
 
-    this.collapsibleSortData()
+    this.sortData()
 
     // BUILD STRUCTURE OF ALL SUBTOTALS
     this.subtotalGroups = {}
@@ -1312,7 +1289,7 @@ class VisPluginTableModel {
    *   - calculates subtotals where missing
    */
   calculateSubtotalValues(queryResponse) {
-    let subtotalSorts = this.rowSortOrder.filter(sort => sort.type === 'dimension')
+    let subtotalSorts = this.rowSorts.filter(sort => sort.type === 'dimension')
     if (typeof queryResponse.subtotals_data !== 'undefined') {
       for (const [key, subtotals_array] of Object.entries(queryResponse.subtotals_data)) {
         subtotals_array.forEach(subtotals_entry => {
@@ -1539,7 +1516,7 @@ class VisPluginTableModel {
     }
     
 
-    this.rowSortOrder = [
+    this.rowSorts = [
       {
         type: 'total',
         name: 'total',
@@ -1560,11 +1537,12 @@ class VisPluginTableModel {
     ]
 
     this.data.forEach(row => {
-      row.collapsibleSort = []
-      this.rowSortOrder.forEach(sort => {
+      row.sort = []
+      this.rowSorts.forEach(sort => {
         switch (sort.type) {
           case 'total':
-            row.collapsibleSort.push({
+            row.sort.push({
+              type: 'total',
               name: 'section', 
               value: row.type === 'total' ? 1 : 0
             })
@@ -1574,20 +1552,23 @@ class VisPluginTableModel {
             if (row.type === 'subtotal') {
               let value = this.subtotalGroups[row.id].values[sort.depth]
               if (typeof value === 'undefined') {
-                row.collapsibleSort.push({
-                  name: 'unknown1489', 
+                row.sort.push({
+                  type: 'subtotalDimension',
+                  name: sort.name, 
                   value: 'ZZZZZZZZZ'
                 })
               } else {
                 // Check if there is a sort_value available. If not, use value from subtotalGroup.values, because the first subtotal dimension has a concatenated value
-                row.collapsibleSort.push({
+                row.sort.push({
+                  type: 'subtotalDimension',
                   name: sort.name,
                   value: typeof row.data[sort.name].sort_value !== 'undefined' ? row.data[sort.name].sort_value : value
                 })
               }
             } else {
-              row.collapsibleSort.push({
-                name: 'unknown1500',
+              row.sort.push({
+                type: 'subtotalDimension',
+                name: sort.name,
                 value: typeof row.data[sort.name].sort_value !== 'undefined' ? row.data[sort.name].sort_value : row.data[sort.name].value
               })
             }
@@ -1614,47 +1595,54 @@ class VisPluginTableModel {
                   var key = sort.name
                 }
                 let value = this.subtotalGroups[groupId].row.data[key].value 
-                row.collapsibleSort.push({
-                  name: 'unknown1523', 
+                row.sort.push({
+                  type: 'subtotalMeasure',
+                  name: sort.name, 
                   value: value
                 })
               } else {
-                row.collapsibleSort.push({
-                  name: 'unknown1528', 
+                row.sort.push({
+                  type: 'subtotalMeasure',
+                  name: sort.name, 
                   value: Number.NEGATIVE_INFINITY
                 })
               }
             } else {
-              row.collapsibleSort.push({
-                name: 'unknown1534', 
+              row.sort.push({
+                type: 'subtotalMeasure',
+                name: sort.name, 
                 value: 0
               })
             }
             break
 
           case 'subtotalLast':
-            row.collapsibleSort.push({
-              name: 'subtotalLast',
+            row.sort.push({
+              type: 'subtotalLast',
+              name: sort.name,
               value: row.type === 'subtotal' ? 1 : 0
             })
             break
 
           case 'dimension':
-            row.collapsibleSort.push({
+            row.sort.push({
+              type: 'dimension',
               name: sort.name,
               value: typeof row.data[sort.name].sort_value !== 'undefined' ? row.data[sort.name].sort_value : row.data[sort.name].value
             })
             break
 
           case 'measure':
-            row.collapsibleSort.push({
-              name: 'unknown1556',
+            row.sort.push({
+              type: 'measure',
+              name: sort.name,
               value: row.data[sort.name].value
             })
             break
 
           case 'originalRow':
-            row.collapsibleSort.push({
+            row.sort.push({
+              type: 'originalRow',
               name: 'originalRow',
               value: row.originalRow
             })
@@ -2095,7 +2083,7 @@ class VisPluginTableModel {
    * Sorts the rows of data, then updates vertical cell merge 
    */
   sortData () {
-    this.data.sort(this.compareSortArrays(this))
+    this.data.sort(this.compareSortArrays(this.sorts))
     if (this.spanRows) { this.setRowSpans() }
   }
 
@@ -2117,7 +2105,7 @@ class VisPluginTableModel {
    * Note that column sort values can be over-riden by manual drag'n'drop 
    */
   sortColumns () {
-    this.columns.sort(this.compareSortArrays(this))
+    this.columns.sort(this.compareSortArrays(this.sorts))
   }
 
   /**
