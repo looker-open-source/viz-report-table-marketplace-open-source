@@ -1,32 +1,23 @@
-import React, { useState, useCallback } from 'react'
+import React from 'react'
 
-import { ComponentsProvider, Icon} from '@looker/components'
+import { ComponentsProvider, Icon, Popover} from '@looker/components'
 
 import ReportTableColumnMenu from './report_table_column_menu'
 
 
-const ReportTableHeaderMenuButton = ({ tableConfig, columnConfig }) => {
-  const [showMenu, setShowMenu] = useState(false)
-
-  const clickHandler = useCallback((event) => {
-      setShowMenu(true)
-    }
-  )
+const ReportTableHeaderMenuButton = ({ config }) => {
   
   return (
     <ComponentsProvider>
-        {console.log('ReportTableMenuButton() showMenu', showMenu)}
-        <Icon 
-          className='rt-header-menu-button' 
-          name="DotsVert" 
-          size="xxsmall" 
-          onClick={clickHandler} 
-        />
-        {showMenu && <ReportTableColumnMenu 
-            tableConfig={tableConfig} 
-            columnConfig={columnConfig}
-            setShowMenu={setShowMenu}
-        />}
+        <Popover
+          content={<ReportTableColumnMenu config={config} />}
+        >
+          <Icon 
+            className='rt-header-menu-button' 
+            name="DotsVert" 
+            size="xxsmall" 
+          />
+        </Popover>
     </ComponentsProvider>
   )
 }

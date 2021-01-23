@@ -2,9 +2,8 @@ import React from 'react'
 
 const ReportTableHeaderGroup = (params) => {
   // console.log('ReportTableHeaderGroup() params', params)
-  const level = params.level
   const column = params.rtColumn
-  const colspan = column.levels[level]
+  const colspan = column.colspans[params.level]
 
   if (colspan > 1) {
     var textClass = 'centerText'
