@@ -2487,7 +2487,7 @@ class VisPluginTableModel {
   getDataColumns () {
     if (!this.transposeTable) {
       return this.columns
-              .filter(c => !c.hide)
+              // .filter(c => !c.hide)
     } else {
       return this.transposed_columns
     }

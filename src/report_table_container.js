@@ -80,6 +80,7 @@ looker.plugins.visualizations.add({
     // PREPARE PROPS 
 
     const getColumnConfig = (column) => {
+      // console.log('%c getColumnConfig() column', 'color: purple', column)
       return {
         id: column.id,
         is_numeric: column.modelField.is_numeric,
@@ -89,6 +90,7 @@ looker.plugins.visualizations.add({
     }
 
     const getColDef = (column) => {
+      // console.log('%c getColumnDef() column', 'color: purple', column)
       var columnConfig = getColumnConfig(column)
       return  {
         colId: column.id,
@@ -125,6 +127,8 @@ looker.plugins.visualizations.add({
     }
     
     const getColumnGroup = (columns, level=0) => {
+      if (level === 0) { console.log('%c NEW HEADER GROUP', 'color: purple', columns[0].levels[0].label, '=================') }
+      console.log('%c getColumnGroup() columns level', 'color: purple', columns, level)
       var headerName = columns[0].levels[level].label
       var columnConfig = getColumnConfig(columns[0])
       var columnGroup = {
@@ -167,48 +171,42 @@ looker.plugins.visualizations.add({
     }
 
     const getColumnDefs = () => {
+      console.log('%c GET COLUMNS getColumnDefs()', 'color: purple', dataTable.getDataColumns())
+      const columns = dataTable.getDataColumns()
       var columnDefs = []
     
       if (dataTable.headers.length === 1) {
-        dataTable.getDataColumns.forEach(column => columnDefs.push(getColDef(column)))
+        columns.forEach(column => columnDefs.push(getColDef(column)))
       } else {
-        // DIMENSIONS
-        var dimensions = dataTable.getDataColumns()
-          .filter(column => ['dimension', 'transposed_table_index'].includes(column.modelField.type))
-    
-        dimensions.forEach((dimension, idx) => {
-          if (dimension.levels[0].colspan > 0) {
-            columnDefs.push(getColumnGroup(dimensions.slice(idx, dimensions.length)))
+        var groups = [
+          [], // dimensions
+          [], // measures
+          [], // supermeasures
+        ] 
+
+        columns.filter(c => !c.hide).forEach(column => {
+          if (['dimension', 'transposed_table_index'].includes(column.modelField.type)) {
+            // dimensions
+            groups[0].push(column)
+          } else if (!dataTable.transposeTable && column.modelField.type === 'measure' && !column.isRowTotal && !column.super) {
+            // measures
+            groups[1].push(column)
+          } else if (column.modelField.type === 'transposed_table_measure') {
+            // measures in a transposed table
+            groups[1].push(column)
+          } else if (column.super || column.isRowTotal) {
+            // supermeasures
+            groups[2].push(column)
           }
         })
-  
-        // MEASURES
-        if (!dataTable.transposeTable) {
-          var measures = dataTable.getDataColumns()
-          .filter(column => column.modelField.type === 'measure')
-          .filter(column => column.pivoted)
-          .filter(column => !column.super)      
-        } else {
-          var measures = dataTable.getDataColumns()
-          .filter(column => column.modelField.type === 'transposed_table_measure')
-        }
-    
-        measures.forEach((measure, idx) => {
-          if (measure.levels[0].colspan > 0) {
-            columnDefs.push(getColumnGroup(measures.slice(idx, measures.length)))
-          }
-        })
-    
-        // SUPERMEASURES
-        var supermeasures = dataTable.getDataColumns()
-            .filter(column => column.modelField.type === 'measure')
-            .filter(column => !column.pivoted)
-            .filter(column => column.super || column.isRowTotal)
-    
-        supermeasures.forEach((supermeasure, idx) => {
-          if (supermeasure.levels[0].colspan > 0) {
-            columnDefs.push(getColumnGroup(supermeasures.slice(idx, supermeasures.length)))
-          }
+        console.log('%c Column "Supergroups":', 'color: purple', groups)
+
+        groups.forEach(columns => {
+          columns.forEach((column, idx) => {
+            if (column.levels[0].colspan > 0) {
+              columnDefs.push(getColumnGroup(columns.slice(idx, columns.length)))
+            }
+          })
         })
       }
 
