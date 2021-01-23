@@ -1153,7 +1153,6 @@ class VisPluginTableModel {
   }
 
   compareSortArrays (sortConfig) {
-    console.log('compareSortArrays() sortConfig', sortConfig)
     return function(a, b) {
       var depth = Math.max(a.sort.length, b.sort.length)
       for (var i = 0; i < depth; i++) {
@@ -2488,6 +2487,7 @@ class VisPluginTableModel {
   getDataColumns () {
     if (!this.transposeTable) {
       return this.columns
+              .filter(c => !c.hide)
     } else {
       return this.transposed_columns
     }

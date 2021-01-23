@@ -46,9 +46,9 @@ looker.plugins.visualizations.add({
       return
     }
 
-    console.log('config', config)
-    console.log('queryResponse', queryResponse)
-    console.log('data', data)
+    console.log('%c config', 'color: green', config)
+    console.log('%c queryResponse', 'color: green', queryResponse)
+    console.log('%c data', 'color: green', data)
 
     // INITIALISE THE VIS
     if (typeof config.columnOrder === 'undefined') {
@@ -73,7 +73,7 @@ looker.plugins.visualizations.add({
 
     // BUILD THE TABLE DATA OBJECT
     var dataTable = new VisPluginTableModel(data, queryResponse, config, updateConfig)
-    console.log('dataTable', dataTable)
+    console.log('%c dataTable', 'color: blue', dataTable)
 
     this.trigger('registerOptions', dataTable.getConfigOptions())
 
@@ -219,7 +219,6 @@ looker.plugins.visualizations.add({
     
     const columnDefs = getColumnDefs()
     const rowData = dataTable.getDataRows()
-    console.log('rowData', rowData)
   
     const rtProps = {
       columnDefs: columnDefs,
@@ -241,9 +240,9 @@ looker.plugins.visualizations.add({
         
     if (details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
-    console.log('COLUMN DEFINITIONS')
+    console.log('%c COLUMN DEFINITIONS', 'color: red')
     console.log(rtProps.columnDefs)
-    console.log('ROW DATA')
+    console.log('%c ROW DATA', 'color: red')
     console.log(rtProps.rowData)
 
     this.chart = ReactDOM.render(
@@ -253,7 +252,7 @@ looker.plugins.visualizations.add({
       element
     );
     
-    console.log('element', element)
+    console.log('%c element', 'color: red', element)
     
     done();
   }

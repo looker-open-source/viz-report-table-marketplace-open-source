@@ -39,14 +39,13 @@ class ReportTable extends Component {
   }
 
   render () {
-    console.log('RENDER')
-    console.log('columnDefs', this.props.columnDefs)
-    console.log('rowData', this.props.rowData)
-    console.log('defaultColDef', this.props.defaultColDef)
-    console.log('getRowClass', this.props.getRowClass)
-    console.log('modules', this.modules)
-    // console.log('components', this.components)
-    console.log('onGridReady', this.onGridReady)
+    console.log('%c RENDER', 'color: orange')
+    console.log('%c columnDefs', 'color: orange', this.props.columnDefs)
+    console.log('%c rowData', 'color: orange', this.props.rowData)
+    console.log('%c defaultColDef', 'color: orange', this.props.defaultColDef)
+    console.log('%c getRowClass', 'color: orange', this.props.getRowClass)
+    console.log('%c modules', 'color: orange', this.modules)
+
     return (
       <AgGridReact
         columnDefs={this.props.columnDefs}
