@@ -8,9 +8,7 @@ const ReportTableHeaderMenuButton = (props) => {
   
   return (
     <ComponentsProvider>
-      <div className='rt-header-menu-button'>
-        <Icon name="DotsVert" size="xxsmall" />
-      </div>
+        <Icon className='rt-header-menu-button' name="DotsVert" size="xxsmall" />
     </ComponentsProvider>
   )
 }
