@@ -3,7 +3,6 @@ import ReactDOM from "react-dom"
 
 import { VisPluginTableModel } from './model/vis_table_plugin'
 import ReportTable from './components/report_table'
-// import { buildColumnMenu } from './renderers/report_table_column_menu'
 
 
 const loadStylesheet = function(link) {
@@ -16,18 +15,10 @@ const loadStylesheet = function(link) {
 };
 
 looker.plugins.visualizations.add({
-  //Removes custom CSS theme for now over supportability concerns
-  options: (function() { 
-    let ops = VisPluginTableModel.getCoreConfigOptions();
-    // ops.theme.values.pop()
-    // delete ops.customTheme
-    return ops
-  })(),
+  options: VisPluginTableModel.getCoreConfigOptions(),
   
   create: function(element, config) {
     this.chart = ReactDOM.render(<div />, element);
-
-    // element.appendChild(buildColumnMenu())
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
@@ -212,16 +203,11 @@ looker.plugins.visualizations.add({
 
       return columnDefs
     }
-  
-    const getRowClass = (params) => { return params.data.type }
     
-    const columnDefs = getColumnDefs()
-    const rowData = dataTable.getDataRows()
-  
     const rtProps = {
-      columnDefs: columnDefs,
-      rowData: rowData,
-      getRowClass: getRowClass,
+      columnDefs: getColumnDefs(),
+      rowData: dataTable.getDataRows(),
+      getRowClass: (params) => { return params.data.type },
       suppressFieldDotNotation: true,
       suppressRowTransform: true,
       suppressColumnVirtualisation: true,

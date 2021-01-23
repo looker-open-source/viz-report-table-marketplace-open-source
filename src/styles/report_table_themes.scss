@@ -30,6 +30,11 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
   width: 100%;
 }
 
+.rt-column-menu-button {
+  width: 15px;
+  text-align: center;
+}
+
 .rt-finance-cell-container {
   height: 100%;
   width: 100%;
@@ -84,11 +89,6 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
   }
 }
 
-.rt-column-menu-button {
-  width: 15px;
-  text-align: center;
-}
-
 .hidden {
   display: none;
 }
@@ -114,6 +114,26 @@ $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-base/icons/';
 .total-underline {
   border-top: 1px solid #0000ff;
   border-bottom: 1px solid #0000ff;
+}
+
+.rt-header-menu-button {
+  display: none;
+}
+
+.rt-header-cell:hover .rt-header-menu-button {
+  display: block
+}
+
+.rt-header-cell-left {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+}
+
+.rt-header-cell-right {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;  
 }
 
 .nonNumeric {

@@ -1,25 +1,15 @@
 import React from 'react'
 
-import { ComponentsProvider, Icon, Menu, MenuDisclosure, MenuList, MenuItem } from '@looker/components'
+import { ComponentsProvider, Icon} from '@looker/components'
 
 
 const ReportTableHeaderMenuButton = (props) => {
-  console.log('ReportTableHeaderMenuButton props', props)
-  // className="showOnHover" 
-  const hoverRef = React.useRef()
+  console.log('%c ReportTableHeaderMenuButton() props', 'color: orange', props)
   
   return (
     <ComponentsProvider>
-      <div ref={hoverRef}>
-        <Menu hoverDisclosureRef={hoverRef}>
-          <MenuDisclosure tooltip="Column Settings">
-            <Icon name="DotsVert" size="xxsmall" />
-          </MenuDisclosure>
-          <MenuList compact>
-            <MenuItem icon="FavoriteOutline">Option One</MenuItem>
-            <MenuItem icon="FavoriteOutline">Option Two</MenuItem>
-          </MenuList>
-        </Menu>
+      <div className='rt-header-menu-button'>
+        <Icon name="DotsVert" size="xxsmall" />
       </div>
     </ComponentsProvider>
   )
