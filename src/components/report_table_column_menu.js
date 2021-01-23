@@ -1,59 +1,68 @@
 import React from 'react'
 
-import { ComponentsProvider, Popover} from '@looker/components'
+import ReportTableMenu from './report_table_menu'
 
 const ReportTableColumnMenu = ({ config }) => {
   const { table, field, column } = config
 
-  return (
-    <ComponentsProvider>
-      <div className='rt-report-table-column-menu'>
-        <Popover
-          content={
-            <div className='.rt-report-table-column-menu'>
-              <div>Column: {column.id}</div>
-            </div>
-          }
-          placement='right-start'
-        >
-          <div>Column... </div>
-        </Popover>  
-        
-        <Popover
-          content={
-            <div className='.rt-report-table-column-menu'>
-              <div>Use View Name: {table.useViewName}</div>
-              <div>Use Headings: {table.useHeadings}</div>
-              <div>Use Short Name: {table.useShortName}</div>
-              <div>Use Units: {table.useUnit}</div>
-              <div>Group Variance Columns: {table.groupVarianceColumns}</div>
-              <div>Use "Subtotal" for all Subtotal labels: {table.genericLabelForSubtotals}</div>
-              <div>Transpose Table: {table.transposeTable}</div>
-            </div>
-          }
-          placement='right-start'
-        >
-          <div>Display... </div>
-        </Popover> 
+  const getFieldConfig = (field, option) => {
 
-        <Popover
-          content={
-            <div className='.rt-report-table-column-menu'>
-              <div>Row Subtotals: {table.rowSubtotals}</div>
-              <div>Col Subtotals: {table.colSubtotals}</div>
-              <div>Sort Row Subtotals By: {table.sortRowSubtotalsBy}</div>
-              <div>Merge Dimensions: {table.spanRows}</div>
-              <div>Calculate Others Row: {table.calculateOthers}</div>
-              <div>Subtotal Depth: {table.subtotalDepth}</div>
-              <div>Sort Columns By: {table.sortColumnsBy}</div>
-            </div>
-          }
-          placement='right-start'
-        >
-          <div>Table... </div>
-        </Popover>  
-      </div>
-    </ComponentsProvider>
+  }
+
+  const columnItems = [
+    { key: 'id', label: 'ID', type: 'label', value: column.id },
+    { key: 'pivoted', label: 'Pivoted', type: 'boolean', value: column.pivoted },
+  ]
+
+  var fieldItems = [
+    { key: 'label', label: 'Label', type: 'inputText', value: field.label },
+    { key: 'heading', label: 'Heading', type: 'inputText', value: field.hide },
+    { key: 'hide', label: 'Hide', type: 'switch', value: field.hide },
+  ]
+
+  if (field.type === 'dimension') {
+    fieldItems = fieldItems.concat([
+      { key: 'geo', label: 'Geo', type: 'label', value: field.geo_type },
+    ])
+  } else {
+    fieldItems = fieldItems.concat([
+      { key: 'style', label: 'Style', type: 'dropdown', value: field.style, options: [] },
+      { key: 'reportIn', label: 'Report In', type: 'dropdown', value: 'TBD', options: [] },
+      { key: 'unit', label: 'Unit', type: 'label', value: field.unit },
+      { key: 'comparison', label: 'Comparison', type: 'dropdown', value: 'TBD', options: [] },
+      { key: 'comparisonSwitch', label: 'Switch', type: 'switch', value: field.geo_type },
+      { key: 'var_num', label: 'Var #', type: 'switch', value: false },
+      { key: 'var_pct', label: 'Var %', type: 'switch', value: false },
+    ])
+  }
+
+  const displayItems = [
+    { key: 'useViewName', label: 'Use View Name:', type: 'switch', value: table.useViewName },
+    { key: 'useHeadings', label: 'Use Headings:', type: 'switch', value: table.useHeadings },
+    { key: 'useShortName', label: 'Use Short Name:', type: 'switch', value: table.useShortName },
+    { key: 'useUnit', label: 'Use Units:', type: 'switch', value: table.useUnit },
+    { key: 'groupVarianceColumns', label: 'Group Variance Columns:', type: 'switch', value: table.groupVarianceColumns },
+    { key: 'genericLabelForSubtotals', label: 'Use "Subtotal" for all Subtotal labels:', type: 'switch', value: table.genericLabelForSubtotals },
+    { key: 'transposeTable', label: 'Transpose Table:', type: 'switch', value: table.transposeTable },
+  ]
+
+  const tableItems = [
+    { key: 'rowSubtotals', label: 'Row Subtotals:', type: 'switch', value: table.rowSubtotals },
+    { key: 'colSubtotals', label: 'Col Subtotals:', type: 'switch', value: table.colSubtotals },
+    { key: 'sortRowSubtotalsBy', label: 'Row Subtotals By:', type: 'switch', value: table.sortRowSubtotalsBy },
+    { key: 'spanRows', label: 'Dimensions:', type: 'switch', value: table.spanRows },
+    { key: 'calculateOthers', label: 'Others Row:', type: 'switch', value: table.calculateOthers },
+    { key: 'subtotalDepth', label: 'Depth:', type: 'switch', value: table.subtotalDepth },
+    { key: 'sortColumnsBy', label: 'Columns By:', type: 'switch', value: table.sortColumnsBy },
+  ]
+
+  return (
+    <div className='rt-report-table-column-menu'>
+      <ReportTableMenu label={'Column...'} items={columnItems} />
+      <ReportTableMenu label={'Field...'} items={fieldItems} />
+      <ReportTableMenu label={'Display...'} items={displayItems} />
+      <ReportTableMenu label={'Table...'} items={tableItems} />
+    </div>
   )  
 }
 

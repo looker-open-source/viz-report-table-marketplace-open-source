@@ -74,15 +74,12 @@ looker.plugins.visualizations.add({
       // console.log('%c getColumnConfig() column', 'color: purple', column)
 
       // use destructing to strip off the complex objects (vis) slowing down React's diffing
-      var { vis, levels, ...col } = column
-      var { vis, ...modelField } = column.modelField
+      var { vis, levels, series, ...col } = column
+      var { modelField, ...col } = col
+      var { vis, ...modelField } = modelField
       col.modelField = modelField
 
       return {
-        // id: column.id,
-        // is_numeric: column.modelField.is_numeric,
-        // levels: column.levels.map(level => level.colspan),
-
         ...col,
         colspans: column.levels.map(level => level.colspan),
         visConfig: column.vis.config
@@ -127,8 +124,8 @@ looker.plugins.visualizations.add({
     }
     
     const getColumnGroup = (columns, level=0) => {
-      if (level === 0) { console.log('%c NEW HEADER GROUP', 'color: purple', columns[0].levels[0].label, '=================') }
-      console.log('%c getColumnGroup() columns level', 'color: purple', columns, level)
+      // if (level === 0) { console.log('%c NEW HEADER GROUP', 'color: purple', columns[0].levels[0].label, '=================') }
+      // console.log('%c getColumnGroup() columns level', 'color: purple', columns, level)
       var headerName = columns[0].levels[level].label
       var columnConfig = getColumnConfig(columns[0])
       var columnGroup = {
@@ -171,7 +168,7 @@ looker.plugins.visualizations.add({
     }
 
     const getColumnDefs = () => {
-      console.log('%c GET COLUMNS getColumnDefs()', 'color: purple', dataTable.getDataColumns())
+      // console.log('%c GET COLUMNS getColumnDefs()', 'color: purple', dataTable.getDataColumns())
       const columns = dataTable.getDataColumns()
       var columnDefs = []
     
@@ -199,7 +196,7 @@ looker.plugins.visualizations.add({
             groups[2].push(column)
           }
         })
-        console.log('%c Column "Supergroups":', 'color: purple', groups)
+        // console.log('%c Column "Supergroups":', 'color: purple', groups)
 
         groups.forEach(columns => {
           columns.forEach((column, idx) => {

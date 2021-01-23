@@ -4,19 +4,15 @@ import ReportTableHeaderMenuButton from './report_table_header_menu_button'
 
 const ReportTableHeader = (params) => {
   console.log('ReportTableHeader() Params', params)
-
+  const { visConfig, modelField, ...column } = params.rtColumn
   const config = {
-    table: params.rtColumn.visConfig,
-    field: {},
-    column: {
-      id: params.column.colId,
-      actualWidth: params.column.actualWidth,
-      is_numeric: params.column.is_numeric
-    }
+    table: visConfig,
+    field: modelField,
+    column: column,
   }
   
-  const headerClass = config.column.is_numeric ? 'rt-header-cell rt-header-cell-left' : 'rt-header-cell rt-header-cell-right'
-  const labelClass = config.column.is_numeric ? 'rt-header-label numeric' : 'rt-header-label nonNumeric'
+  const headerClass = config.field.is_numeric ? 'rt-header-cell rt-header-cell-left' : 'rt-header-cell rt-header-cell-right'
+  const labelClass = config.field.is_numeric ? 'rt-header-label numeric' : 'rt-header-label nonNumeric'
 
   return (
     <div className='rt-finance-cell-container'>
