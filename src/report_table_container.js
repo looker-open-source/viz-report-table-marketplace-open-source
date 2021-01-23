@@ -205,6 +205,8 @@ looker.plugins.visualizations.add({
     }
     
     const rtProps = {
+      tableConfig: dataTable.config,
+      theme: 'ag-theme-' + config.theme,
       columnDefs: getColumnDefs(),
       rowData: dataTable.getDataRows(),
       getRowClass: (params) => { return params.data.type },
@@ -230,9 +232,7 @@ looker.plugins.visualizations.add({
     console.log(rtProps.rowData)
 
     this.chart = ReactDOM.render(
-      <div className={'rt-container ag-theme-' + config.theme}>
-        <ReportTable {...rtProps} />
-      </div>,
+      <ReportTable {...rtProps} />,
       element
     );
     

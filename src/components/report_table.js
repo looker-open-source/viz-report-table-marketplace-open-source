@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { Component, useCallback } from "react"
 
 import { AgGridReact } from '@ag-grid-community/react'
 import { ModuleRegistry } from '@ag-grid-community/core';
@@ -9,7 +9,7 @@ ModuleRegistry.registerModules([ClientSideRowModelModule])
 import ReportTableHeaderGroup from './report_table_header_group'
 import ReportTableHeader from './report_table_header'
 import ReportTableCell from '../renderers/report_table_cell'
-// import { ReportTableColumnMenu } from '../renderers/report_table_column_menu'
+
 import { slice } from "lodash";
 
 require('../styles/report_table_themes.scss')
@@ -38,6 +38,7 @@ class ReportTable extends Component {
     // this.gridApi.sizeColumnsToFit()
   }
 
+
   render () {
     console.log('%c RENDER', 'color: orange')
     console.log('%c columnDefs', 'color: orange', this.props.columnDefs)
@@ -47,20 +48,24 @@ class ReportTable extends Component {
     console.log('%c modules', 'color: orange', this.modules)
 
     return (
-      <AgGridReact
-        columnDefs={this.props.columnDefs}
-        rowData={this.props.rowData}
-        defaultColDef={this.props.defaultColDef}
-        getRowClass={this.props.getRowClass}
-        suppressFieldDotNotation
-        suppressRowTransform
-        suppressColumnVirtualisation
-        suppressAnimationFrame
-        modules={this.modules}
-        components={this.components}
-        frameworkComponents={this.frameworkComponents}
-        onGridReady={this.onGridReady}
-      />
+      <>
+        <div className={'rt-container ' + this.props.theme}>
+          <AgGridReact
+            columnDefs={this.props.columnDefs}
+            rowData={this.props.rowData}
+            defaultColDef={this.props.defaultColDef}
+            getRowClass={this.props.getRowClass}
+            suppressFieldDotNotation
+            suppressRowTransform
+            suppressColumnVirtualisation
+            suppressAnimationFrame
+            modules={this.modules}
+            components={this.components}
+            frameworkComponents={this.frameworkComponents}
+            onGridReady={this.onGridReady}
+          />
+        </div>
+      </>
     )
   }
 }
