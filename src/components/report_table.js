@@ -1,16 +1,14 @@
-import React, { Component, useCallback } from "react"
+import React, { Component } from "react"
 
 import { AgGridReact } from '@ag-grid-community/react'
 import { ModuleRegistry } from '@ag-grid-community/core';
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 ModuleRegistry.registerModules([ClientSideRowModelModule])
 
-
+import ReportTableContext from './report_table_context'
 import ReportTableHeaderGroup from './report_table_header_group'
 import ReportTableHeader from './report_table_header'
 import ReportTableCell from '../renderers/report_table_cell'
-
-import { slice } from "lodash";
 
 require('../styles/report_table_themes.scss')
 
@@ -47,8 +45,13 @@ class ReportTable extends Component {
     console.log('%c getRowClass', 'color: orange', this.props.getRowClass)
     console.log('%c modules', 'color: orange', this.modules)
 
+    const tableContext = {
+      theme: this.props.theme,
+      updateTableConfig: this.props.updateTableConfig
+    }
+
     return (
-      <>
+      <ReportTableContext.Provider value={tableContext}>
         <div className={'rt-container ' + this.props.theme}>
           <AgGridReact
             columnDefs={this.props.columnDefs}
@@ -65,7 +68,7 @@ class ReportTable extends Component {
             onGridReady={this.onGridReady}
           />
         </div>
-      </>
+      </ReportTableContext.Provider>
     )
   }
 }

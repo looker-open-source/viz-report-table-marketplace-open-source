@@ -8,7 +8,7 @@ const ReportTableHeader = (params) => {
   const config = {
     table: visConfig,
     field: modelField,
-    column: column,
+    column: column
   }
   
   const headerClass = config.field.is_numeric ? 'rt-header-cell rt-header-cell-left' : 'rt-header-cell rt-header-cell-right'

@@ -29,7 +29,7 @@ const DisplayLabel = ({ id, value} ) => {
 }
 
 const ReportTableMenuItem = ({ item }) => {
-  const { key, label, type, value } = item
+  const { key, level, label, type, value } = item
   return (
     <>
       <div className='rt-grid-item'>{label}</div>

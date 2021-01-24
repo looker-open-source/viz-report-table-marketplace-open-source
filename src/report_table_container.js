@@ -211,8 +211,14 @@ looker.plugins.visualizations.add({
     }
     
     const rtProps = {
+      // vis props
       tableConfig: dataTable.config,
+      updateTableConfig: updateConfig,
+      
+      // ag-grid theme
       theme: 'ag-theme-' + config.theme,
+
+      // ag-grid component props
       columnDefs: getColumnDefs(),
       rowData: dataTable.getDataRows(),
       getRowClass: (params) => { return params.data.type },
