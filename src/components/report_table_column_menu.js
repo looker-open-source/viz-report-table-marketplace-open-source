@@ -49,19 +49,19 @@ const ReportTableColumnMenu = ({ config }) => {
   const tableItems = [
     { key: 'rowSubtotals', label: 'Row Subtotals:', type: 'switch', value: table.rowSubtotals },
     { key: 'colSubtotals', label: 'Col Subtotals:', type: 'switch', value: table.colSubtotals },
-    { key: 'sortRowSubtotalsBy', label: 'Row Subtotals By:', type: 'switch', value: table.sortRowSubtotalsBy },
-    { key: 'spanRows', label: 'Dimensions:', type: 'switch', value: table.spanRows },
-    { key: 'calculateOthers', label: 'Others Row:', type: 'switch', value: table.calculateOthers },
-    { key: 'subtotalDepth', label: 'Depth:', type: 'switch', value: table.subtotalDepth },
-    { key: 'sortColumnsBy', label: 'Columns By:', type: 'switch', value: table.sortColumnsBy },
+    { key: 'sortRowSubtotalsBy', label: 'Row Subtotals By:', type: 'dropdown', value: table.sortRowSubtotalsBy },
+    { key: 'spanRows', label: 'Merge Dimensions:', type: 'switch', value: table.spanRows },
+    { key: 'calculateOthers', label: 'Calculate Others Row:', type: 'switch', value: table.calculateOthers },
+    { key: 'subtotalDepth', label: 'Depth:', type: 'dropdown', value: table.subtotalDepth },
+    { key: 'sortColumnsBy', label: 'Columns By:', type: 'dropdown', value: table.sortColumnsBy },
   ]
 
   return (
     <div className='rt-report-table-column-menu'>
-      <ReportTableMenu label={'Column...'} items={columnItems} />
-      <ReportTableMenu label={'Field...'} items={fieldItems} />
-      <ReportTableMenu label={'Display...'} items={displayItems} />
-      <ReportTableMenu label={'Table...'} items={tableItems} />
+      <ReportTableMenu label={'Column Info...'} items={columnItems} />
+      <ReportTableMenu label={'Field Options...'} items={fieldItems} />
+      <ReportTableMenu label={'Display Options...'} items={displayItems} />
+      <ReportTableMenu label={'Table Settings...'} items={tableItems} />
     </div>
   )  
 }
