@@ -20,8 +20,6 @@ const ReportTableMenu = ({ label, items }) => {
         onMouseLeave={updateReportTable}
         content={
           <div className='rt-report-table-column-submenu'>
-            <div>Report Table Column Submenu</div>
-            <div>{ tableConfig.theme }</div>
             {items.map(item => {
               return (<ReportTableMenuItem key={item.key} item={item} />)
             })}
