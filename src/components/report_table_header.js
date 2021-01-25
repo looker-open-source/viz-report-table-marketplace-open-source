@@ -3,7 +3,7 @@ import React from 'react'
 import ReportTableHeaderMenuButton from './report_table_header_menu_button'
 
 const ReportTableHeader = (params) => {
-  console.log('ReportTableHeader() Params', params)
+  // console.log('ReportTableHeader() Params', params)
   const { visConfig, modelField, ...column } = params.rtColumn
   const config = {
     table: visConfig,

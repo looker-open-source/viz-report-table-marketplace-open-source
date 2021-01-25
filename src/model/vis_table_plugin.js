@@ -94,6 +94,7 @@ const tableModelCoreOptions = {
   collapseSubtotals: {},
   
   rowSubtotals: {
+    _menu: "Table Settings",
     section: "Table",
     type: "boolean",
     label: "Row Subtotals",
@@ -102,6 +103,7 @@ const tableModelCoreOptions = {
     order: 1,
   },
   colSubtotals: {
+    _menu: "Table Settings",
     section: "Table",
     type: "boolean",
     label: "Col Subtotals",
@@ -110,6 +112,7 @@ const tableModelCoreOptions = {
     order: 2,
   },
   sortRowSubtotalsBy: {
+    _menu: "Table Settings",
     section: "Table",
     type: "string",
     display: "select",
@@ -122,6 +125,7 @@ const tableModelCoreOptions = {
     order: 2.5
   },
   spanRows: {
+    _menu: "Table Settings",
     section: "Table",
     type: "boolean",
     label: "Merge Dims",
@@ -130,6 +134,7 @@ const tableModelCoreOptions = {
     order: 3,
   },
   spanCols: {
+    _menu: "Table Settings",
     section: "Table",
     type: "boolean",
     label: "Merge Headers",
@@ -138,6 +143,7 @@ const tableModelCoreOptions = {
     order: 4,
   },
   calculateOthers: {
+    _menu: "Table Settings",
     section: "Table",
     type: "boolean",
     label: "Calculate Others Row",
@@ -145,6 +151,7 @@ const tableModelCoreOptions = {
     order: 4.5
   },
   sortColumnsBy: {
+    _menu: "Table Settings",
     section: "Table",
     type: "string",
     display: "select",
@@ -157,6 +164,7 @@ const tableModelCoreOptions = {
     order: 6,
   },
   useViewName: {
+    _menu: "Display Options",
     section: "Table",
     type: "boolean",
     label: "Include View Name",
@@ -164,6 +172,7 @@ const tableModelCoreOptions = {
     order: 7,
   },
   useHeadings: {
+    _menu: "Display Options",
     section: "Table",
     type: "boolean",
     label: "Use Headings",
@@ -171,6 +180,7 @@ const tableModelCoreOptions = {
     order: 8,
   },
   useShortName: {
+    _menu: "Display Options",
     section: "Table",
     type: "boolean",
     label: "Use Short Name (from model tags)",
@@ -178,6 +188,7 @@ const tableModelCoreOptions = {
     order: 9,
   },
   useUnit: {
+    _menu: "Display Options",
     section: "Table",
     type: "boolean",
     label: "Use Unit (when reporting in 000s)",
@@ -185,6 +196,7 @@ const tableModelCoreOptions = {
     order: 9.5,
   },
   groupVarianceColumns: {
+    _menu: "Display Options",
     section: "Table",
     type: "boolean",
     label: "Group Variance Columns",
@@ -192,6 +204,7 @@ const tableModelCoreOptions = {
     order: 10,
   },
   genericLabelForSubtotals: {
+    _menu: "Display Options",
     section: 'Table',
     type: 'boolean',
     label: "Label all subtotal rows as 'Subtotal'",
@@ -199,6 +212,7 @@ const tableModelCoreOptions = {
     order: 11
   },
   indexColumn: {
+    _menu: "Display Options",
     section: "Dimensions",
     type: "boolean",
     label: "Use Last Field Only",
@@ -206,6 +220,7 @@ const tableModelCoreOptions = {
     order: 0,
   },
   transposeTable: {
+    _menu: "Display Options",
     section: "Table",
     type: "boolean",
     label: "Transpose Table",
@@ -337,6 +352,8 @@ class VisPluginTableModel {
     var subtotal_options = []
     this.dimensions.forEach((dimension, i) => {
       newOptions['label|' + dimension.name] = {
+        _menu: 'Dimension Options',
+        _field: dimension.name,
         section: 'Dimensions',
         type: 'string',
         label: dimension.label,
@@ -345,6 +362,8 @@ class VisPluginTableModel {
       }
 
       newOptions['heading|' + dimension.name] = {
+        _menu: 'Dimension Options',
+        _field: dimension.name,
         section: 'Dimensions',
         type: 'string',
         label: 'Heading',
@@ -353,6 +372,8 @@ class VisPluginTableModel {
       }
 
       newOptions['hide|' + dimension.name] = {
+        _menu: 'Dimension Options',
+        _field: dimension.name,
         section: 'Dimensions',
         type: 'boolean',
         label: 'Hide',
@@ -381,6 +402,8 @@ class VisPluginTableModel {
 
     this.measures.forEach((measure, i) => {
       newOptions['label|' + measure.name] = {
+        _menu: "Measure Options",
+        _field: measure.name,
         section: 'Measures',
         type: 'string',
         label: measure.label,
@@ -389,6 +412,8 @@ class VisPluginTableModel {
       }
 
       newOptions['heading|' + measure.name] = {
+        _menu: "Measure Options",
+        _field: measure.name,
         section: 'Measures',
         type: 'string',
         label: 'Heading for ' + measure.label,
@@ -397,6 +422,8 @@ class VisPluginTableModel {
       }
 
       newOptions['style|' + measure.name] = {
+        _menu: "Measure Options",
+        _field: measure.name,
         section: 'Measures',
         type: 'string',
         label: 'Style',
@@ -413,6 +440,8 @@ class VisPluginTableModel {
       }
 
       newOptions['reportIn|' + measure.name] = {
+        _menu: "Measure Options",
+        _field: measure.name,
         section: 'Measures',
         type: 'string',
         label: 'Report In',
@@ -429,6 +458,8 @@ class VisPluginTableModel {
       }
 
       newOptions['unit|' + measure.name] = {
+        _menu: "Measure Options",
+        _field: measure.name,
         section: 'Measures',
         type: 'string',
         label: 'Unit',
@@ -466,6 +497,8 @@ class VisPluginTableModel {
       comparisonOptions.unshift({ '(none)': 'no_variance'})
 
       newOptions['comparison|' + measure.name] = {
+        _menu: "Measure Options",
+        _field: measure.name,
         section: 'Measures',
         type: 'string',
         label: 'Comparison',
@@ -476,6 +509,8 @@ class VisPluginTableModel {
       }
 
       newOptions['switch|' + measure.name] = {
+        _menu: "Measure Options",
+        _field: measure.name,
         section: 'Measures',
         type: 'boolean',
         label: 'Switch',
@@ -485,6 +520,8 @@ class VisPluginTableModel {
       }
 
       newOptions['var_num|' + measure.name] = {
+        _menu: "Measure Options",
+        _field: measure.name,
         section: 'Measures',
         type: 'boolean',
         label: 'Var #',
@@ -494,6 +531,8 @@ class VisPluginTableModel {
       }
 
       newOptions['var_pct|' + measure.name] = {
+        _menu: "Measure Options",
+        _field: measure.name,
         section: 'Measures',
         type: 'boolean',
         label: 'Var %',

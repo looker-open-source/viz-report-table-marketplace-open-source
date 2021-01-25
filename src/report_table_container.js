@@ -213,6 +213,7 @@ looker.plugins.visualizations.add({
     const rtProps = {
       // vis props
       tableConfig: dataTable.config,
+      tableConfigOptions: VisPluginTableModel.getCoreConfigOptions(),
       updateTableConfig: updateConfig,
       
       // ag-grid theme

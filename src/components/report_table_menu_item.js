@@ -34,11 +34,8 @@ const ReportTableMenuItem = ({ item }) => {
     <>
       <div className='rt-grid-item'>{label}</div>
       <div className='rt-grid-item'>
-        { type === 'switch' && <AcceptBoolean id={key} value={value} /> }
-        { type === 'boolean' && <DisplayBoolean id={key} value={value} /> }
-        { type === 'inputText' && <AcceptInputText id={key} value={value} /> }
-        { type === 'label' && <DisplayLabel id={key} value={value} /> }
-        { type === 'dropdown' && <DisplayLabel id={key} value={value} /> }
+        { type === 'boolean' && <AcceptBoolean id={key} value={value} /> }
+        { type === 'string' && <AcceptInputText id={key} value={value} /> }
       </div>
     </>
   )

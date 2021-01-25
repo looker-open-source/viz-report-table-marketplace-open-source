@@ -18,6 +18,13 @@ class ReportTable extends Component {
     console.log('ReportTable() props', props)
     super(props)
 
+    this.tableContext = {
+      theme: props.theme,
+      tableConfig: props.tableConfig,
+      tableConfigOptions: props.tableConfigOptions,
+      updateTableConfig: props.updateTableConfig
+    }
+
     this.onGridReady = this.onGridReady.bind(this);
     this.modules = [ClientSideRowModelModule]
     this.components = {
@@ -39,19 +46,15 @@ class ReportTable extends Component {
 
   render () {
     console.log('%c RENDER', 'color: orange')
+    console.log('%c tableContext', 'color: orange', this.tableContext)
     console.log('%c columnDefs', 'color: orange', this.props.columnDefs)
     console.log('%c rowData', 'color: orange', this.props.rowData)
     console.log('%c defaultColDef', 'color: orange', this.props.defaultColDef)
     console.log('%c getRowClass', 'color: orange', this.props.getRowClass)
     console.log('%c modules', 'color: orange', this.modules)
 
-    const tableContext = {
-      theme: this.props.theme,
-      updateTableConfig: this.props.updateTableConfig
-    }
-
     return (
-      <ReportTableContext.Provider value={tableContext}>
+      <ReportTableContext.Provider value={this.tableContext}>
         <div className={'rt-container ' + this.props.theme}>
           <AgGridReact
             columnDefs={this.props.columnDefs}
