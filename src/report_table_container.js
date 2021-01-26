@@ -71,18 +71,14 @@ looker.plugins.visualizations.add({
     // PREPARE PROPS 
 
     const getColumnConfig = (column) => {
-      // console.log('%c getColumnConfig() column', 'color: purple', column)
-
-      // use destructing to strip off the complex objects (vis) slowing down React's diffing
-      var { vis, levels, series, ...col } = column
-      var { modelField, ...col } = col
-      var { vis, ...modelField } = modelField
-      col.modelField = modelField
-
       return {
-        ...col,
+        id: column.id,
         colspans: column.levels.map(level => level.colspan),
-        visConfig: column.vis.config
+        field: {
+          name: column.modelField.name,
+          type: column.modelField.type,
+          is_numeric: column.modelField.is_numeric,
+        }
       }
     }
 

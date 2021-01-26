@@ -3,13 +3,12 @@ import React, { useContext } from 'react'
 import ReportTableContext from './report_table_context'
 import ReportTableMenu from './report_table_menu'
 
-const ReportTableColumnMenu = ({ config }) => {
-  const { table, field, column } = config
+const ReportTableColumnMenu = ({ column }) => {
   const tableContext = useContext(ReportTableContext)
 
   const defaultSections = ['Display Options', 'Table Settings']
   var submenus = {}
-  if (field.type === 'dimension') {
+  if (column.field.type === 'dimension') {
     var sections = ['Dimension Options', ...defaultSections]
   } else {
     var sections = ['Measure Options', ...defaultSections]
@@ -22,7 +21,7 @@ const ReportTableColumnMenu = ({ config }) => {
           submenus[value._menu] = []
         }
 
-        if (value._field === field.name || defaultSections.includes(value._menu) ) {
+        if (value._field === column.field.name || defaultSections.includes(value._menu) ) {
           submenus[value._menu].push({
             key: key,
             ...value,

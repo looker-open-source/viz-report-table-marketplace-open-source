@@ -5,12 +5,12 @@ import { ComponentsProvider, Icon, Popover} from '@looker/components'
 import ReportTableColumnMenu from './report_table_column_menu'
 
 
-const ReportTableHeaderMenuButton = ({ config }) => {
+const ReportTableHeaderMenuButton = ({ column }) => {
   
   return (
     <ComponentsProvider>
         <Popover
-          content={<ReportTableColumnMenu config={config} />}
+          content={<ReportTableColumnMenu column={column} />}
         >
           <Icon 
             className='rt-header-menu-button' 
