@@ -1306,6 +1306,8 @@ class VisPluginTableModel {
   /**
    * Populates subtotal Rows with aggregate data
    * If available, uses queryResponse.subtotals_data
+   * Validates all subtotals_data entries against dimensions present in the row level data (only subtotals
+   * with supporting row level data are included)
    * Checks for missing data (either because subtotals weren't available in queryResponse at all, or individual missing rows)
    *   - calculates subtotals where missing
    */
@@ -1316,27 +1318,35 @@ class VisPluginTableModel {
         subtotals_array.forEach(subtotals_entry => {
           let group = []
           subtotalSorts.forEach(dimension => {
-            if (!(subtotals_entry[dimension.name].value === null && subtotals_entry[dimension.name].filterable_value === "EMPTY")) {
-              group.push(subtotals_entry[dimension.name].value)
+            // if (!(subtotals_entry[dimension].value === null && subtotals_entry[dimension].filterable_value === "EMPTY")) {
+            //   group.push(subtotals_entry[dimension].value)
+            // }
+            if (subtotals_entry.$$$__grouping__$$$.includes(dimension)) {
+              group.push(subtotals_entry[dimension].value)
             }
           })
           let groupId = ['CollapsibleSubtotal', ...group].join('|')
-          for (const [field, cell] of Object.entries(subtotals_entry)) {
-            if (field === '$$$__grouping__$$$') {
-              this.subtotalGroups[groupId].grouping = cell
-            } else {
-              if (typeof cell.value !== 'undefined') {
-                this.subtotalGroups[groupId].row.data[field] = new DataCell({
-                  ...cell,
-                  ...{ cell_style: ["total", "subtotal"] }
-                })
+          
+          // NOTE: queryResponse may include a subtotal group, but not include any data rows
+          //       for that group. Such rows are not included in the table vis for rendering.
+          if (this.subtotalGroups.hasOwnProperty(groupId)) {
+            for (const [field, cell] of Object.entries(subtotals_entry)) {
+              if (field === '$$$__grouping__$$$') {
+                this.subtotalGroups[groupId].grouping = cell
               } else {
-                for (const [pivot, pivotCell] of Object.entries(cell)) {
-                  let key = [pivot, field].join('.')
-                  this.subtotalGroups[groupId].row.data[key] = new DataCell({
-                    ...pivotCell,
+                if (typeof cell.value !== 'undefined') {
+                  this.subtotalGroups[groupId].row.data[field] = new DataCell({
+                    ...cell,
                     ...{ cell_style: ["total", "subtotal"] }
                   })
+                } else {
+                  for (const [pivot, pivotCell] of Object.entries(cell)) {
+                    let key = [pivot, field].join('.')
+                    this.subtotalGroups[groupId].row.data[key] = new DataCell({
+                      ...pivotCell,
+                      ...{ cell_style: ["total", "subtotal"] }
+                    })
+                  }
                 }
               }
             }
