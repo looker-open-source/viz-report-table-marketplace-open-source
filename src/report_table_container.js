@@ -74,10 +74,17 @@ looker.plugins.visualizations.add({
       return {
         id: column.id,
         colspans: column.levels.map(level => level.colspan),
+        is_first_column: column.id === '$$$_index_$$$' || column.id === column.vis.firstVisibleDimension,
         field: {
           name: column.modelField.name,
           type: column.modelField.type,
           is_numeric: column.modelField.is_numeric,
+        },
+        subtotals: {
+          levels: column.vis.subtotalLevels,
+          show: column.vis.hasSubtotals && column.vis.addRowSubtotals,
+          show_depth: column.vis.addSubtotalDepth,
+          show_all: column.vis.addSubtotalDepth === -1,
         }
       }
     }
@@ -120,7 +127,6 @@ looker.plugins.visualizations.add({
     }
     
     const getColumnGroup = (columns, level=0) => {
-      // if (level === 0) { console.log('%c NEW HEADER GROUP', 'color: purple', columns[0].levels[0].label, '=================') }
       // console.log('%c getColumnGroup() columns level', 'color: purple', columns, level)
       var headerName = columns[0].levels[level].label
       var columnConfig = getColumnConfig(columns[0])

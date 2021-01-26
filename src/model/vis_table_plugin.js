@@ -273,6 +273,7 @@ class VisPluginTableModel {
     this.useViewName = config.useViewName || false
     this.addRowSubtotals = config.rowSubtotals || false
     this.addSubtotalDepth = typeof config.subtotalDepth !== 'undefined' ? parseInt(config.subtotalDepth) : this.dimensions.length - 1
+    this.subtotalLevels = queryResponse.fields.dimensions.length - 1
     this.subtotalGroups = {}
     this.addColSubtotals = config.colSubtotals || false
     this.spanRows = false || config.spanRows
@@ -1220,22 +1221,15 @@ class VisPluginTableModel {
    * Adds children (subtotals and line_items) to each Row
    */
   sortRowsAndInitialiseSubtotals() {
-    this.originalRowSorts.forEach(sort => {
-      if (this.measures.map(measure => measure.name).includes(sort.name)) {
-        sort.type = 'measure'
-      } else {
-        sort.type = 'dimension'
-      }
-    })
-
-    let subtotalSorts = []
-    for (let i = 0; i < this.dimensions.length - 1; i++) {
-      subtotalSorts.push({
-        type: 'dimension',
-        name: this.dimensions[i].name,
-        desc: false
+    let real_dims = this.dimensions.filter(d => !d.is_table_calculation)
+    let subtotalSorts = real_dims.slice(0, real_dims.length-1)
+      .map(dimension => { 
+        return {
+          type: 'dimension',
+          name: dimension.name,
+          desc: false
+        }
       })
-    }
 
     this.rowSorts = [
       {
@@ -1343,21 +1337,17 @@ class VisPluginTableModel {
               if (typeof this.subtotalGroups[groupId] !== 'undefined') {
                 this.subtotalGroups[groupId].grouping = cell
               } else {
-                console.log('Bad value. groupId, cell, subtotals_entry.', groupId, cell, subtotals_entry)
+                console.log('calculateSubtotalValues(): bad value. groupId, cell, subtotals_entry.', groupId, cell, subtotals_entry)
               }
             } else {
               if (typeof cell.value !== 'undefined') {
-              //   console.log('calculateSubtotalValues() queryResponse.subtotals_data', queryResponse.subtotals_data)
-              //   console.log('calculateSubtotalValues() group', group)
-              //   console.log('calculateSubtotalValues() groupId', groupId)
-              //   console.log('calculateSubtotalValues() this.subtotalGroups.keys()', Object.keys(this.subtotalGroups))
                 if (typeof this.subtotalGroups[groupId] !== 'undefined') {
                   this.subtotalGroups[groupId].row.data[field] = new DataCell({
                     ...cell,
                     ...{ cell_style: ["total", "subtotal"] }
                   })
                 } else {
-                  console.log('Bad value. groupId, cell, subtotals_entry.', groupId, cell, subtotals_entry)
+                  console.log('calculateSubtotalValues: bad value. groupId, cell, subtotals_entry.', groupId, cell, subtotals_entry)
                 }
                 
               } else {
@@ -1369,7 +1359,7 @@ class VisPluginTableModel {
                       ...{ cell_style: ["total", "subtotal"] }
                     })
                   } else {
-                    console.log('Bad value. groupId, cell, subtotals_entry.', groupId, cell, subtotals_entry)
+                    console.log('calculateSubtotalValues: bad value. groupId, cell, subtotals_entry.', groupId, cell, subtotals_entry)
                   }
                 }
               }
@@ -1494,7 +1484,12 @@ class VisPluginTableModel {
               cell.rendered = 'Subtotal'
             } else {
               cell.value = subtotalGroup.values.join(' | ') ? subtotalGroup.values.join(' | ') : 'Others'
-              cell.rendered = cell.value
+
+              var data = subtotalGroup.row.data
+              var depth = subtotalGroup.row.depth
+              var dim = this.dimensions[depth].name
+              var single_value = data[dim].value
+              cell.rendered = this.addSubtotalDepth === -1 ? single_value : cell.value
             }
           }
         }
@@ -1553,6 +1548,13 @@ class VisPluginTableModel {
       }
     }
     
+    this.originalRowSorts.forEach(sort => {
+      if (this.measures.map(measure => measure.name).includes(sort.name)) {
+        sort.type = 'measure'
+      } else {
+        sort.type = 'dimension'
+      }
+    })
 
     this.rowSorts = [
       {

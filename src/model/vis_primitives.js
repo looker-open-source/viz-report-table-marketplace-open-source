@@ -18,6 +18,7 @@ class ModelField {
     this.name = queryResponseField.name
     this.view = queryResponseField.view_label || ''
     this.label = queryResponseField.label_short || queryResponseField.label
+    this.is_table_calculation = typeof queryResponseField.is_table_calculation !== 'undefined' ? queryResponseField.is_table_calculation : false
     this.is_numeric = typeof queryResponseField.is_numeric !== 'undefined' ? queryResponseField.is_numeric : false
     this.is_array = ['list', 'number_list', 'location', 'tier'].includes(queryResponseField.type)
     this.value_format = queryResponseField.value_format ? queryResponseField.value_format : ''
@@ -92,7 +93,6 @@ class ModelMeasure extends ModelField {
     this.type = 'measure'
     this.align = 'right'
 
-    this.is_table_calculation = typeof queryResponseField.is_table_calculation !== 'undefined' ? queryResponseField.is_table_calculation : false
     this.calculation_type = queryResponseField.type
     this.is_turtle = typeof queryResponseField.is_turtle !== 'undefined' ? queryResponseField.is_turtle : false
     this.can_pivot = can_pivot
