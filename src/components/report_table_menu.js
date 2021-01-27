@@ -25,12 +25,9 @@ const ReportTableMenu = ({ label, items }) => {
       <Popover
         content={
           <div className='rt-report-table-column-submenu' onMouseLeave={updateReportTable}>
-            {/* <form> */}
-              <div>Context Value:</div><div>{context.tableConfig.transposeTable ? 'True' : 'False'}</div>
               {items.map(item => {
-                return (<ReportTableMenuItem key={item.key} item={item} />)
+                return (<ReportTableMenuItem key={item.key} item={item} update={updateReportTable} />)
               })}
-            {/* </form> */}
           </div>
         }
         placement='right'
