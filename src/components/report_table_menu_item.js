@@ -1,41 +1,74 @@
 import React from 'react'
 
-import { ToggleSwitch, InputText } from '@looker/components'
+import ReportTableContext from './report_table_context'
 
-const AcceptBoolean = ({ id, value }) => {
-  const [on, setOn] = React.useState(value)
-  const handleChange = (event) => setOn(event.target.checked)
+function handleChange(event) {
+  console.log('checkbox handleChange()')
+  console.log(' ------ event', event)
+  console.log(' ------ item', item)
+  setOn(event.target.checked)
+  update(item.key, event.target.checked)
+}
+
+const MenuSwitch = ({ item, update }) => {
+  console.log('MenuSwitch', item)
   return (
-    <ToggleSwitch on={on} onChange={handleChange} id={id} />
+    <input type='checkbox' id={item.key} name={item.key} value={item.value} onChange={handleChange}></input>
   )
 }
 
-const DisplayBoolean = ({ id, value }) => {
+const MenuText = ({ item }) => {
+  console.log('MenuText', item)
   return (
-    <ToggleSwitch on={value} id={id} disabled={true} />
+    <input type='text' id={item.key} placeholder={item.value} onChange={handleChange} />
   )
 }
 
-const AcceptInputText = ({ id, value }) => {
+const MenuSelect = ({ item, options }) => {
+  console.log('MenuSelect', item)
   return (
-    <InputText id={id} placeholder={value}/>
+    <select name={item.key} id={item.key} onChange={handleChange} >
+      { options.map(option => <option key={option.label} value={option.value}>{option.label}</option>) }
+    </select>
   )
 }
 
-const DisplayLabel = ({ id, value} ) => {
-  return (
-    <span>{value}</span>
-  )
-}
 
 const ReportTableMenuItem = ({ item }) => {
-  const { key, level, label, type, value } = item
+  console.log('ReportTableMenuItem() item', item)
+
+  const context = React.useContext(ReportTableContext)
+
+  const update = (update) => {
+    console.log('update() update', update)
+    // context.tableConfig[key] = value
+  }
+
+  var widgetType
+  if (item.type === 'boolean') {
+    widgetType = 'toggle'
+  } else if (item.type === 'string' && item.display !== 'select') {
+    widgetType = 'text'
+  } else if (item.type === 'string' && item.display === 'select') {
+    widgetType = 'select'
+    var options = []
+    item.values.forEach((option) => {
+      const [label, value] = Object.entries(option)[0]
+      options.push({ label: label, value: value})
+    })
+
+    console.log('select options', options)
+  }
+
+  console.log('widgetType', widgetType)
+
   return (
     <>
-      <div className='rt-grid-item'>{label}</div>
+      <div className='rt-grid-item'>{item.label}</div>
       <div className='rt-grid-item'>
-        { type === 'boolean' && <AcceptBoolean id={key} value={value} /> }
-        { type === 'string' && <AcceptInputText id={key} value={value} /> }
+        { widgetType === 'toggle' && <MenuSwitch item={item} update={update} /> }
+        { widgetType === 'text' && <MenuText item={item} /> }
+        { widgetType === 'select' && <MenuSelect item={item} options={options} update={update} /> }
       </div>
     </>
   )

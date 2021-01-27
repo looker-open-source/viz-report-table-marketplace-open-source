@@ -11,23 +11,32 @@ const ReportTableMenu = ({ label, items }) => {
   
   const updateReportTable = (event) => {
     console.log('updateReportTable() event', event)
+    // let newconfig = [{ transposeTable: context.tableConfig.transposeTable }]
+    let newconfig = Object.entries(context.tableConfig).map(([a, b]) => {
+       var newobj = {}
+       newobj[a] = b
+       return newobj 
+    }).filter(conf => conf.hasOwnProperty('transposeTable'))
+    context.updateTableConfig(newconfig)
   }
 
 
   return (
-    <Popover
-      onMouseLeave={updateReportTable}
-      content={
-        <div className='rt-report-table-column-submenu'>
-          {items.map(item => {
-            return (<ReportTableMenuItem key={item.key} item={item} />)
-          })}
-        </div>
-      }
-      placement='right'
-    >
-      <div>{label}</div>
-    </Popover>
+      <Popover
+        content={
+          <div className='rt-report-table-column-submenu' onMouseLeave={updateReportTable}>
+            {/* <form> */}
+              <div>Context Value:</div><div>{context.tableConfig.transposeTable ? 'True' : 'False'}</div>
+              {items.map(item => {
+                return (<ReportTableMenuItem key={item.key} item={item} />)
+              })}
+            {/* </form> */}
+          </div>
+        }
+        placement='right'
+      >
+        <div>{label}</div>
+      </Popover>
   )
 }
 
