@@ -211,7 +211,7 @@ const tableModelCoreOptions = {
     default: false,
     order: 11
   },
-  indexColumn: {
+  useIndexColumn: {
     _menu: "Display Options",
     section: "Dimensions",
     type: "boolean",
@@ -267,7 +267,7 @@ class VisPluginTableModel {
 
     this.virtualCollapseSubtotals = config.collapseSubtotals
 
-    this.useIndexColumn = config.indexColumn || false
+    this.useIndexColumn = config.useIndexColumn || false
     this.useHeadings = config.useHeadings || false
     this.useShortName = config.useShortName || false
     this.useViewName = config.useViewName || false

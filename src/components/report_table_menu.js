@@ -5,7 +5,7 @@ import { Popover} from '@looker/components'
 import ReportTableContext from './report_table_context'
 import ReportTableMenuItem from './report_table_menu_item'
 
-const ReportTableMenu = ({ label, items }) => {
+const ReportTableSubMenu = ({ label, items }) => {
   const context = useContext(ReportTableContext)
   console.log('ReportTableMenu() tableConfig', context)
   
@@ -37,4 +37,4 @@ const ReportTableMenu = ({ label, items }) => {
   )
 }
 
-export default ReportTableMenu
+export default ReportTableSubMenu

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 
 import ReportTableContext from './report_table_context'
-import ReportTableMenu from './report_table_menu'
+import ReportTableSubMenu from './report_table_menu'
 
 const ReportTableColumnMenu = ({ column }) => {
   const tableContext = useContext(ReportTableContext)
@@ -35,7 +35,7 @@ const ReportTableColumnMenu = ({ column }) => {
     <div className='rt-report-table-column-menu'>{
       Object.entries(submenus).map(([submenu, items]) => {
         const label = submenu + '...'
-        return (<ReportTableMenu key={submenu} label={label} items={items} />)
+        return (<ReportTableSubMenu key={submenu} label={label} items={items} />)
       })
     }</div>
   )  
