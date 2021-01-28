@@ -23,8 +23,15 @@ looker.plugins.visualizations.add({
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
     const updateConfig = (newConfig) => {
-      console.log('updateAsync().updateConfig() newConfig', newConfig)
+      console.log('updateAsync().updateConfig() newConfig', JSON.stringify(newConfig, null, 2))
       this.trigger('updateConfig', newConfig)
+
+      // const testConfig =[
+      //   { useViewName: true,
+      //    transposeTable: true }
+      // ]
+      // console.log('updateAsync().updateConfig() testConfig', JSON.stringify(testConfig, null, 2))
+      // this.trigger('updateConfig', testConfig)
     }
 
     // ERROR HANDLING
@@ -38,9 +45,9 @@ looker.plugins.visualizations.add({
       return
     }
 
-    console.log('%c config', 'color: green', config)
-    console.log('%c queryResponse', 'color: green', queryResponse)
-    console.log('%c data', 'color: green', data)
+    // console.log('%c config', 'color: green', config)
+    // console.log('%c queryResponse', 'color: green', queryResponse)
+    // console.log('%c data', 'color: green', data)
 
     // INITIALISE THE VIS
     if (typeof config.columnOrder === 'undefined') {
@@ -226,10 +233,6 @@ looker.plugins.visualizations.add({
       columnDefs: getColumnDefs(),
       rowData: dataTable.getDataRows(),
       getRowClass: (params) => { return params.data.type },
-      suppressFieldDotNotation: true,
-      suppressRowTransform: true,
-      suppressColumnVirtualisation: true,
-      suppressAnimationFrame: true,
       defaultColDef: {
         suppressMovable: true,
         columnGroupShow: 'open',
@@ -242,17 +245,18 @@ looker.plugins.visualizations.add({
         
     if (details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
-    console.log('%c COLUMN DEFINITIONS', 'color: red')
-    console.log(rtProps.columnDefs)
-    console.log('%c ROW DATA', 'color: red')
-    console.log(rtProps.rowData)
+    // console.log('%c COLUMN DEFINITIONS', 'color: red')
+    // console.log(rtProps.columnDefs)
+    // console.log('%c ROW DATA', 'color: red')
+    // console.log(rtProps.rowData)
 
+    console.log('updateAsync() render...')
     this.chart = ReactDOM.render(
       <ReportTable {...rtProps} />,
       element
     );
     
-    console.log('%c element', 'color: red', element)
+    // console.log('%c element', 'color: red', element)
     
     done();
   }

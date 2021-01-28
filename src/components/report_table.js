@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useContext } from "react"
 
 import { AgGridReact } from '@ag-grid-community/react'
 import { ModuleRegistry } from '@ag-grid-community/core';
@@ -13,26 +13,23 @@ import ReportTableCell from '../renderers/report_table_cell'
 require('../styles/report_table_themes.scss')
 
 
-const ReportTable = (props) => {
+const ReportTableComponent = (props) => {
+  const tableContext = useContext(ReportTableContext)
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
 
-  const tableContext = {
-    theme: props.theme,
-    tableConfig: props.tableConfig,
-    tableConfigOptions: props.tableConfigOptions,
-    updateTableConfig: props.updateTableConfig
-  }
+  console.log('ReportTableComponent()')
+  console.log(' --- tableContext.tableConfig view, transpose', tableContext.tableConfig.useViewName, tableContext.tableConfig.transposeTable)
 
   const components = {
     reportTableCellComponent: ReportTableCell
   }
+
   const frameworkComponents = {
     reportTableHeaderGroupComponent: ReportTableHeaderGroup,
     reportTableHeaderComponent: ReportTableHeader,
   }
   
-
   const onGridReady = (params) => {
     setGridApi(params.api)
     setGridColumnApi(params.columnApi)
@@ -40,30 +37,45 @@ const ReportTable = (props) => {
     // this.gridApi.sizeColumnsToFit()
   }
 
-  console.log('%c RENDER', 'color: orange')
-  console.log('%c tableContext', 'color: orange', tableContext)
-  console.log('%c columnDefs', 'color: orange', props.columnDefs)
-  console.log('%c rowData', 'color: orange', props.rowData)
-  console.log('%c defaultColDef', 'color: orange', props.defaultColDef)
+  // console.log('%c RENDER', 'color: orange')
+  // console.log('%c tableContext', 'color: orange', tableContext)
+  // console.log('%c columnDefs', 'color: orange', props.columnDefs)
+  // console.log('%c rowData', 'color: orange', props.rowData)
+  // console.log('%c defaultColDef', 'color: orange', props.defaultColDef)
+
+  return (
+    <div className={'rt-container ' + tableContext.theme}>
+      <AgGridReact
+        columnDefs={props.columnDefs}
+        rowData={props.rowData}
+        defaultColDef={props.defaultColDef}
+        getRowClass={props.getRowClass}
+        suppressFieldDotNotation
+        suppressRowTransform
+        suppressColumnVirtualisation
+        suppressAnimationFrame
+        modules={[ClientSideRowModelModule]}
+        components={components}
+        frameworkComponents={frameworkComponents}
+        onGridReady={onGridReady}
+      />
+    </div>
+  )
+} 
+
+const ReportTable = ({ theme, tableConfig, tableConfigOptions, updateTableConfig, ...rest}) => {
+  // console.log('ReportTable() props', props)
+
+  const tableContext = {
+    theme: theme,
+    tableConfig: tableConfig,
+    tableConfigOptions: tableConfigOptions,
+    updateTableConfig: updateTableConfig
+  }
 
   return (
     <ReportTableContext.Provider value={tableContext}>
-      <div className={'rt-container ' + props.theme}>
-        <AgGridReact
-          columnDefs={props.columnDefs}
-          rowData={props.rowData}
-          defaultColDef={props.defaultColDef}
-          getRowClass={props.getRowClass}
-          suppressFieldDotNotation
-          suppressRowTransform
-          suppressColumnVirtualisation
-          suppressAnimationFrame
-          modules={[ClientSideRowModelModule]}
-          components={components}
-          frameworkComponents={frameworkComponents}
-          onGridReady={onGridReady}
-        />
-      </div>
+      <ReportTableComponent {...rest} />
     </ReportTableContext.Provider>
   )
 }

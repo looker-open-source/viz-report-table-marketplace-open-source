@@ -392,6 +392,7 @@ class VisPluginTableModel {
 
     subtotal_options.push({'All Subtotals': '-1'})
     newOptions['subtotalDepth'] = {
+      _menu: 'Table Settings',
       section: "Table",
       type: "string",
       label: "Sub Total Depth",
