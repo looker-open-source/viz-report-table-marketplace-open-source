@@ -23,7 +23,7 @@ looker.plugins.visualizations.add({
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
     const updateConfig = (newConfig) => {
-      console.log('newConfig trigger', newConfig)
+      console.log('updateAsync().updateConfig() newConfig', newConfig)
       this.trigger('updateConfig', newConfig)
     }
 

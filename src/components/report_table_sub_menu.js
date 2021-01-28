@@ -10,13 +10,25 @@ const ReportTableSubMenu = ({ label, items }) => {
   console.log('ReportTableMenu() tableConfig', context)
   
   const updateReportTable = (event) => {
-    console.log('updateReportTable() event', event)
-    // let newconfig = [{ transposeTable: context.tableConfig.transposeTable }]
-    let newconfig = Object.entries(context.tableConfig).map(([a, b]) => {
-       var newobj = {}
-       newobj[a] = b
-       return newobj 
-    }).filter(conf => conf.hasOwnProperty('transposeTable'))
+    console.log('ReportTableSubMenu().updateReportTable() event', event)
+    console.log('ReportTableSubMenu().updateReportTable() context.tableConfig', context.tableConfig)
+    // let newconfig = Object.entries(context.tableConfig).map(([a, b]) => {
+    //    var newobj = {}
+    //    newobj[a] = b
+    //    return newobj 
+    // })
+    let newconfig = []
+    for (const [key, value] of Object.entries(context.tableConfig)) {
+      if ([
+        'transposeTable',
+        'useHeadings',
+        'useViewName'
+      ].includes(key)) {
+        let newoption = {}
+        newoption[key] = value
+        newconfig.push(newoption)
+      }
+    }
     context.updateTableConfig(newconfig)
   }
 
