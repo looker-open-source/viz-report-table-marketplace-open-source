@@ -12,7 +12,7 @@ const MenuSwitch = ({ item, localRefresh }) => {
   }
   return (
     <input type='checkbox' id={item.key} name={item.key} value={item.value} checked={checked}  onChange={onChange}></input>
-  ) // checked={item.value}
+  ) 
 }
 
 const MenuText = ({ item, localRefresh }) => {
@@ -37,17 +37,10 @@ const ReportTableMenuItem = ({ item, update }) => {
 
   function localRefresh (event, item) {
     const newValue = typeof event.target.checked === 'undefined' ? event.target.value : event.target.checked
-    // if ([
-    //   'transposeTable',
-    //   'useHeadings',
-    //   'useViewName',
-    //   'useShortName',
-    //   'groupVarianceColumns'
-    // ].includes(item.key)) {
-    //   const newValue = typeof event.target.checked === 'undefined' ? event.target.value : event.target.checked
-    //   context.tableConfig[item.key] = newValue
-    // }
     context.tableConfig[item.key] = newValue
+    context.latest = Date.now()
+
+    console.log('localRefresh() context', context)
   }
 
   var widgetType

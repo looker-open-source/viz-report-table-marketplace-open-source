@@ -37,16 +37,16 @@ const ReportTableComponent = (props) => {
     // this.gridApi.sizeColumnsToFit()
   }
 
-  // console.log('%c RENDER', 'color: orange')
-  // console.log('%c tableContext', 'color: orange', tableContext)
-  // console.log('%c columnDefs', 'color: orange', props.columnDefs)
+  console.log('%c RENDER', 'color: orange')
+  console.log('%c tableContext', 'color: orange', tableContext)
+  console.log('%c columnDefs', 'color: orange', tableContext.columnDefs)
   // console.log('%c rowData', 'color: orange', props.rowData)
   // console.log('%c defaultColDef', 'color: orange', props.defaultColDef)
 
   return (
     <div className={'rt-container ' + tableContext.theme}>
       <AgGridReact
-        columnDefs={props.columnDefs}
+        columnDefs={tableContext.columnDefs}
         rowData={props.rowData}
         defaultColDef={props.defaultColDef}
         getRowClass={props.getRowClass}
@@ -63,11 +63,13 @@ const ReportTableComponent = (props) => {
   )
 } 
 
-const ReportTable = ({ theme, tableConfig, tableConfigOptions, updateTableConfig, ...rest}) => {
+const ReportTable = ({ theme, columnDefs, tableConfig, tableConfigOptions, updateTableConfig, ...rest}) => {
   // console.log('ReportTable() props', props)
 
   const tableContext = {
+    latest: Date.now(),
     theme: theme,
+    columnDefs: columnDefs,
     tableConfig: tableConfig,
     tableConfigOptions: tableConfigOptions,
     updateTableConfig: updateTableConfig
