@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import ReportTableContext from './report_table_context'
+import { actions, ReportTableContext } from './report_table_context'
 
 const MenuSwitch = ({ item, localRefresh }) => {
   // console.log('MenuSwitch() item', item)
@@ -33,14 +33,18 @@ const MenuSelect = ({ item, options, localRefresh }) => {
 
 
 const ReportTableMenuItem = ({ item, update }) => {
-  const context = React.useContext(ReportTableContext)
+  const [context, dispatch] = React.useContext(ReportTableContext)
 
   function localRefresh (event, item) {
     const newValue = typeof event.target.checked === 'undefined' ? event.target.value : event.target.checked
-    context.tableConfig[item.key] = newValue
-    context.latest = Date.now()
-
-    console.log('localRefresh() context', context)
+    const message = {
+      type: actions.UPDATE_TABLE_OPTION,
+      payload: {
+        option: item.key,
+        value: newValue
+      }
+    }
+    dispatch(message)
   }
 
   var widgetType

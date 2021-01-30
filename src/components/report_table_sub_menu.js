@@ -2,11 +2,11 @@ import React, { useContext } from 'react'
 
 import { Popover} from '@looker/components'
 
-import ReportTableContext from './report_table_context'
+import { ReportTableContext } from './report_table_context'
 import ReportTableMenuItem from './report_table_menu_item'
 
 const ReportTableSubMenu = ({ label, items }) => {
-  const context = useContext(ReportTableContext)
+  const [context] = useContext(ReportTableContext)
   
   const updateReportTable = (event) => {
     context.updateTableConfig([context.tableConfig])

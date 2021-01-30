@@ -1,10 +1,10 @@
 import React, { useContext } from 'react'
 
-import ReportTableContext from './report_table_context'
+import { ReportTableContext } from './report_table_context'
 import ReportTableSubMenu from './report_table_sub_menu'
 
 const ReportTableColumnMenu = ({ column }) => {
-  const tableContext = useContext(ReportTableContext)
+  const [tableContext] = useContext(ReportTableContext)
 
   const defaultSections = ['Display Options', 'Table Settings']
   var submenus = {}

@@ -25,13 +25,6 @@ looker.plugins.visualizations.add({
     const updateConfig = (newConfig) => {
       console.log('updateAsync().updateConfig() newConfig', newConfig)
       this.trigger('updateConfig', newConfig)
-
-      // const testConfig =[
-      //   { useViewName: true,
-      //    transposeTable: true }
-      // ]
-      // console.log('updateAsync().updateConfig() testConfig', JSON.stringify(testConfig, null, 2))
-      // this.trigger('updateConfig', testConfig)
     }
 
     // ERROR HANDLING

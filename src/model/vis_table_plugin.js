@@ -1577,6 +1577,8 @@ class VisPluginTableModel {
       }
     ]
 
+    console.log('updateRowSortValues() this.rowSorts', this.rowSorts)
+
     this.data.forEach(row => {
       row.sort = []
       this.rowSorts.forEach(sort => {
