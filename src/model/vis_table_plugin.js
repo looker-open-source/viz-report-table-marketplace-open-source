@@ -242,11 +242,11 @@ class VisPluginTableModel {
    * @param {*} queryResponse 
    * @param {*} config 
    */
-  constructor(lookerData, queryResponse, config, updateConfig) {
+  constructor(lookerData, queryResponse, config, updatePluginConfig) {
     this.visId = 'report_table'
     this.config = config
     this.configOptions = {}
-    this.updateConfig = updateConfig
+    this.updatePluginConfig = updatePluginConfig
 
     this.headers = []
     this.dimensions = []
@@ -304,6 +304,8 @@ class VisPluginTableModel {
     this.addDimensions(queryResponse, col_idx, lookerData)
     this.addMeasures(queryResponse, col_idx)
 
+    this.addConfigOptions()
+
     this.checkVarianceCalculations()
     if (this.useIndexColumn) { this.addIndexColumn(queryResponse) }
     
@@ -348,7 +350,7 @@ class VisPluginTableModel {
    * 
    * Returns a new config object, combining the core options with dynamic options based on available dimensions and measures
    */
-  getConfigOptions() {
+  addConfigOptions() {
     var newOptions = tableModelCoreOptions
 
     var subtotal_options = []
@@ -544,7 +546,7 @@ class VisPluginTableModel {
         order: 100 + i * 10 + 8,
       }
     })
-    return newOptions
+    this.configOptions = newOptions
   }
 
   /**
@@ -1578,7 +1580,7 @@ class VisPluginTableModel {
       }
     ]
 
-    console.log('updateRowSortValues() this.rowSorts', this.rowSorts)
+    // console.log('updateRowSortValues() this.rowSorts', this.rowSorts)
 
     this.data.forEach(row => {
       row.sort = []
@@ -1711,7 +1713,7 @@ class VisPluginTableModel {
       }
     }
 
-    this.updateConfig([{ collapseSubtotals: this.virtualCollapseSubtotals }])
+    this.updatePluginConfig([{ collapseSubtotals: this.virtualCollapseSubtotals }])
   }
 
   /**
@@ -2416,7 +2418,7 @@ class VisPluginTableModel {
 
   toggleCollapseExpandGroup (groupId) {
     this.virtualCollapseSubtotals[groupId] = !this.virtualCollapseSubtotals[groupId] 
-    this.updateConfig([{ collapseSubtotals: this.virtualCollapseSubtotals }])
+    this.updatePluginConfig([{ collapseSubtotals: this.virtualCollapseSubtotals }])
   }
 
   toggleCollapseExpandAll () {
@@ -2438,7 +2440,7 @@ class VisPluginTableModel {
       }
     }
 
-    this.updateConfig([{ collapseSubtotals: this.virtualCollapseSubtotals }])
+    this.updatePluginConfig([{ collapseSubtotals: this.virtualCollapseSubtotals }])
   }
 
   /**
@@ -2593,7 +2595,7 @@ class VisPluginTableModel {
           col_order[col.id] = col.pos
         } 
       })
-      this.updateConfig([{columnOrder: col_order}])
+      this.updatePluginConfig([{columnOrder: col_order}])
     }
   }
 

@@ -2,7 +2,7 @@ import React from "react"
 import ReactDOM from "react-dom"
 
 import { VisPluginTableModel } from './model/vis_table_plugin'
-import ReportTable from './components/report_table'
+import ReportTableProvider from './components/report_table'
 
 
 const loadStylesheet = function(link) {
@@ -18,13 +18,17 @@ looker.plugins.visualizations.add({
   options: VisPluginTableModel.getCoreConfigOptions(),
   
   create: function(element, config) {
+    console.log('%c **------ create() ------**', 'color: red')
     this.chart = ReactDOM.render(<div />, element);
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
-    const updateConfig = (newConfig) => {
-      console.log('updateAsync().updateConfig() newConfig', newConfig)
+    console.log('%c **------ updateAsync() ------**', 'color: red')
+
+    const updatePluginConfig = (newConfig) => {
+      console.log('updateAsync().updatePluginConfig() newConfig', newConfig)
       this.trigger('updateConfig', newConfig)
+      console.log('this', this)
     }
 
     // ERROR HANDLING
@@ -64,193 +68,20 @@ looker.plugins.visualizations.add({
     }
 
     // BUILD THE TABLE DATA OBJECT
-    var dataTable = new VisPluginTableModel(data, queryResponse, config, updateConfig)
-    console.log('%c dataTable', 'color: blue', dataTable)
-
-    this.trigger('registerOptions', dataTable.getConfigOptions())
-
-    // PREPARE PROPS 
-
-    const getColumnConfig = (column) => {
-      return {
-        id: column.id,
-        colspans: column.levels.map(level => level.colspan),
-        is_first_column: column.id === '$$$_index_$$$' || column.id === column.vis.firstVisibleDimension,
-        field: {
-          name: column.modelField.name,
-          type: column.modelField.type,
-          is_numeric: column.modelField.is_numeric,
-        },
-        subtotals: {
-          levels: column.vis.subtotalLevels,
-          show: column.vis.hasSubtotals && column.vis.addRowSubtotals,
-          show_depth: column.vis.addSubtotalDepth,
-          show_all: column.vis.addSubtotalDepth === -1,
-        }
-      }
-    }
-
-    const getColDef = (column) => {
-      // console.log('%c getColumnDef() column', 'color: purple', column)
-      const columnConfig = getColumnConfig(column)
-      return  {
-        colId: column.id,
-        headerComponentParams : { 
-          rtColumn: columnConfig
-        },
-        hide: column.hide,
-        headerName: column.levels[dataTable.headers.length-1].label,
-        headerTooltip: column.modelField.name,
-        field: column.id,
-        valueGetter: function(params) { 
-          return typeof params.data === 'undefined' ? '' : '' + params.data.data[column.id].value 
-        },
-        cellRendererParams: { 
-          rtColumn: columnConfig
-        },
-        colSpan: function(params) {
-          try {
-            var colspan = params.data.data[column.id].colspan 
-          } catch {
-            var colspan = 1 
-          }
-          return colspan 
-        },
-        rowSpan: function(params) {
-          try {
-            var rowspan = params.data.data[column.id].rowspan 
-          } catch {
-            var rowspan = 1 
-          }
-          return rowspan 
-        },
-      }
-    }
-    
-    const getColumnGroup = (columns, level=0) => {
-      // console.log('%c getColumnGroup() columns level', 'color: purple', columns, level)
-      var headerName = columns[0].levels[level].label
-      var columnConfig = getColumnConfig(columns[0])
-      var columnGroup = {
-        headerName: headerName,
-        headerGroupComponent: 'reportTableHeaderGroupComponent',
-        headerGroupComponentParams : { 
-          level: level,
-          rtColumn: columnConfig
-        },
-        marryChildren: true,
-        children: []
-      }
-    
-      // if this is a transposed subtotal, then can return with itself as sole child
-      if (dataTable.transposeTable && columns[0].levels[0].rowspan === dataTable.headers.length) {
-        columnGroup.openByDefault = true
-        columnGroup.children = [getColDef(columns[0])]
-        return columnGroup
-      }
-      
-      var children = []
-      var idx = 0
-      while (idx < columns.length && columns[idx].levels[level].label === columns[0].levels[level].label ) {
-        if (columns[idx].levels[level + 1].colspan > 0) {
-          children.push({
-            index: idx, 
-            column: columns[idx]
-          })
-        }
-        idx = idx + 1
-      }
-    
-      if (level + 2 === dataTable.headers.length) {
-        columnGroup.children = children.map(child => getColDef(child.column))
-        return columnGroup
-      } else {
-        columnGroup.children = children.map(child => getColumnGroup(columns.slice(child.index, columns.length), level + 1))
-        return columnGroup
-      }
-    }
-
-    const getColumnDefs = () => {
-      // console.log('%c GET COLUMNS getColumnDefs()', 'color: purple', dataTable.getDataColumns())
-      const columns = dataTable.getDataColumns()
-      var columnDefs = []
-    
-      if (dataTable.headers.length === 1) {
-        columns.forEach(column => columnDefs.push(getColDef(column)))
-      } else {
-        var groups = [
-          [], // dimensions
-          [], // measures
-          [], // supermeasures
-        ] 
-
-        columns.filter(c => !c.hide).forEach(column => {
-          if (['dimension', 'transposed_table_index'].includes(column.modelField.type)) {
-            // dimensions
-            groups[0].push(column)
-          } else if (!dataTable.transposeTable && column.modelField.type === 'measure' && !column.isRowTotal && !column.super) {
-            // measures
-            groups[1].push(column)
-          } else if (column.modelField.type === 'transposed_table_measure') {
-            // measures in a transposed table
-            groups[1].push(column)
-          } else if (column.super || column.isRowTotal) {
-            // supermeasures
-            groups[2].push(column)
-          }
-        })
-        // console.log('%c Column "Supergroups":', 'color: purple', groups)
-
-        groups.forEach(columns => {
-          columns.forEach((column, idx) => {
-            if (column.levels[0].colspan > 0) {
-              columnDefs.push(getColumnGroup(columns.slice(idx, columns.length)))
-            }
-          })
-        })
-      }
-
-      return columnDefs
-    }
-    
-    const rtProps = {
-      // vis props
-      tableConfig: dataTable.config,
-      tableConfigOptions: VisPluginTableModel.getCoreConfigOptions(),
-      updateTableConfig: updateConfig,
-      
-      // ag-grid theme
-      theme: 'ag-theme-' + config.theme,
-
-      // ag-grid component props
-      columnDefs: getColumnDefs(),
-      rowData: dataTable.getDataRows(),
-    }
-    console.log('rtProps.tableConfigOptions', rtProps.tableConfigOptions)
-        
+    var dataTable = new VisPluginTableModel(data, queryResponse, config, updatePluginConfig)
+    this.trigger('registerOptions', dataTable.configOptions)
+// 
     if (details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
-    // console.log('%c COLUMN DEFINITIONS', 'color: red')
-    // console.log(rtProps.columnDefs)
-    // console.log('%c ROW DATA', 'color: red')
-    // console.log(rtProps.rowData)
-
-    // TODO: Move getCol* functions into ReportTable component
-    //       Changes are not taking effect until after full refresh
-    //       AgGrid is not passed the vis or table config, only the columnDefs
-    //       Could changes to columns be passed directly to header?
-    //          - via context
-    //          - via AgGridColumn components?
-    //
-    //       Remember first goal is a full re-render of table *without* recalculating the dataTable object 
-
-    console.log('updateAsync() render...')
+    console.log('%c dataTable', 'color: blue', dataTable)    
     this.chart = ReactDOM.render(
-      <ReportTable {...rtProps} />,
+      <>
+        {console.log('======> updateAsync() ReactDOM.render()')}
+        {console.log('------- useViewName', dataTable.useViewName)}
+        <ReportTableProvider dataTable={dataTable} updatePluginConfig={updatePluginConfig} />
+      </>,
       element
     );
-    
-    // console.log('%c element', 'color: red', element)
     
     done();
   }
