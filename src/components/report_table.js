@@ -21,6 +21,16 @@ const ReportTableComponent = (props) => {
   console.log('ReportTableComponent()')
   // console.log(' --- tableContext.tableConfig view, transpose', context.tableConfig.useViewName, tableContext.tableConfig.transposeTable)
 
+  const getRowClass = (params) => { return params.data.type }
+  const defaultColDef = {
+    suppressMovable: true,
+    columnGroupShow: 'open',
+    filter: false,
+    sortable: false,
+    headerComponent: 'reportTableHeaderComponent',
+    cellRenderer: 'reportTableCellComponent',
+  }
+
   const components = {
     reportTableCellComponent: ReportTableCell
   }
@@ -48,8 +58,8 @@ const ReportTableComponent = (props) => {
       <AgGridReact
         columnDefs={columnDefs}
         rowData={props.rowData}
-        defaultColDef={props.defaultColDef}
-        getRowClass={props.getRowClass}
+        defaultColDef={defaultColDef}
+        getRowClass={getRowClass}
         suppressFieldDotNotation
         suppressRowTransform
         suppressColumnVirtualisation

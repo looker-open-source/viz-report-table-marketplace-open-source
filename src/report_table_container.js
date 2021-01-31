@@ -225,16 +225,8 @@ looker.plugins.visualizations.add({
       // ag-grid component props
       columnDefs: getColumnDefs(),
       rowData: dataTable.getDataRows(),
-      getRowClass: (params) => { return params.data.type },
-      defaultColDef: {
-        suppressMovable: true,
-        columnGroupShow: 'open',
-        filter: false,
-        sortable: false,
-        headerComponent: 'reportTableHeaderComponent',
-        cellRenderer: 'reportTableCellComponent',
-      },
     }
+    console.log('rtProps.tableConfigOptions', rtProps.tableConfigOptions)
         
     if (details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
@@ -242,6 +234,15 @@ looker.plugins.visualizations.add({
     // console.log(rtProps.columnDefs)
     // console.log('%c ROW DATA', 'color: red')
     // console.log(rtProps.rowData)
+
+    // TODO: Move getCol* functions into ReportTable component
+    //       Changes are not taking effect until after full refresh
+    //       AgGrid is not passed the vis or table config, only the columnDefs
+    //       Could changes to columns be passed directly to header?
+    //          - via context
+    //          - via AgGridColumn components?
+    //
+    //       Remember first goal is a full re-render of table *without* recalculating the dataTable object 
 
     console.log('updateAsync() render...')
     this.chart = ReactDOM.render(

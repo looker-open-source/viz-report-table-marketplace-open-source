@@ -245,6 +245,7 @@ class VisPluginTableModel {
   constructor(lookerData, queryResponse, config, updateConfig) {
     this.visId = 'report_table'
     this.config = config
+    this.configOptions = {}
     this.updateConfig = updateConfig
 
     this.headers = []
