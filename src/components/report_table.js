@@ -6,6 +6,7 @@ import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-mod
 ModuleRegistry.registerModules([ClientSideRowModelModule])
 
 import { contextReducer, ReportTableContext } from '../context/report_table_context'
+
 import ReportTableHeaderGroup from './header/report_table_header_group'
 import ReportTableHeader from './header/report_table_header'
 import ReportTableCell from '../renderers/report_table_cell'
@@ -13,13 +14,10 @@ import ReportTableCell from '../renderers/report_table_cell'
 require('../styles/report_table_themes.scss')
 
 
-const ReportTable = (props) => {
+const ReportTable = ({ rowData }) => {
   const [{ theme, columnDefs }] = useContext(ReportTableContext)
-  const [rowData, setRowData] = useState(props.rowData)
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
-
-  // console.log(' --- tableContext.tableConfig view, transpose', context.tableConfig.useViewName, tableContext.tableConfig.transposeTable)
 
   const getRowClass = (params) => { return params.data.type }
   const defaultColDef = {
@@ -61,7 +59,7 @@ const ReportTable = (props) => {
 
   return (
     <div className={'rt-container ' + theme}>
-      {console.log('======> ReportTable() / AgGridReact')}
+      {console.log('%c ======> ReportTable() / AgGridReact', 'color:darkorange')}
       {console.log('------- ', JSON.stringify(columnDefs.map(col => col.headerName)))}
       <AgGridReact
         columnDefs={columnDefs}
@@ -232,7 +230,6 @@ const ReportTableProvider = ({ dataTable, updatePluginConfig }) => {
     tableConfigOptions: dataTable.configOptions,
     updatePluginConfig: updatePluginConfig
   }
-  // console.log('initialState', initialState)
 
   const [state, dispatch] = useReducer(contextReducer, initialState)
   const rowData = dataTable.getDataRows()
@@ -243,9 +240,9 @@ const ReportTableProvider = ({ dataTable, updatePluginConfig }) => {
 
   return (
     <ReportTableContext.Provider value={[ state, dispatch ]}>
-      {console.log('======> ReportTableProvider()')}
+      {console.log('%c ======> ReportTableProvider()', 'color:darkorange')}
       {console.log('------- ', JSON.stringify(state.columnDefs.map(col => col.headerName)))}
-      <ReportTable rowData={rowData} columnDefs={state.columnDefs} />
+      <ReportTable rowData={rowData} />
     </ReportTableContext.Provider>
   )
 }

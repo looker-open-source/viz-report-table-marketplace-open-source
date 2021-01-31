@@ -11,8 +11,8 @@ const ReportTableHeader = (props) => {
 
   return (
     <div className='rt-finance-cell-container'>
-      {console.log('======> ReportTableHeader()')}
-      {console.log('params.displayName', props.displayName)}
+      {console.log('%c ======> ReportTableHeader()', 'color:darkorange')}
+      {console.log('------- params.displayName', props.displayName)}
       <div className="top-left" />
       <div className="top" />
       <div className="top-right" />

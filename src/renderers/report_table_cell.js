@@ -42,7 +42,6 @@ ReportTableCell.prototype.init = function(params) {
     this.eGui = document.createElement('div')
     this.eGui.className = 'rt-finance-cell-container'
     this.eGui.innerHTML = ''
-      // + '<div className="rt-finance-cell-container">'
       + '  <div class="top-left"></div>'
       + '  <div class=' + topline + '></div>'
       + '  <div class="top-right"></div>'
@@ -52,11 +51,11 @@ ReportTableCell.prototype.init = function(params) {
       + '  <div class="bottom-left"></div>'
       + '  <div class="' + bottomline + '"></div>'
       + '  <div class="bottom-right"></div>'
-      // + '</div>'
       ;
 }
 
 ReportTableCell.prototype.getGui = function() {
+    console.log('%c ======> ReportTableCell()', 'color:darkorange')
     return this.eGui;
 };
 

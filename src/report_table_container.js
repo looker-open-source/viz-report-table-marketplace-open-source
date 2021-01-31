@@ -18,17 +18,22 @@ looker.plugins.visualizations.add({
   options: VisPluginTableModel.getCoreConfigOptions(),
   
   create: function(element, config) {
-    console.log('%c **------ create() ------**', 'color: red')
-    this.chart = ReactDOM.render(<div />, element);
+    console.log('%c **------ create() ------**', 'color: red; font-weight: bold')
+    this.chart = ReactDOM.render(
+      <>
+        {console.log('%c ------- Empty <div />', 'color:darkorange')}
+        <div className='pluginCreate' />
+      </>, 
+      element
+    )
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
-    console.log('%c **------ updateAsync() ------**', 'color: red')
+    console.log('%c **------ updateAsync() ------**', 'color: red; font-weight: bold')
 
     const updatePluginConfig = (newConfig) => {
       console.log('updateAsync().updatePluginConfig() newConfig', newConfig)
       this.trigger('updateConfig', newConfig)
-      console.log('this', this)
     }
 
     // ERROR HANDLING
@@ -42,7 +47,7 @@ looker.plugins.visualizations.add({
       return
     }
 
-    // console.log('%c config', 'color: green', config)
+    console.log('%c config', 'color: green', config)
     // console.log('%c queryResponse', 'color: green', queryResponse)
     // console.log('%c data', 'color: green', data)
 
@@ -69,20 +74,23 @@ looker.plugins.visualizations.add({
 
     // BUILD THE TABLE DATA OBJECT
     var dataTable = new VisPluginTableModel(data, queryResponse, config, updatePluginConfig)
+    // const rowData = dataTable.getDataRows()
+
     this.trigger('registerOptions', dataTable.configOptions)
-// 
+
     if (details.print) { fonts.forEach(e => loadStylesheet(e) ); }
 
-    console.log('%c dataTable', 'color: blue', dataTable)    
+    console.log('%c dataTable', 'color: blue', dataTable)  
     this.chart = ReactDOM.render(
       <>
-        {console.log('======> updateAsync() ReactDOM.render()')}
+        {console.log('%c ======> updateAsync() ReactDOM.render()', 'color:darkorange')}
         {console.log('------- useViewName', dataTable.useViewName)}
         <ReportTableProvider dataTable={dataTable} updatePluginConfig={updatePluginConfig} />
       </>,
       element
     );
     
+    console.log('%c element', 'color:red', element)
     done();
   }
 })
