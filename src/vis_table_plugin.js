@@ -182,6 +182,13 @@ const tableModelCoreOptions = {
     default: false,
     order: 11
   },
+  labelForTotals: {
+    section: 'Table',
+    type: 'string',
+    label: 'Label for Total row',
+    default: 'TOTAL',
+    order: 12
+  },
   indexColumn: {
     section: "Dimensions",
     type: "boolean",
@@ -251,6 +258,7 @@ class VisPluginTableModel {
     this.showTooltip = config.showTooltip || false
     this.showHighlight = config.showHighlight || false
     this.genericLabelForSubtotals = config.genericLabelForSubtotals || false
+    this.labelForTotals = config.labelForTotals || 'TOTAL'
 
     this.sorts = queryResponse.sorts
     this.hasTotals = typeof queryResponse.totals_data !== 'undefined' ? true : false
@@ -1085,12 +1093,12 @@ class VisPluginTableModel {
     })
 
     if (this.useIndexColumn) {
-      totalsRow.data['$$$_index_$$$'].value = 'TOTAL'
+      totalsRow.data['$$$_index_$$$'].value = this.labelForTotals // 'TOTAL'
       totalsRow.data['$$$_index_$$$'].align = 'left'
       totalsRow.data['$$$_index_$$$'].colspan = this.dimensions.filter(d => !d.hide).length
     } else {
       if (this.firstVisibleDimension) {
-        totalsRow.data[this.firstVisibleDimension].value = 'TOTAL'
+        totalsRow.data[this.firstVisibleDimension].value = this.labelForTotals // 'TOTAL'
         totalsRow.data[this.firstVisibleDimension].align = 'left'
       }
     }
