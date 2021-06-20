@@ -123,3 +123,43 @@ table.reportTable td {
   font-family: Open Sans,Helvetica,Arial,sans-serif;
   margin: 4px;
 }
+
+a:link {
+  color: black;
+  text-decoration: none;
+}
+
+a:visited {
+  color: black;
+  text-decoration: none;
+}
+
+a:hover {
+  color: black;
+  text-decoration: underline dotted;
+}
+
+a:active {
+  color: black;
+  text-decoration: none;
+}
+
+.clickableCell:link {
+  color: black;
+  text-decoration: none;
+}
+
+.clickableCell:visited {
+  color: black;
+  text-decoration: none;
+}
+
+.clickableCell:hover {
+  color: black;
+  text-decoration: underline dotted;
+}
+
+.clickableCell:active {
+  color: black;
+  text-decoration: none;
+}
