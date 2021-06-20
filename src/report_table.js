@@ -32,7 +32,7 @@ const loadStylesheet = function(link) {
 };
 
 
-const buildReportTable = function(config, dataTable, updateColumnOrder, element) {
+const buildReportTable = function(config, dataTable, updateColumnOrder, element, details) {
   var dropTarget = null;
   const bounds = element.getBoundingClientRect()
   const chartCentreX = bounds.x + (bounds.width / 2);
@@ -274,18 +274,37 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         }
       })
       .on('click', d => {
-        // Looker applies padding based on the top of the viz when opening a drill field but 
-        // if part of the viz container is hidden underneath the iframe, the drill menu opens off screen
-        // We make a simple copy of the d3.event and account for pageYOffser as MouseEvent attributes are read only. 
-        let event = {
-          metaKey: d3.event.metaKey,
-          pageX: d3.event.pageX,
-          pageY: d3.event.pageY - window.pageYOffset
+        if (details.crossfilterEnabled) {
+          let pseudoRow = {}
+          pseudoRow[d.colid] = { value: d.value }
+          LookerCharts.Utils.toggleCrossfilter({
+              row: pseudoRow,
+              event: d3.event,
+          });
+      } else {
+          // Looker applies padding based on the top of the viz when opening a drill field but 
+          // if part of the viz container is hidden underneath the iframe, the drill menu opens off screen
+          // We make a simple copy of the d3.event and account for pageYOffser as MouseEvent attributes are read only. 
+          let event = {
+            metaKey: d3.event.metaKey,
+            pageX: d3.event.pageX,
+            pageY: d3.event.pageY - window.pageYOffset
+          }
+          LookerCharts.Utils.openDrillMenu({
+            links: d.links,
+            event: event
+          })
         }
-        LookerCharts.Utils.openDrillMenu({
-          links: d.links,
-          event: event
-        })
+      })
+      .on('contextmenu', d => {
+        if (details.crossfilterEnabled) {
+          d3.event.preventDefault()
+
+          LookerCharts.Utils.openDrillMenu({
+            links: d.links,
+            event: event
+          }) 
+        }
       })
 
     if (use_minicharts) {
@@ -509,7 +528,7 @@ looker.plugins.visualizations.add({
     // console.log(config)
     var dataTable = new VisPluginTableModel(data, queryResponse, config)
     this.trigger('registerOptions', dataTable.getConfigOptions())
-    buildReportTable(config, dataTable, updateColumnOrder, element)
+    buildReportTable(config, dataTable, updateColumnOrder, element, details)
 
     // DEBUG OUTPUT AND DONE
     console.log('dataTable', dataTable)
