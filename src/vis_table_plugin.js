@@ -329,10 +329,18 @@ class VisPluginTableModel {
 
     var subtotal_options = []
     this.dimensions.forEach((dimension, i) => {
+      newOptions['divider|' + dimension.name] = {
+        section: 'Dimensions',
+        type: 'string',
+        display: 'divider',
+        label: dimension.label.toUpperCase() + ' -----------',
+        order: i * 10 + 0.5,
+      }
+
       newOptions['label|' + dimension.name] = {
         section: 'Dimensions',
         type: 'string',
-        label: dimension.label,
+        label: 'Label',
         default: dimension.label,
         order: i * 10 + 1,
       }
@@ -372,10 +380,18 @@ class VisPluginTableModel {
     }
 
     this.measures.forEach((measure, i) => {
+      newOptions['divider|' + measure.name] = {
+        section: 'Measures',
+        type: 'string',
+        display: 'divider',
+        label: measure.label.toUpperCase() + ' -----------',
+        order: 100 + i * 10 + 0.5,
+      }
+
       newOptions['label|' + measure.name] = {
         section: 'Measures',
         type: 'string',
-        label: measure.label,
+        label: 'Label',
         default: measure.label,
         order: 100 + i * 10 + 1,
       }
