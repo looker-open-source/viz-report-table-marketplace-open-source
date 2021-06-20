@@ -188,7 +188,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           .enter()
 
     table_rows.append('td')
-      .text(d => {
+      .html(d => {
         var text = ''
         if (Array.isArray(d.value)) {                     // cell is a list or number_list
           text = !(d.rendered === null) ? d.rendered : d.value.join(' ')
@@ -203,8 +203,12 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         } else {
           text = d.value   
         }
-        text = String(text)
-        return text ? text.replace('-', '\u2011') : text  // prevents wrapping on minus sign / hyphen
+        text = String(text ? text.replace('-', '\u2011') : text)  // prevents wrapping on minus sign / hyphen
+        if (dataTable.useHTML && d.html) {
+          return d.html
+        } else {
+          return text
+        }
       }) 
       .attr('rowspan', d => d.rowspan)
       .attr('colspan', d => d.colspan)
@@ -212,6 +216,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       .style('font-size', config.bodyFontSize + 'px')
       .attr('class', d => {
         var classes = ['reportTable']
+        if (d.links.length > 0) { classes.push('clickableCell') }
         if (typeof d.value === 'object') { classes.push('cellSeries') }
         if (typeof d.align !== 'undefined') { classes.push(d.align) }
         if (typeof d.cell_style !== 'undefined') { classes = classes.concat(d.cell_style) }
@@ -507,7 +512,7 @@ looker.plugins.visualizations.add({
     buildReportTable(config, dataTable, updateColumnOrder, element)
 
     // DEBUG OUTPUT AND DONE
-    // console.log('dataTable', dataTable)
+    console.log('dataTable', dataTable)
     // console.log('container', document.getElementById('visContainer').parentNode)
     
     done();

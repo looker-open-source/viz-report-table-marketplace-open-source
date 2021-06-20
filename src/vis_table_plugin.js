@@ -140,6 +140,13 @@ const tableModelCoreOptions = {
     default: "pivots",
     order: 6,
   },
+  useHTML: {
+    section: "Table",
+    type: "boolean",
+    label: "Use HTML if defined",
+    default: true,
+    order: 6.5,
+  },
   useViewName: {
     section: "Table",
     type: "boolean",
@@ -243,6 +250,7 @@ class VisPluginTableModel {
     this.firstVisibleDimension = ''
 
     this.useIndexColumn = config.indexColumn || false
+    this.useHTML = typeof config.useHTML !== 'undefined' ? config.useHTML : true
     this.useHeadings = config.useHeadings || false
     this.useShortName = config.useShortName || false
     this.useViewName = config.useViewName || false
