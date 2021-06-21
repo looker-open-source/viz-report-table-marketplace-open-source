@@ -86,8 +86,23 @@ const tableModelCoreOptions = {
     default: true,
     order: 7
   },
+  useHTML: {
+    section: "Theme",
+    type: "boolean",
+    label: "Use HTML (if defined in field LookML)",
+    default: true,
+    order: 8,
+  },
 
   columnOrder: {},
+
+  dividerTableCalculations: {
+    section: 'Table',
+    type: 'string',
+    display: 'divider',
+    label: 'CALCULATION -----------',
+    order: 1,
+  },
   
   rowSubtotals: {
     section: "Table",
@@ -95,7 +110,7 @@ const tableModelCoreOptions = {
     label: "Row Subtotals",
     display_size: 'half',
     default: false,
-    order: 1,
+    order: 2,
   },
   colSubtotals: {
     section: "Table",
@@ -103,30 +118,22 @@ const tableModelCoreOptions = {
     label: "Col Subtotals",
     display_size: 'half',
     default: false,
-    order: 2,
-  },
-  spanRows: {
-    section: "Table",
-    type: "boolean",
-    label: "Merge Dims",
-    display_size: 'half',
-    default: true,
     order: 3,
-  },
-  spanCols: {
-    section: "Table",
-    type: "boolean",
-    label: "Merge Headers",
-    display_size: 'half',
-    default: true,
-    order: 4,
   },
   calculateOthers: {
     section: "Table",
     type: "boolean",
     label: "Calculate Others Row",
     default: true,
-    order: 4.5
+    order: 4,
+  },
+
+  dividerTableLayout: {
+    section: 'Table',
+    type: 'string',
+    display: 'divider',
+    label: 'LAYOUT ---------------',
+    order: 6,
   },
   sortColumnsBy: {
     section: "Table",
@@ -138,77 +145,96 @@ const tableModelCoreOptions = {
       { 'Measures': 'measures' }
     ],
     default: "pivots",
-    order: 6,
-  },
-  useHTML: {
-    section: "Table",
-    type: "boolean",
-    label: "Use HTML if defined",
-    default: true,
     order: 6.5,
   },
-  useViewName: {
+  spanRows: {
     section: "Table",
     type: "boolean",
-    label: "Include View Name",
-    default: false,
+    label: "Merge Dims",
+    display_size: 'half',
+    default: true,
     order: 7,
   },
-  useHeadings: {
+  spanCols: {
     section: "Table",
     type: "boolean",
-    label: "Use Headings",
-    default: false,
+    label: "Merge Headers",
+    display_size: 'half',
+    default: true,
     order: 8,
-  },
-  useShortName: {
-    section: "Table",
-    type: "boolean",
-    label: "Use Short Name (from model tags)",
-    default: false,
-    order: 9,
-  },
-  useUnit: {
-    section: "Table",
-    type: "boolean",
-    label: "Use Unit (when reporting in 000s)",
-    default: false,
-    order: 9.5,
   },
   groupVarianceColumns: {
     section: "Table",
     type: "boolean",
     label: "Group Variance Columns",
     default: false,
-    order: 10,
-  },
-  genericLabelForSubtotals: {
-    section: 'Table',
-    type: 'boolean',
-    label: "Label all subtotal rows as 'Subtotal'",
-    default: false,
-    order: 11
-  },
-  labelForTotals: {
-    section: 'Table',
-    type: 'string',
-    label: 'Label for Total row',
-    default: 'TOTAL',
-    order: 12
-  },
-  indexColumn: {
-    section: "Dimensions",
-    type: "boolean",
-    label: "Use Last Field Only",
-    default: false,
-    order: 0,
+    order: 8.5,
   },
   transposeTable: {
     section: "Table",
     type: "boolean",
     label: "Transpose Table",
     default: false,
-    order: 100,
+    order: 9,
+  },
+
+  dividerTableLabelling: {
+    section: 'Table',
+    type: 'string',
+    display: 'divider',
+    label: 'LABELLING -------------',
+    order: 10,
+  },
+  useViewName: {
+    section: "Table",
+    type: "boolean",
+    label: "Include View Name",
+    default: false,
+    order: 12,
+  },
+  useHeadings: {
+    section: "Table",
+    type: "boolean",
+    label: "Use Headings",
+    default: false,
+    order: 12,
+  },
+  useShortName: {
+    section: "Table",
+    type: "boolean",
+    label: "Use Short Name (from model tags)",
+    default: false,
+    order: 13,
+  },
+  useUnit: {
+    section: "Table",
+    type: "boolean",
+    label: "Use Unit (when reporting in 000s)",
+    default: false,
+    order: 14,
+  },
+
+  genericLabelForSubtotals: {
+    section: 'Table',
+    type: 'boolean',
+    label: "Label all subtotal rows as 'Subtotal'",
+    default: false,
+    order: 15
+  },
+  labelForTotals: {
+    section: 'Table',
+    type: 'string',
+    label: 'Label for Total row',
+    default: 'TOTAL',
+    order: 16
+  },
+
+  indexColumn: {
+    section: "Dimensions",
+    type: "boolean",
+    label: "Use Last Field Only",
+    default: false,
+    order: 0,
   },
 }
 /**
@@ -372,7 +398,7 @@ class VisPluginTableModel {
     newOptions['subtotalDepth'] = {
       section: "Table",
       type: "string",
-      label: "Sub Total Depth",
+      label: "Row Subtotal Depth",
       display: 'select',
       values: subtotal_options,
       default: "1",
