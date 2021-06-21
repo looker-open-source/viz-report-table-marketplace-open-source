@@ -203,7 +203,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element,
         } else {
           text = d.value   
         }
-        text = String(text ? text.replace('-', '\u2011') : text)  // prevents wrapping on minus sign / hyphen
+        text = String(typeof text.replace === 'function' ? text.replace('-', '\u2011') : text)  // prevents wrapping on minus sign / hyphen
         if (dataTable.useHTML && d.html) {
           return d.html
         } else {
