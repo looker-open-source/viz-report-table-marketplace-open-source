@@ -1,17 +1,20 @@
-project_name: "viz-report_table-marketplace"
+project_name: "test-viz-report_table-marketplace"
 
 constant: VIS_LABEL {
   value: "Table (Report)"
-  export: override_optional
+  # export: override_optional
+  export: none
 }
 
 constant: VIS_ID {
   value: "report_table-marketplace"
-  export:  override_optional
+  # export:  override_optional
+  export: none
 }
 
 visualization: {
   id: "@{VIS_ID}"
-  url: "https://marketplace-api.looker.com/viz-dist/report_table.js"
+  # url: "https://marketplace-api.looker.com/viz-dist/report_table.js"
+  file: "report_table.js"
   label: "@{VIS_LABEL}"
 }
