@@ -1,13 +1,13 @@
 project_name: "test-viz-report_table-marketplace"
 
 constant: VIS_LABEL {
-  value: "Table (Report)"
+  value: "Test Report Table"
   # export: override_optional
   export: none
 }
 
 constant: VIS_ID {
-  value: "report_table-marketplace"
+  value: "test-report_table-marketplace"
   # export:  override_optional
   export: none
 }
