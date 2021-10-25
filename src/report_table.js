@@ -425,13 +425,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 }
 
 looker.plugins.visualizations.add({
-  //Removes custom CSS theme for now over supportability concerns
-  options: (function() { 
-    let ops = VisPluginTableModel.getCoreConfigOptions();
-    ops.theme.values.pop()
-    delete ops.customTheme
-    return ops
-  })(),
+  options:  VisPluginTableModel.getCoreConfigOptions(),
   
   create: function(element, config) {
     this.svgContainer = d3.select(element)
