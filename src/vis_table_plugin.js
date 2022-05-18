@@ -1729,12 +1729,12 @@ class VisPluginTableModel {
     return function(a, b) {
       var depth = Math.max(a.sort.length, b.sort.length)
       for (var i = 0; i < depth; i++) {
-          var field = typeof a.sort[i].name !== 'undefined' ? a.sort[i].name : ''
+          var field = (a.sort[i] && typeof a.sort[i].name !== 'undefined') ? a.sort[i].name : ''
           var sort = dataTable.sorts.find(item => item.name === field)
           var desc = typeof sort !== 'undefined' ? sort.desc : false
 
-          var a_value = typeof a.sort[i] !== 'undefined' ? a.sort[i].value : 0
-          var b_value = typeof b.sort[i] !== 'undefined' ? b.sort[i].value : 0
+          var a_value = (a.sort[i] && typeof a.sort[i] !== 'undefined') ? a.sort[i].value : 0
+          var b_value = (b.sort[i] && typeof b.sort[i] !== 'undefined') ? b.sort[i].value : 0
 
           if (desc) {
             if (a_value < b_value) { return 1 }
