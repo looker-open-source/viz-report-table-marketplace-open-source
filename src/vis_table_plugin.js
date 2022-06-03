@@ -1341,7 +1341,7 @@ class VisPluginTableModel {
               } 
             })
             
-            if (column.modelField.calculation_type === 'average' && subtotal_items > 0) {
+            if (subtotal_items > 0) {
               subtotal_value = subtotal_value / subtotal_items
             }
             if (subtotal_value) {
