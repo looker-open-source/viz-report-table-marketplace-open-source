@@ -31,6 +31,23 @@ const loadStylesheet = function(link) {
   document.getElementsByTagName('head')[0].appendChild(linkElement);
 };
 
+const renderTableNoResults = function() {
+
+  // Locate visContainer
+  const visContainer = d3.select('#visContainer').node();
+
+  // If no visContainer add it and print no results messaging
+  // else clear contents and add no results messaging
+  if(!visContainer) {
+    d3.select('#vis')
+        .append('div')
+        .attr('id', 'visContainer')
+        .text('No Results');
+  } else {
+    d3.select('#visContainer').html("").text("No Results");
+  }
+}
+
 
 const buildReportTable = function(config, dataTable, updateColumnOrder, element) {
   var dropTarget = null;
@@ -462,6 +479,12 @@ looker.plugins.visualizations.add({
 
     // console.log('queryResponse', queryResponse)
     // console.log('data', data)
+
+    // Check for results
+    if(!data.length) {
+      renderTableNoResults();
+      return;
+    }
 
     // INITIALISE THE VIS
 
