@@ -483,7 +483,7 @@ looker.plugins.visualizations.add({
     // Check for results
     if(!data.length) {
       renderTableNoResults();
-      doneRendering();
+      done();
       return;
     }
 
