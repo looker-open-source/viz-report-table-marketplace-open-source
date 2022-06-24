@@ -1340,8 +1340,13 @@ class VisPluginTableModel {
                 }
               } 
             })
-            
-            if (subtotal_items > 0) {
+
+            // If value_format contains % we should return an average value
+            if (column.modelField.calculation_type === 'number' && subtotal_items > 0 && column.modelField.value_format.includes('%')) {
+              subtotal_value = subtotal_value / subtotal_items
+            }
+
+            if (column.modelField.calculation_type === 'average' && subtotal_items > 0) {
               subtotal_value = subtotal_value / subtotal_items
             }
             if (subtotal_value) {
