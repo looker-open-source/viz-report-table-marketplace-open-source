@@ -49,6 +49,24 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     }
   })
 
+
+  // Sort group based on sort order from looker
+  const sortByColumnSeries = function(group) {
+
+    // Get sort order from column series
+    const columnSeriesOrder = dataTable.column_series.map((col) => col.column.id)
+    // Build new array of group data in same order as column_series
+    const orderedGroup = [];
+    columnSeriesOrder.forEach((colName) => {
+      group.forEach(group => {
+        if(colName === group.id) {
+          orderedGroup.push(group)
+        }
+      })
+    })
+    return orderedGroup;
+  }
+
   const renderTable = async function() {
     const getTextWidth = function(text, font = '') {
       // re-use canvas object for better performance
@@ -141,15 +159,14 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
             return ''
           }
         })
-
     var header_rows = table.append('thead')
       .selectAll('tr')
-      .data(dataTable.getHeaderTiers()).enter() 
+      .data(dataTable.getHeaderTiers()).enter()
 
     var header_cells = header_rows.append('tr')
       .selectAll('th')
-      .data((level, i) => dataTable.getTableHeaderCells(i).map(column => column.levels[i]))
-        .enter()    
+      .data((level, i) => sortByColumnSeries(dataTable.getTableHeaderCells(i)).map(column => column.levels[i]))
+        .enter()
 
     header_cells.append('th')
       .text(d => d.label)
@@ -184,7 +201,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           }
         })
         .selectAll('td')
-        .data(row => dataTable.getTableRowColumns(row).map(column => row.data[column.id]))
+        .data(row => sortByColumnSeries(dataTable.getTableRowColumns(row)).map(column => row.data[column.id]))
           .enter()
 
     table_rows.append('td')
