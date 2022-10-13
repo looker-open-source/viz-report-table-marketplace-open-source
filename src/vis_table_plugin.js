@@ -1076,7 +1076,11 @@ class VisPluginTableModel {
         }
         
         totalsRow.data[column.id] = cellValue
-        if (typeof totalsRow.data[column.id].links !== 'undefined') {
+        if (
+          typeof totalsRow.data[column.id].links !== 'undefined' &&
+          totalsRow.data[column.id].links !== [] &&
+          totalsRow.data[column.id].links[0].url
+        ) {
           totalsRow.data[column.id].links.forEach(link => {
             link.type = "measure_default"
           })
