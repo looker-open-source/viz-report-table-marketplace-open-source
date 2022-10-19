@@ -1079,6 +1079,7 @@ class VisPluginTableModel {
         if (
           typeof totalsRow.data[column.id].links !== 'undefined' &&
           totalsRow.data[column.id].links !== [] &&
+          typeof totalsRow.data[column.id].links[0] !== 'undefined' &&
           totalsRow.data[column.id].links[0].url
         ) {
           totalsRow.data[column.id].links.forEach(link => {
