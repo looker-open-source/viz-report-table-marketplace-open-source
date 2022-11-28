@@ -48,6 +48,7 @@ const renderTableNoResults = function() {
   }
 }
 
+
 const buildReportTable = function(config, dataTable, updateColumnOrder, element) {
   var dropTarget = null;
   const bounds = element.getBoundingClientRect()
