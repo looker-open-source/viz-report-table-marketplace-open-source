@@ -65,8 +65,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       themes[config.layout].use()
     }
   })
-
-
+  
   // Sort group based on sort order from looker
   const sortByColumnSeries = function(group) {
 
