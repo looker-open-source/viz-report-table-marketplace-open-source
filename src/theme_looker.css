@@ -1,0 +1,190 @@
+@font-face {
+  font-family: 'Noto Sans TC';
+  src: url('./fonts/noto-sans-tc-v10-latin_chinese-traditional-regular.woff2') format('woff2')
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  src: url('./fonts/noto-sans-sc-v11-latin_chinese-simplified-regular.woff2') format('woff2')
+}
+
+
+#tooltip {
+    position: absolute;
+    width: auto;
+    height: auto;
+    padding: 5px;
+    background-color: white;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    font-family: sans-serif;
+    font-size: 12px;
+    z-index: 2;
+}
+
+.tooltipTable {
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  border: 0px;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.focus {
+  font-weight: bold;
+}
+
+.hidden {
+    display: none;
+}
+
+.hover {
+  background-color: #ffffbb;
+}
+
+.reportTable {
+  font-family: Open Sans,Helvetica,Arial,Noto Sans TC, Noto Sans SC,sans-serif;
+  color: #696969;
+  border-collapse: collapse;
+  border-spacing: 3px;
+  table-layout: fixed;
+}
+
+th.headerCell {
+  background-color: #ccd8e4;
+  padding: 5px;
+  border-bottom: 1px solid #BDC3C7;
+}
+
+.headerCell.dimension {
+  background-color: #e4ecf3;
+  border-right: 1px solid #BDC3C7; 
+}
+
+.headerCell.pivot {
+  background-color: #ccd8e4;
+  border-right: 1px solid #BDC3C7; 
+}
+
+.headerCell.measure {
+  background-color: #e4d0bd;
+  border-left: 1px solid #BDC3C7; 
+}
+
+.headerCell.measure.calculation {
+  background-color: #c9dfc5;
+  border-left: 1px solid #BDC3C7;
+}
+
+.headerCell.transposed.dimension {
+  background-color: #e4ecf3;
+}
+
+.headerCell.transposed.dimension.merged {
+  background-color: #e4ecf3 !important;
+}
+
+/* .headerCell.dimension.headerRow {
+  background-color: #ccd8e4;
+  border-right: 1px solid #BDC3C7;
+}
+
+.headerCell.pivot.headerRow {
+  background-color: #ccd8e4;
+  border-right: 1px solid #BDC3C7;
+}
+
+.headerCell.measure.headerRow {
+  background-color: #ccd8e4;
+  border-left: 1px solid #BDC3C7;
+} */
+
+.rowCell {
+  vertical-align: super;
+  padding-left: 5px;
+  border-bottom: 1px solid #BDC3C7; 
+}
+
+.rowCell.merged {
+  background-color: #ffffff !important;
+}
+
+.indexCell.transposed {
+  font-weight: bold;
+}
+
+.indexCell.transposed.pivot {
+  background-color: #ccd8e4;
+}
+
+.indexCell.transposed.dimension {
+  background-color: #e4ecf3;
+}
+
+.indexCell.transposed.measure {
+  background-color: #e4d0bd;
+}
+
+.indexCell.transposed.calculation {
+  background-color: #c9dfc5;
+}
+
+.indexCell.transposed.pivot.merged {
+  background-color: #ccd8e4 !important;
+}
+
+.indexCell.transposed.dimension.merged {
+  background-color: #e4ecf3 !important;
+}
+
+.indexCell.transposed.measure.merged {
+  background-color: #e4d0bd !important;
+}
+
+.indexCell.transposed.calculation.merged {
+  background-color: #c9dfc5 !important;
+}
+
+.nonNumeric {
+  text-align: left;
+}
+
+.numeric {
+  text-align: right;
+}
+
+.negative {
+  color: red;
+}
+
+.estimate {
+  color: darkgray !important;
+}
+
+.singleIndex {
+  padding-left: 15px !important;
+}
+
+.subtotal {
+  font-style: italic;
+  font-weight: bold;
+  background: #D3D3D3;
+}
+
+.total {
+  border-top: 2px solid #696969 !important;
+  font-weight: bold !important;
+}
+
+.total.transposed {
+  border-top: 0px !important;
+  background: #D3D3D3;
+}
+
+.rectElem.animated {
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  margin: 4px;
+}

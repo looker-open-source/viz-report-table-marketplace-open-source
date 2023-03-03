@@ -1,0 +1,5 @@
+.DS_Store
+node_modules/
+*.code-workspace
+compile
+docs/testing.md

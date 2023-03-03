@@ -1,0 +1,25 @@
+{
+  "name": "vis-report_table",
+  "version": "1.0.0",
+  "description": "Report table designed for single-page printing with focus on financial report look'n'feel",
+  "main": "index.js",
+  "repository": "git@github.com:ContrastingSounds/vis-report_table.git",
+  "author": "Jon Walls <8075115+ContrastingSounds@users.noreply.github.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "css-loader": "^3.6.0",
+    "style-loader": "^1.2.1",
+    "url-loader": "^4.1.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "d3": "^5.16.0",
+    "lodash": "^4.17.20",
+    "ssf": "^0.11.0"
+  },
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack  --watch --progress"
+  }
+}

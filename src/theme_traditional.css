@@ -1,0 +1,140 @@
+@font-face {
+  font-family: 'Noto Sans TC';
+  src: url('./fonts/noto-sans-tc-v10-latin_chinese-traditional-regular.woff2') format('woff2')
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  src: url('./fonts/noto-sans-sc-v11-latin_chinese-simplified-regular.woff2') format('woff2')
+}
+
+#tooltip {
+    position: absolute;
+    width: auto;
+    height: auto;
+    padding: 5px;
+    background-color: white;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    font-family: sans-serif;
+    font-size: 12px;
+    z-index: 2;
+}
+
+.tooltipTable {
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  border: 0px;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.focus {
+  font-weight: bold;
+}
+
+.hidden {
+    display: none;
+}
+
+.hover {
+  background-color: #ffffbb;
+}
+
+.reportTable {
+  font-family: Open Sans,Helvetica,Arial,Noto Sans TC, Noto Sans SC,sans-serif;
+  border-collapse: separate;
+  border-spacing: 3px;
+  table-layout: fixed;
+}
+
+th.headerCell {
+  border-bottom: 1px solid #000000 !important;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.headerCell.merged {
+  text-align: center !important;
+  background-color: #ffffff !important;
+}
+
+.headerCell.transposed.dimension.merged {
+  text-align: center !important;
+  background-color: #ffffff !important;
+}
+
+.indexCell.transposed {
+  font-weight: bold;
+}
+
+.indexCell.transposed.merged {
+  background-color: #ffffff !important;
+}
+
+.rowCell {
+  vertical-align: super;
+  padding-left: 5px;
+}
+
+.rowCell.merged {
+  background-color: #ffffff !important;
+}
+
+.rowCell.transposed.dimension.merged {
+  background-color: #ffffff !important;
+}
+
+.nonNumeric {
+  text-align: left;
+}
+
+.numeric {
+  text-align: right;
+}
+
+.negative {
+  color: red;
+}
+
+.estimate {
+  color: darkgray !important;
+}
+
+.singleIndex {
+  padding-left: 15px !important;
+}
+
+.subtotal {
+  font-style: italic;
+  font-weight: bold !important;
+}
+
+.total {
+  border-top: 2px solid #000000;
+  font-weight: bold !important;
+}
+
+.total.transposed {
+  border-top: 0px !important;
+}
+
+.dimension.transposed {
+  font-weight: bold;
+}
+
+.rectElem.animated {
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  padding: 4px;
+}
+
+.headerCell.animated {
+  border-bottom: 4px solid #ffffff;
+  box-shadow: inset 0px -1px 0px 0px #000000 !important;
+  font-weight: bold;
+  padding: 5px;
+  box-sizing: border-box;
+}
