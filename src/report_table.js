@@ -91,20 +91,20 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 
           d3.select("#tooltip")
               .style("left", xPosition + "px")
-              .style("top", yPosition + "px")                     
+              .style("top", yPosition + "px")
               .html(html);
-    
-          d3.select("#tooltip").classed("hidden", false);     
+
+          d3.select("#tooltip").classed("hidden", false);
         }
       })
       .on('drag', (source, idx) => {
         // console.log('drag event', source, idx, d3.event.x, d3.event.y)
         if (!dataTable.has_pivots) {
-          d3.select("#tooltip") 
+          d3.select("#tooltip")
             .style("left", d3.event.x + "px")
-            .style("top", d3.event.y + "px")  
+            .style("top", d3.event.y + "px")
         }
-        
+
       })
       .on('end', (source, idx) => {
         if (!dataTable.has_pivots) {
@@ -117,7 +117,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           dataTable.moveColumns(movingIdx, targetIdx, updateColumnOrder)
         }
       })
-    
+
     if (dataTable.minWidthForIndexColumns) {
       var columnTextWidths = {}
 
@@ -141,9 +141,9 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         })
       }
     }
-    
+
     var column_groups = table.selectAll('colgroup')
-      .data(dataTable.getTableColumnGroups()).enter()  
+      .data(dataTable.getTableColumnGroups()).enter()
         .append('colgroup')
 
     column_groups.selectAll('col')
@@ -161,12 +161,12 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 
     var header_rows = table.append('thead')
       .selectAll('tr')
-      .data(dataTable.getHeaderTiers()).enter() 
+      .data(dataTable.getHeaderTiers()).enter()
 
     var header_cells = header_rows.append('tr')
       .selectAll('th')
       .data((level, i) => dataTable.getTableHeaderCells(i).map(column => column.levels[i]))
-        .enter()    
+        .enter()
 
     header_cells.append('th')
       .text(d => d.label)
@@ -190,14 +190,14 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
       .selectAll('tr')
       .data(dataTable.getDataRows()).enter()
         .append('tr')
-        .on('mouseover', function() { 
+        .on('mouseover', function() {
           if (dataTable.showHighlight) {
-            this.classList.toggle('hover') 
+            this.classList.toggle('hover')
           }
         })
-        .on('mouseout', function() { 
+        .on('mouseout', function() {
           if (dataTable.showHighlight) {
-            this.classList.toggle('hover') 
+            this.classList.toggle('hover')
           }
         })
         .selectAll('td')
@@ -218,11 +218,11 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         } else if (d.rendered || d.rendered === '') {     // could be deliberate choice to render empty string
           text = d.rendered
         } else {
-          text = d.value   
+          text = d.value
         }
         text = String(text)
         return text ? text.replace('-', '\u2011') : text  // prevents wrapping on minus sign / hyphen
-      }) 
+      })
       .attr('rowspan', d => d.rowspan)
       .attr('colspan', d => d.colspan)
       .style('text-align', d => d.align)
@@ -241,21 +241,21 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           } else {
             var id = ['col', d.rowid].join('').replace('.', '')
           }
-          
+
           var colElement = document.getElementById(id)
           colElement.classList.toggle('hover')
         }
-        
+
         if (dataTable.showTooltip && d.cell_style.includes('measure')) {
           var x = d3.event.clientX
           var y = d3.event.clientY
           var html = dataTable.getCellToolTip(d.rowid, d.colid)
-  
+
           d3.select("#tooltip")
             .style('left', x + 'px')
-            .style('top', y + 'px')                   
+            .style('top', y + 'px')
             .html(html)
-          
+
           d3.select("#tooltip").classed("hidden", false);
         }
       })
@@ -264,7 +264,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           var tooltip = d3.select('#tooltip')
           var x = d3.event.clientX < chartCentreX ? d3.event.pageX + 10 : d3.event.pageX - tooltip.node().getBoundingClientRect().width - 10
           var y = d3.event.clientY < chartCentreY ? d3.event.pageY + 10 : d3.event.pageY - tooltip.node().getBoundingClientRect().height - 10
-  
+
           tooltip
               .style('left', x + 'px')
               .style('top', y + 'px')
@@ -280,15 +280,15 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
           var colElement = document.getElementById(id)
           colElement.classList.toggle('hover')
         }
-        
+
         if (dataTable.showTooltip  && d.cell_style.includes('measure')) {
           d3.select("#tooltip").classed("hidden", true)
         }
       })
       .on('click', d => {
-        // Looker applies padding based on the top of the viz when opening a drill field but 
+        // Looker applies padding based on the top of the viz when opening a drill field but
         // if part of the viz container is hidden underneath the iframe, the drill menu opens off screen
-        // We make a simple copy of the d3.event and account for pageYOffser as MouseEvent attributes are read only. 
+        // We make a simple copy of the d3.event and account for pageYOffser as MouseEvent attributes are read only.
         if(d.links !== [] && d.links[0].url) {
           let event = {
             metaKey: d3.event.metaKey,
@@ -354,8 +354,8 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         allRects.push({
           index: i,
           data: d,
-          x: bbox.x - BBOX_X_ADJUST, 
-          y: bbox.y - BBOX_Y_ADJUST, 
+          x: bbox.x - BBOX_X_ADJUST,
+          y: bbox.y - BBOX_Y_ADJUST,
           width: bbox.width,
           height: bbox.height,
           html: this.innerHTML,
@@ -404,7 +404,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
                 .text(d => d.html)
               .call(
                 enter => enter.transition().duration(1000)
-                .style('opacity', 1)  
+                .style('opacity', 1)
                 .style('top', d => d.y + 'px')
                 ),
             update => update
@@ -445,7 +445,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 
 looker.plugins.visualizations.add({
   options:  VisPluginTableModel.getCoreConfigOptions(),
-  
+
   create: function(element, config) {
     this.svgContainer = d3.select(element)
       .append("div")
@@ -457,7 +457,7 @@ looker.plugins.visualizations.add({
       .append("div")
       .attr("id", "tooltip")
       .attr("class", "hidden")
-    
+
   },
 
   updateAsync: function(data, element, config, queryResponse, details, done) {
@@ -493,8 +493,8 @@ looker.plugins.visualizations.add({
 
     try {
       var elem = document.querySelector('#visContainer');
-      elem.parentNode.removeChild(elem);  
-    } catch(e) {}    
+      elem.parentNode.removeChild(elem);
+    } catch(e) {}
 
     this.container = d3.select(element)
       .append('div')
@@ -503,7 +503,7 @@ looker.plugins.visualizations.add({
     if (typeof config.columnOrder === 'undefined') {
       this.trigger('updateConfig', [{ columnOrder: {} }])
     }
-  
+
     // Dashboard-next fails to register config if no one has touched it
     // Check to reapply default settings to the config object
     if (typeof config.theme === 'undefined') {
@@ -529,7 +529,7 @@ looker.plugins.visualizations.add({
     // DEBUG OUTPUT AND DONE
     // console.log('dataTable', dataTable)
     // console.log('container', document.getElementById('visContainer').parentNode)
-    
+
     done();
   }
 })
