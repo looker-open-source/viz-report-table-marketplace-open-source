@@ -481,12 +481,20 @@ looker.plugins.visualizations.add({
       this.trigger('updateConfig', [{ columnOrder: newOrder }])
     }
 
-
-
     // ERROR HANDLING
 
     this.clearErrors();
 
+    // empty pivot(s)...no measures
+    if (queryResponse.fields.pivots.length > 0 && queryResponse.fields.measures.length === 0) {
+      this.addError({
+        title: 'Empty Pivot(s)',
+        message: 'Add a measure or table calculation to pivot on.'
+      });
+      return
+    }
+    
+    // max pivot check
     if (queryResponse.fields.pivots.length > 2) {
       this.addError({
         title: 'Max Two Pivots',
