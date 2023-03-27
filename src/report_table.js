@@ -68,13 +68,20 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 
   // Sort group based on sort order from looker
   const sortByColumnSeries = function(group) {
+    // transposing quick fix...if transpose is ON, then return group
+    // dataTable.column_series would be undefined in this case
+    if (dataTable.transposeTable) {
+      return group
+    }
 
     // Get sort order from column series
-    const columnSeriesOrder = dataTable.column_series.map((col) => col.column.id)
+    const columnSeriesOrder = (dataTable.column_series || []).map((col) => col.column.id)
+
     // Build new array of group data in same order as column_series
     const orderedGroup = [];
     columnSeriesOrder.forEach((colName) => {
       group.forEach(group => {
+        // colName will never equal group.id
         if(colName === group.id) {
           orderedGroup.push(group)
         }
@@ -182,7 +189,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
     var header_cells = header_rows.append('tr')
       .selectAll('th')
       .data((level, i) => sortByColumnSeries(dataTable.getTableHeaderCells(i)).map(column => column.levels[i]))
-        .enter()
+      .enter()
 
     header_cells.append('th')
       .text(d => d.label)
@@ -218,7 +225,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
         })
         .selectAll('td')
         .data(row => sortByColumnSeries(dataTable.getTableRowColumns(row)).map(column => row.data[column.id]))
-          .enter()
+        .enter()
 
     table_rows.append('td')
       .text(d => {
