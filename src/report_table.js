@@ -68,7 +68,7 @@ const buildReportTable = function(config, dataTable, updateColumnOrder, element)
 
   // Sort group based on sort order from looker
   const sortByColumnSeries = function(group) {
-    // transposing quick fix...if transpose is ON, then return group
+    // transposing interim fix...if transpose is ON, then return group
     // dataTable.column_series would be undefined in this case
     if (dataTable.transposeTable) {
       return group
