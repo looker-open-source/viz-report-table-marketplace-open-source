@@ -40,9 +40,17 @@ const renderTableNoResults = function() {
   // else clear contents and add no results messaging
   if(!visContainer) {
     d3.select('#vis')
-        .append('div')
-        .attr('id', 'visContainer')
-        .text('No Results');
+      .append('div')
+      .attr('id', 'visContainer')
+      .style('height', '80vh')
+      .style('display', 'flex')
+      .style('align-items', 'center')
+      .style('justify-content', 'center')
+      .style('font-size', '13px')
+      .style('font-family', '"Open Sans", "Helvetica", "Arial", sans-serif')
+      .style('text-anchor', 'middle') // legacy
+      .style('text-align', 'center') // legacy
+      .text('No Results');
   } else {
     d3.select('#visContainer').html("").text("No Results");
   }
