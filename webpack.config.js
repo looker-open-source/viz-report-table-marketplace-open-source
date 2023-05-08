@@ -12,15 +12,14 @@ module.exports = {
       {
         test: /\.css$/i,
         use: [
-          { loader: 'style-loader', options: { injectType: 'lazyStyleTag' } },
+          {loader: 'style-loader', options: {injectType: 'lazyStyleTag'}},
           'css-loader',
         ],
       },
       {
         test: /\.(woff|woff2|ttf|otf)$/,
         loader: 'url-loader',
-      }
-    ]
-  }
+      },
+    ],
+  },
 };
-

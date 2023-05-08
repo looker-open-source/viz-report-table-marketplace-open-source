@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "editorconfig.editorconfig",
+    "elagil.pre-commit-helper",
+    "bazelbuild.vscode-bazel",
+    "kahole.magit",
+    "eamodio.gitlens",
+    "googlecloudtools.cloudcode"
+  ]
+}
