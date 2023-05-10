@@ -163,26 +163,7 @@ possible in your explanation and we'll address it as quick as we can.
 If you run into the following error when building using `yarn build`:
 
 ```shell
-yarn run v1.22.19
-$ webpack
-node:internal/crypto/hash:71
-this[kHandle] = new _Hash(algorithm, xofLen);
-                ^
-
-Error: error:0308010C:digital envelope routines::unsupported
-  at new Hash (node:internal/crypto/hash:71:19)
-  at Object.createHash (node:crypto:133:10)
-  ...
-  at FSReqCallback.readFileAfterClose [as oncomplete] (node:internal/fs/read_file_context:68:3) {
-opensslErrorStack: [ 'error:03000086:digital envelope routines::initialization error' ],
-library: 'digital envelope routines',
-reason: 'unsupported',
-code: 'ERR_OSSL_EVP_UNSUPPORTED'
-}
-
-Node.js v18.15.0
-error Command failed with exit code 1.
-info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+Error: error:0308010C:digital envelope routines::unsupported ... code: 'ERR_OSSL_EVP_UNSUPPORTED'
 ```
 
 Use the following build command instead:
