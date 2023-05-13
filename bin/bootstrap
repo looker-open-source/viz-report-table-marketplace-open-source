@@ -1,20 +1,32 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 GIT_ROOT_DIR=$(git rev-parse --show-toplevel)
 
-pushd "$GIT_ROOT_DIR"
-
 # Initialize and install pre-commit.
-if command -v pre-commit &> /dev/null; then
-  python3 -m pip install --upgrade pip
-  python3 -m pip install pre-commit
-fi
-pre-commit install
+function looker::install_pre_commit() {
+  pushd "$GIT_ROOT_DIR" &> /dev/null
+  if ! command -v pre-commit &> /dev/null; then
+    python3 -m pip install --upgrade pip
+    python3 -m pip install pre-commit
+  fi
+  pre-commit install
+  popd &> /dev/null
+}
 
-# Initialize all the node dependencies.
-if command -v yarn &> /dev/null; then
-  npm install -g yarn
-fi
-yarn
+# Installs yarn if it is not already installed.
+function looker::install_yarn() {
+  if ! command -v yarn &> /dev/null; then
+    npm install -g yarn
+  fi
+}
 
-popd
+function looker::main() {
+  looker::install_pre_commit
+  looker::install_yarn
+}
+
+looker::main
+
+exit 0
