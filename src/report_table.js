@@ -40,9 +40,9 @@ const renderTableNoResults = function () {
   noResultsMessage.setAttribute('class', 'vis-container--no-results');
   noResultsMessage.text('No Results');
 
-  // If visContainer exists remove to add a new one with class
-  if (visContainer) {
-    visContainer.remove();
+  // If visContainer has an element remove to add a new one with class
+  if (visContainer.node()) {
+    visContainer.node().remove();
   }
 
   // Append No Result message
