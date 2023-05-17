@@ -128,6 +128,12 @@ possible in your explanation and we'll address it as quick as we can.
     yarn build
     ```
 
+    If yarn build fails try using:
+
+    ....shell
+    bin/build
+    ....
+
 4.  **Building your code automatically in the background**
 
     Recommended: Webpack can detect changes and build automatically
