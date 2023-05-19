@@ -40,12 +40,12 @@ const renderTableNoResults = function () {
   noResultsMessage.setAttribute('class', 'vis-container--no-results');
   noResultsMessage.innerText = 'No Results';
 
-  // If visContainer has an element remove to add a new one with class
+  // If visContainer exists remove to add a new one with class and message
   if (visContainer) {
     visContainer.remove();
   }
 
-  // Append No Result message
+  // Append No Results message
   d3.select('#vis').append(noResultsMessage);
 };
 

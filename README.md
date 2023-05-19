@@ -130,9 +130,9 @@ possible in your explanation and we'll address it as quick as we can.
 
     If yarn build fails try using:
 
-    ....shell
+    ```shell
     bin/build
-    ....
+    ```
 
 4.  **Building your code automatically in the background**
 
