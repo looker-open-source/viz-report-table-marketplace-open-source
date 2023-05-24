@@ -32,8 +32,7 @@ const loadStylesheet = function (link) {
 };
 
 const renderTableNoResults = function () {
-  // Locate visContainer
-  const visContainer = d3.select('#visContainer');
+  const visContainer = document.querySelector('#visContainer');
   const noResultsMessage = document.createElement('div');
 
   noResultsMessage.setAttribute('id', 'visContainer');
@@ -42,11 +41,11 @@ const renderTableNoResults = function () {
 
   // If visContainer exists remove to add a new one with class and message
   if (visContainer) {
-    visContainer.remove();
+    visContainer.parentNode.removeChild(visContainer);
   }
 
   // Append No Results message
-  d3.select('#vis').append(noResultsMessage);
+  document.querySelector('#vis').append(noResultsMessage);
 };
 
 const buildReportTable = function (
