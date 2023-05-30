@@ -36,7 +36,17 @@ const renderTableNoResults = function () {
   const noResultsMessage = document.createElement('div');
 
   noResultsMessage.setAttribute('id', 'visContainer');
-  noResultsMessage.setAttribute('class', 'vis-container--no-results');
+  noResultsMessage.style.cssText = `
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Roboto';
+    text-anchor: middle;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 500;
+  `;
   noResultsMessage.innerText = 'No Results';
 
   // If visContainer exists remove to add a new one with class and message
