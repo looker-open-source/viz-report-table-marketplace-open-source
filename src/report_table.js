@@ -61,6 +61,7 @@ const buildNoResultsContainer = () => {
     text-align: center;
     font-size: 1rem;
     font-weight: 500;
+    color: rgb(38, 45, 51);
   `;
   noResultsMessage.innerText = NO_RESULTS_MESSAGE;
 
