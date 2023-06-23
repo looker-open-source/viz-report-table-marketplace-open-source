@@ -1,4 +1,4 @@
-import {VisPluginTableModel} from './vis_table_plugin';
+import { VisPluginTableModel } from './vis_table_plugin';
 import * as d3 from './d3loader';
 
 const NO_RESULTS_MESSAGE = 'No results';
@@ -309,7 +309,7 @@ const buildReportTable = function (
           // cell has HTML defined
           var parser = new DOMParser();
           var parsed_html = parser.parseFromString(d.html, 'text/html');
-          text = parsed_html.documentElement.textContent;
+          text = parsed_html.documentElement.innerHTML;
         } else if (d.rendered || d.rendered === '') {
           // could be deliberate choice to render empty string
           text = d.rendered;
@@ -368,14 +368,14 @@ const buildReportTable = function (
             d3.event.clientX < chartCentreX
               ? d3.event.pageX + 10
               : d3.event.pageX -
-                tooltip.node().getBoundingClientRect().width -
-                10;
+              tooltip.node().getBoundingClientRect().width -
+              10;
           var y =
             d3.event.clientY < chartCentreY
               ? d3.event.pageY + 10
               : d3.event.pageY -
-                tooltip.node().getBoundingClientRect().height -
-                10;
+              tooltip.node().getBoundingClientRect().height -
+              10;
 
           tooltip.style('left', x + 'px').style('top', y + 'px');
         }
@@ -583,7 +583,7 @@ looker.plugins.visualizations.add({
 
   updateAsync: function (data, element, config, queryResponse, details, done) {
     const updateColumnOrder = newOrder => {
-      this.trigger('updateConfig', [{columnOrder: newOrder}]);
+      this.trigger('updateConfig', [{ columnOrder: newOrder }]);
     };
 
     // ERROR HANDLING
@@ -626,7 +626,7 @@ looker.plugins.visualizations.add({
     try {
       var elem = document.querySelector('#visContainer');
       elem.parentNode.removeChild(elem);
-    } catch (e) {}
+    } catch (e) { }
 
     this.container = d3
       .select(element)
@@ -634,7 +634,7 @@ looker.plugins.visualizations.add({
       .attr('id', 'visContainer');
 
     if (typeof config.columnOrder === 'undefined') {
-      this.trigger('updateConfig', [{columnOrder: {}}]);
+      this.trigger('updateConfig', [{ columnOrder: {} }]);
     }
 
     // Dashboard-next fails to register config if no one has touched it
