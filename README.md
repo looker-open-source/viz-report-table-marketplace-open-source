@@ -110,39 +110,51 @@ possible in your explanation and we'll address it as quick as we can.
 
 #### Quickstart Dev Instructions
 
-1.  **Install Dependecies.**
+1. **Install Dependecies.**
 
-    Using yarn, install all dependencies
+   Using yarn, install all dependencies
 
-    ```shell
-    yarn install
-    ```
+   ```shell
+   yarn install
+   ```
 
-2.  **Make changes to the source code**
+2. **Make changes to the source code**
 
-3.  **Compile your code**
+3. **Compile your code**
 
-    You need to bundle your code, let's run:
+   You need to bundle your code, let's run:
 
-    ```shell
-    yarn build
-    ```
+   ```shell
+   yarn build
+   ```
 
-    If yarn build fails try using:
+   If yarn build fails try using:
 
-    ```shell
-    bin/build
-    ```
+   ```shell
+   bin/build
+   ```
 
-4.  **Building your code automatically in the background**
+4. **Building your code automatically in the background**
 
-    Recommended: Webpack can detect changes and build automatically
+   Recommended: Webpack can detect changes and build automatically
 
-    ```shell
-    yarn watch
-    ```
+   ```shell
+   yarn watch
+   ```
 
-    Your compiled code can be found in this repo.
+   Your compiled code can be found in this repo.
+
+5. Running unit tests
+
+   ```shell
+   yarn test
+   ```
+
+   or
+
+   ```shell
+   bin/test
+   ```
 
 **`./report_table.js`**: This visualization's minified distribution file.
 
