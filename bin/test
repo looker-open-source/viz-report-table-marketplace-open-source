@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+GIT_ROOT_DIR=$(git rev-parse --show-toplevel)
+
+# Installs yarn if it is not already installed.
+function looker::install_yarn() {
+  if command -v yarn &> /dev/null; then
+    npm install -g yarn
+  fi
+}
+
+# Configures the project if the user has not already done so.
+function looker::configure() {
+  looker::install_yarn
+  pushd "$GIT_ROOT_DIR" &> /dev/null
+  if [[ ! -d "$GIT_ROOT_DIR/node_modules" ]]; then
+    yarn
+  fi
+  popd &> /dev/null
+}
+
+# Runs all the unit tests.
+function looker::test() {
+  pushd "$GIT_ROOT_DIR" &> /dev/null
+  env NODE_OPTIONS="--openssl-legacy-provider" yarn test
+  popd &> /dev/null
+}
+
+# Entry-point.
+function looker::main() {
+  looker::configure
+  looker::test
+}
+
+looker::main
+
+exit 0
