@@ -1,32 +1,34 @@
 @font-face {
   font-family: 'Noto Sans TC';
-  src: url('./fonts/noto-sans-tc-v10-latin_chinese-traditional-regular.woff2') format('woff2')
+  src: url('./fonts/noto-sans-tc-v10-latin_chinese-traditional-regular.woff2')
+    format('woff2');
 }
 @font-face {
   font-family: 'Noto Sans SC';
-  src: url('./fonts/noto-sans-sc-v11-latin_chinese-simplified-regular.woff2') format('woff2')
+  src: url('./fonts/noto-sans-sc-v11-latin_chinese-simplified-regular.woff2')
+    format('woff2');
 }
 
 #tooltip {
-    position: absolute;
-    width: auto;
-    height: auto;
-    padding: 5px;
-    background-color: white;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    pointer-events: none;
-    font-family: sans-serif;
-    font-size: 12px;
-    z-index: 2;
+  position: absolute;
+  width: auto;
+  height: auto;
+  padding: 5px;
+  background-color: white;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  font-family: sans-serif;
+  font-size: 12px;
+  z-index: 2;
 }
 
 .tooltipTable {
-  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  font-family: Open Sans, Helvetica, Arial, sans-serif;
   border: 0px;
   border-collapse: collapse;
   table-layout: auto;
@@ -37,7 +39,7 @@
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 .hover {
@@ -45,7 +47,8 @@
 }
 
 .reportTable {
-  font-family: Open Sans,Helvetica,Arial,Noto Sans TC, Noto Sans SC,sans-serif;
+  font-family: Open Sans, Helvetica, Arial, Noto Sans TC, Noto Sans SC,
+    sans-serif;
   border-collapse: separate;
   border-spacing: 3px;
   table-layout: fixed;
@@ -127,7 +130,7 @@ th.headerCell {
 }
 
 .rectElem.animated {
-  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  font-family: Open Sans, Helvetica, Arial, sans-serif;
   padding: 4px;
 }
 
