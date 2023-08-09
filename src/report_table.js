@@ -241,10 +241,11 @@ const buildReportTable = function (
       .append('tr')
       .selectAll('th')
       .data((level, i) =>
-        sortByColumnSeries(dataTable.getTableHeaderCells(i)).map(
-          column => column.levels[i]
-        )
+        dataTable.getTableHeaderCells(i).map(column => column.levels[i])
       )
+      // FIXME: This breaks a lot of stuff. We need to fix this feature
+      // before making a release.
+      // .data((level, i) => sortByColumnSeries(dataTable.getTableHeaderCells(i)).map( column => column.levels[i]))
       .enter();
 
     header_cells
@@ -285,10 +286,13 @@ const buildReportTable = function (
       })
       .selectAll('td')
       .data(row =>
-        sortByColumnSeries(dataTable.getTableRowColumns(row)).map(
-          column => row.data[column.id]
-        )
+        dataTable.getTableRowColumns(row).map(column => row.data[column.id])
       )
+      // .data(row =>
+      //   sortByColumnSeries(dataTable.getTableRowColumns(row)).map(
+      //     column => row.data[column.id]
+      //   )
+      // )
       .enter();
 
     table_rows
@@ -591,16 +595,17 @@ looker.plugins.visualizations.add({
     this.clearErrors();
 
     // empty pivot(s)...no measures
-    if (
-      queryResponse.fields.pivots.length > 0 &&
-      queryResponse.fields.measures.length === 0
-    ) {
-      this.addError({
-        title: 'Empty Pivot(s)',
-        message: 'Add a measure or table calculation to pivot on.',
-      });
-      return;
-    }
+    // FIXME: temporarily disabled until we test this feature.
+    // if (
+    //   queryResponse.fields.pivots.length > 0 &&
+    //   queryResponse.fields.measures.length === 0
+    // ) {
+    //   this.addError({
+    //     title: 'Empty Pivot(s)',
+    //     message: 'Add a measure or table calculation to pivot on.',
+    //   });
+    //   return;
+    // }
 
     // max pivot check
     if (queryResponse.fields.pivots.length > 2) {
