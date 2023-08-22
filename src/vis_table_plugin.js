@@ -520,13 +520,28 @@ class VisPluginTableModel {
       this.headers.push({type: 'pivot' + i, modelField: pivot_field});
     });
 
-    var measureHeaders = [];
-    if (!this.transposeTable || queryResponse.fields.measures.length > 0) {
-      measureHeaders.push({
-        type: 'field',
-        modelField: {label: '(will be replaced by field for column)'},
-      });
-    }
+    var measureHeaders = this.useHeadings
+      ? [
+          {
+            type: 'heading',
+            modelField: {label: '(will be replaced by header for column)s'},
+          },
+        ]
+      : [];
+
+    measureHeaders.push({
+      type: 'field',
+      modelField: {label: '(will be replaced by field for column)'},
+    });
+
+    // FIXME: test this feature before making a release.
+    // var measureHeaders = [];
+    // if (!this.transposeTable || queryResponse.fields.measures.length > 0) {
+    //   measureHeaders.push({
+    //     type: 'field',
+    //     modelField: { label: '(will be replaced by field for column)' },
+    //   });
+    // }
 
     if (this.sortColsBy === 'pivots') {
       this.headers.push(...measureHeaders);

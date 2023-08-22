@@ -1,0 +1,14 @@
+# 1. Install ns-beautify using `npm install -g js-beautify`
+#
+# 2. Define the following textconv in your global ~/.gitconfig to make use of it.
+#
+#    [diff "minjs"]
+#      textconv = js-beautify
+#      cachetextconv = true
+#    [diff "mincss"]
+#      textconv = js-beautify --css
+#      cachetextconv = true
+#
+# 3. Uncomment the following lines to use the textconv to diff your JS and CSS.
+#*.js diff=minjs
+#*.css diff=mincss
