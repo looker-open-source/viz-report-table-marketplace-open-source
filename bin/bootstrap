@@ -6,18 +6,22 @@ GIT_ROOT_DIR=$(git rev-parse --show-toplevel)
 
 # Initialize and install pre-commit.
 function looker::install_pre_commit() {
-  pushd "$GIT_ROOT_DIR" &> /dev/null
-  if ! command -v pre-commit &> /dev/null; then
-    python3 -m pip install --upgrade pip
-    python3 -m pip install pre-commit
+  pushd "$GIT_ROOT_DIR" &>/dev/null
+  if ! command -v pre-commit &>/dev/null; then
+    if command -v apt &>/dev/null; then
+      sudo apt install -y pre-commit
+    else
+      python3 -m pip install --upgrade pip
+      python3 -m pip install pre-commit
+    fi
   fi
   pre-commit install
-  popd &> /dev/null
+  popd &>/dev/null
 }
 
 # Installs yarn if it is not already installed.
 function looker::install_yarn() {
-  if ! command -v yarn &> /dev/null; then
+  if ! command -v yarn &>/dev/null; then
     npm install -g yarn
   fi
 }
