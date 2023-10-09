@@ -621,8 +621,12 @@ looker.plugins.visualizations.add({
 
     // Check for results
     if (!data.length) {
-      renderTableNoResults();
-      done();
+      //renderTableNoResults();
+      //done();
+      //return;
+      this.addError({
+        title: 'No Results',
+      });
       return;
     }
 
