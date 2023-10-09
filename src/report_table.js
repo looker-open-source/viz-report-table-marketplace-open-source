@@ -1,8 +1,6 @@
 import {VisPluginTableModel} from './vis_table_plugin';
 import * as d3 from './d3loader';
 
-const NO_RESULTS_MESSAGE = 'No results';
-
 const themes = {
   traditional: require('./theme_traditional.css'),
   looker: require('./theme_looker.css'),
@@ -31,41 +29,6 @@ const loadStylesheet = function (link) {
   linkElement.setAttribute('href', link);
 
   document.getElementsByTagName('head')[0].appendChild(linkElement);
-};
-
-const renderTableNoResults = function () {
-  const visContainer = document.querySelector('#visContainer');
-  const noResultsMessage = buildNoResultsContainer();
-
-  // If visContainer exists remove to add a new with styling for no results message
-  if (visContainer) {
-    visContainer.parentNode.removeChild(visContainer);
-  }
-
-  // Append No Results message
-  document.querySelector('#vis').append(noResultsMessage);
-};
-
-const buildNoResultsContainer = () => {
-  const noResultsMessage = document.createElement('div');
-
-  noResultsMessage.setAttribute('id', 'visContainer');
-  // Set cssText property. TODO - Set a class and import stylesheet
-  noResultsMessage.style.cssText = `
-    display: flex;
-    height: 100%;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Roboto';
-    text-anchor: middle;
-    text-align: center;
-    font-size: 1rem;
-    font-weight: 500;
-    color: rgb(38, 45, 51);
-  `;
-  noResultsMessage.innerText = NO_RESULTS_MESSAGE;
-
-  return noResultsMessage;
 };
 
 const buildReportTable = function (
@@ -621,9 +584,6 @@ looker.plugins.visualizations.add({
 
     // Check for results
     if (!data.length) {
-      //renderTableNoResults();
-      //done();
-      //return;
       this.addError({
         title: 'No Results',
       });
