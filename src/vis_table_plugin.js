@@ -1612,8 +1612,10 @@ class VisPluginTableModel {
               rendered =
                 column.modelField.value_format === ''
                   ? subtotal_value.toString()
-                  : unit +
-                    SSF.format(column.modelField.value_format, subtotal_value);
+                  : subtotal_value != 0
+                  ? unit +
+                    SSF.format(column.modelField.value_format, subtotal_value)
+                  : 0;
             }
             if (column.modelField.calculation_type === 'string') {
               subtotal_value = '';
