@@ -15,4 +15,4 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: looker-open-source/reusable-actions/.github/workflows/marketplace/viz-release/yml@main
+    uses: looker-open-source/reusable-actions/.github/workflows/marketplace-viz-release/yml@viz_workflows
