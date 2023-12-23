@@ -3,3 +3,4 @@ node_modules/
 *.code-workspace
 compile
 docs/testing.md
+dist/
