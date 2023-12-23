@@ -1544,10 +1544,8 @@ class VisPluginTableModel {
               cell.value = 'Subtotal';
               cell.rendered = 'Subtotal';
             } else {
-              cell.value = subTotalGroup.join(' | ')
-                ? subTotalGroup.join(' | ')
-                : 'Others';
-              cell.rendered = cell.value;
+              cell.value = subTotalGroup.join(' | ') ?? 'Others';
+              cell.rendered = cell.value ?? 0;
             }
           }
           subtotalRow.data[column.id] = cell;
@@ -1612,8 +1610,10 @@ class VisPluginTableModel {
               rendered =
                 column.modelField.value_format === ''
                   ? subtotal_value.toString()
-                  : unit +
-                    SSF.format(column.modelField.value_format, subtotal_value);
+                  : subtotal_value != 0
+                  ? unit +
+                    SSF.format(column.modelField.value_format, subtotal_value)
+                  : 0;
             }
             if (column.modelField.calculation_type === 'string') {
               subtotal_value = '';
