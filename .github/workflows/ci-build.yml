@@ -3,5 +3,5 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
-    uses: looker-open-source/reusable-actions/.github/workflows/marketplace-viz-ci-build.yml@viz_workflows
+    uses: looker-open-source/reusable-actions/.github/workflows/marketplace-viz-ci-build.yml@main
       

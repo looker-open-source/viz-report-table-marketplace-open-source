@@ -3,10 +3,10 @@ name: release
 on:
   workflow_dispatch:
   push:
-    # branches:
-      # - master
+    branches:
+      - master
   
-
+# Cancels an release workflows in progress 
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
@@ -16,5 +16,5 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: looker-open-source/reusable-actions/.github/workflows/marketplace-viz-release.yml@viz_workflows
+    uses: looker-open-source/reusable-actions/.github/workflows/marketplace-viz-release.yml@main
     secrets: inherit
