@@ -1544,8 +1544,10 @@ class VisPluginTableModel {
               cell.value = 'Subtotal';
               cell.rendered = 'Subtotal';
             } else {
-              cell.value = subTotalGroup.join(' | ') ?? 'Others';
-              cell.rendered = cell.value ?? 0;
+              cell.value = subTotalGroup.join(' | ')
+                ? subTotalGroup.join(' | ')
+                : 'Others';
+              cell.rendered = cell.value ? cell.value : 0;
             }
           }
           subtotalRow.data[column.id] = cell;
