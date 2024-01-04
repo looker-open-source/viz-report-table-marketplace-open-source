@@ -1544,9 +1544,8 @@ class VisPluginTableModel {
               cell.value = 'Subtotal';
               cell.rendered = 'Subtotal';
             } else {
-              cell.value = subTotalGroup.join(' | ')
-                ? subTotalGroup.join(' | ')
-                : 'Others';
+              const subTotalJoin = subTotalGroup.join(' | ');
+              cell.value = subTotalJoin ? subTotalJoin : 'Others';
               cell.rendered = cell.value ? cell.value : 0;
             }
           }
