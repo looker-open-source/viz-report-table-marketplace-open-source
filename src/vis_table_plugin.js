@@ -1531,6 +1531,7 @@ class VisPluginTableModel {
           var cell = new DataCell({
             cell_style: cell_style,
             align: column.modelField.is_numeric ? 'right' : 'left',
+            rendered: column.modelField.is_numeric ? 0 : null,
             rowspan: rowspan,
             colspan: colspan,
             colid: column.id,
@@ -1544,8 +1545,13 @@ class VisPluginTableModel {
               cell.value = 'Subtotal';
               cell.rendered = 'Subtotal';
             } else {
-              cell.value = subTotalGroup.join(' | ') ?? 'Others';
-              cell.rendered = cell.value ?? 0;
+              const subTotalJoin = subTotalGroup.join(' | ');
+              cell.value = subTotalJoin ? subTotalJoin : 'Others';
+              cell.rendered = cell.value
+                ? cell.value
+                : column.modelField.is_numeric
+                ? 0
+                : '';
             }
           }
           subtotalRow.data[column.id] = cell;
@@ -1602,7 +1608,7 @@ class VisPluginTableModel {
             ) {
               subtotal_value = subtotal_value / subtotal_items;
             }
-            if (subtotal_value) {
+            if (subtotal_value != undefined) {
               var unit =
                 this.config.useUnit && column.modelField.unit !== '#'
                   ? column.modelField.unit
