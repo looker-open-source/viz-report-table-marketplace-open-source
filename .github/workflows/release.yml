@@ -1,0 +1,21 @@
+name: ci-release-workflow
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+# Cancels any release workflows in progress
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  ci-release-job:
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: looker-open-source/reusable-actions/.github/workflows/marketplace-viz-release.yml@main
+    # Inherits the Looker Automation Bot token to create release PRs and releases
+    secrets: inherit
