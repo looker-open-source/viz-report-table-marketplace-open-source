@@ -24,6 +24,7 @@
   },
   "scripts": {
     "build": "webpack",
+    "build:legacy": "env NODE_OPTIONS='--openssl-legacy-provider' webpack",
     "watch": "webpack  --watch --progress",
     "test": "jest"
   }

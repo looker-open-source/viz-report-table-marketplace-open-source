@@ -4,7 +4,7 @@ module.exports = {
   entry: './src/report_table.js',
   output: {
     filename: 'report_table.js',
-    path: path.resolve(__dirname),
+    path: path.join(path.resolve(__dirname), '/dist'),
   },
   devtool: 'source-map',
   module: {
@@ -12,7 +12,7 @@ module.exports = {
       {
         test: /\.css$/i,
         use: [
-          {loader: 'style-loader', options: {injectType: 'lazyStyleTag'}},
+          { loader: 'style-loader', options: { injectType: 'lazyStyleTag' } },
           'css-loader',
         ],
       },
