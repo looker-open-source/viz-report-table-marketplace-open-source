@@ -1,5 +1,7 @@
 # Report Table Visualization
 
+**This is not an officially supported Google product.**
+
 ### What if I find an error or want to suggest improvements?
 
 We welcome your contributions to this open source visualization with a pull
