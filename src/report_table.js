@@ -224,12 +224,22 @@ const buildReportTable = function (
         }
         return classes.join(' ');
       })
-      .style('text-align', d => d.align)
+      .style('text-align', 'left')
       .style('font-size', config.headerFontSize + 'px')
       .attr('draggable', true)
       .call(drag)
-      .on('mouseover', cell => (dropTarget = cell))
-      .on('mouseout', () => (dropTarget = null));
+      .on('mouseover', function(cell) {
+        d3.select('#tooltip')
+            .style('left', d3.event.x + 'px')
+            .style('top', d3.event.y + 'px')
+            .html(cell.label);
+        d3.select('#tooltip').classed('hidden', false);
+        return dropTarget = cell
+      })
+      .on('mouseout', function(cell) {
+        d3.select('#tooltip').classed('hidden', true);
+        return dropTarget = null
+      });
 
     var table_rows = table
       .append('tbody')
