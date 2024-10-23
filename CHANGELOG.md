@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.0.0...v1.1.0) (2024-10-22)
+
+
+### Features
+
+* **view:** adding tooltips to headers and align them to the left ([#60](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/60)) ([93a0a86](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/93a0a86d47686673181b6d6031d3688c2041a664))
+
 ## 1.0.0 (2024-02-06)
 
 
