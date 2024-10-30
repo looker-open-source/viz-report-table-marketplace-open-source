@@ -14,6 +14,8 @@ const BBOX_X_ADJUST = 10;
 const BBOX_Y_ADJUST = 10;
 
 const use_minicharts = false;
+let sortOrder = false;
+let columnKey = '';
 
 const removeStyles = async function () {
   const links = document.getElementsByTagName('link');
@@ -35,7 +37,8 @@ const buildReportTable = function (
   config,
   dataTable,
   updateColumnOrder,
-  element
+  element,
+  updateSorting
 ) {
   var dropTarget = null;
   const bounds = element.getBoundingClientRect();
@@ -194,6 +197,7 @@ const buildReportTable = function (
           return '';
         }
       });
+
     var header_rows = table
       .append('thead')
       .selectAll('tr')
@@ -228,17 +232,24 @@ const buildReportTable = function (
       .style('font-size', config.headerFontSize + 'px')
       .attr('draggable', true)
       .call(drag)
-      .on('mouseover', function(cell) {
+      .on('mouseover', function (cell) {
         d3.select('#tooltip')
-            .style('left', d3.event.x + 'px')
-            .style('top', d3.event.y + 'px')
-            .html(cell.label);
+          .style('left', d3.event.x + 'px')
+          .style('top', d3.event.y + 'px')
+          .html(cell.label);
         d3.select('#tooltip').classed('hidden', false);
-        return dropTarget = cell
+        return (dropTarget = cell);
       })
-      .on('mouseout', function(cell) {
+      .on('mouseout', function (cell) {
         d3.select('#tooltip').classed('hidden', true);
-        return dropTarget = null
+        return (dropTarget = null);
+      })
+      .on('click', function (cell) {
+        const key = cell.column.id;
+        if (cell.type !== 'pivot0') {
+          updateSorting(sortOrder, key);
+          sortOrder = !sortOrder;
+        }
       });
 
     var table_rows = table
@@ -376,7 +387,7 @@ const buildReportTable = function (
         // Looker applies padding based on the top of the viz when opening a drill field but
         // if part of the viz container is hidden underneath the iframe, the drill menu opens off screen
         // We make a simple copy of the d3.event and account for pageYOffser as MouseEvent attributes are read only.
-        if (d.links !== [] && d.links[0].url) {
+        if (Array.isArray(d.links) && d.links.length !== 0 && d.links[0].url) {
           let event = {
             metaKey: d3.event.metaKey,
             pageX: d3.event.pageX,
@@ -631,6 +642,28 @@ looker.plugins.visualizations.add({
       );
     }
 
+    // Here goes the sorting then the vis is built again
+    // If order = true => ascending
+    // If order = false => descending
+    const updateSorting = (order, key) => {
+      columnKey = key;
+      this.trigger('updateConfig', [
+        {sorting: order ? 'ascending' : 'descending'},
+      ]);
+    };
+
+    if (columnKey !== '') {
+      if (config.sorting === 'ascending') {
+        data.sort((a, b) => {
+          return d3.ascending(a[columnKey].value, b[columnKey].value);
+        });
+      } else if (config.sorting === 'descending') {
+        data.sort((a, b) => {
+          return d3.descending(a[columnKey].value, b[columnKey].value);
+        });
+      }
+    }
+
     // BUILD THE VIS
     // 1. Create object
     // 2. Register options
@@ -639,7 +672,13 @@ looker.plugins.visualizations.add({
     // console.log(config)
     var dataTable = new VisPluginTableModel(data, queryResponse, config);
     this.trigger('registerOptions', dataTable.getConfigOptions());
-    buildReportTable(config, dataTable, updateColumnOrder, element);
+    buildReportTable(
+      config,
+      dataTable,
+      updateColumnOrder,
+      element,
+      updateSorting
+    );
 
     // DEBUG OUTPUT AND DONE
     // console.log('dataTable', dataTable)
