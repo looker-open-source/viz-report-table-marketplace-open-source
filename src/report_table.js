@@ -246,14 +246,10 @@ const buildReportTable = function (
         return (dropTarget = null);
       })
       .on('click', function (cell) {
-        console.log('cell');
-        console.log(cell);
-        const column_key = cell.column.modelField.name;
-        const pivot = cell.column.pivot_key;
-        if (cell.type !== 'pivot0') {
-          updateSorting(sortOrder, column_key, pivot);
-          sortOrder = !sortOrder;
-        }
+        let column_key = cell.column.modelField.name;
+        let pivot_key = cell.column.pivot_key;
+        updateSorting(sortOrder, column_key, pivot_key);
+        sortOrder = !sortOrder;
       });
 
     var table_rows = table
