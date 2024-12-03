@@ -16,6 +16,7 @@ const BBOX_Y_ADJUST = 10;
 const use_minicharts = false;
 let sortOrder = false;
 let columnKey = '';
+let pivotKey = '';
 
 const removeStyles = async function () {
   const links = document.getElementsByTagName('link');
@@ -245,9 +246,12 @@ const buildReportTable = function (
         return (dropTarget = null);
       })
       .on('click', function (cell) {
-        const key = cell.column.id;
+        console.log('cell');
+        console.log(cell);
+        const column_key = cell.column.modelField.name;
+        const pivot = cell.column.pivot_key;
         if (cell.type !== 'pivot0') {
-          updateSorting(sortOrder, key);
+          updateSorting(sortOrder, column_key, pivot);
           sortOrder = !sortOrder;
         }
       });
@@ -645,21 +649,32 @@ looker.plugins.visualizations.add({
     // Here goes the sorting then the vis is built again
     // If order = true => ascending
     // If order = false => descending
-    const updateSorting = (order, key) => {
+    const updateSorting = (order, key, pivot) => {
       columnKey = key;
+      pivotKey = pivot;
       this.trigger('updateConfig', [
         {sorting: order ? 'ascending' : 'descending'},
       ]);
     };
 
     if (columnKey !== '') {
+      console.log(`columnKey: ${columnKey}`);
+      console.log(`pivotKey: ${pivotKey}`);
       if (config.sorting === 'ascending') {
         data.sort((a, b) => {
-          return d3.ascending(a[columnKey].value, b[columnKey].value);
+          const value_1 =
+            pivotKey === '' ? a[columnKey].value : a[columnKey][pivotKey].value;
+          const value_2 =
+            pivotKey === '' ? b[columnKey].value : b[columnKey][pivotKey].value;
+          return d3.ascending(value_1, value_2);
         });
       } else if (config.sorting === 'descending') {
         data.sort((a, b) => {
-          return d3.descending(a[columnKey].value, b[columnKey].value);
+          const value_1 =
+            pivotKey === '' ? a[columnKey].value : a[columnKey][pivotKey].value;
+          const value_2 =
+            pivotKey === '' ? b[columnKey].value : b[columnKey][pivotKey].value;
+          return d3.descending(value_1, value_2);
         });
       }
     }
