@@ -246,10 +246,12 @@ const buildReportTable = function (
         return (dropTarget = null);
       })
       .on('click', function (cell) {
-        let column_key = cell.column.modelField.name;
-        let pivot_key = cell.column.pivot_key;
-        updateSorting(sortOrder, column_key, pivot_key);
-        sortOrder = !sortOrder;
+        if (!dataTable.transposeTable) {
+          let column_key = cell.column.modelField.name;
+          let pivot_key = cell.column.pivot_key;
+          updateSorting(sortOrder, column_key, pivot_key);
+          sortOrder = !sortOrder;
+        }
       });
 
     var table_rows = table
@@ -658,6 +660,9 @@ looker.plugins.visualizations.add({
       console.log(`pivotKey: ${pivotKey}`);
       if (config.sorting === 'ascending') {
         data.sort((a, b) => {
+          console.log(`ascending: a,b`);
+          console.log(a);
+          console.log(b);
           const value_1 =
             pivotKey === '' ? a[columnKey].value : a[columnKey][pivotKey].value;
           const value_2 =
@@ -666,6 +671,9 @@ looker.plugins.visualizations.add({
         });
       } else if (config.sorting === 'descending') {
         data.sort((a, b) => {
+          console.log(`descending: a,b`);
+          console.log(a);
+          console.log(b);
           const value_1 =
             pivotKey === '' ? a[columnKey].value : a[columnKey][pivotKey].value;
           const value_2 =
