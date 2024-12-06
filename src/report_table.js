@@ -656,13 +656,8 @@ looker.plugins.visualizations.add({
     };
 
     if (columnKey !== '') {
-      console.log(`columnKey: ${columnKey}`);
-      console.log(`pivotKey: ${pivotKey}`);
       if (config.sorting === 'ascending') {
         data.sort((a, b) => {
-          console.log(`ascending: a,b`);
-          console.log(a);
-          console.log(b);
           const value_1 =
             pivotKey === '' ? a[columnKey].value : a[columnKey][pivotKey].value;
           const value_2 =
@@ -671,9 +666,6 @@ looker.plugins.visualizations.add({
         });
       } else if (config.sorting === 'descending') {
         data.sort((a, b) => {
-          console.log(`descending: a,b`);
-          console.log(a);
-          console.log(b);
           const value_1 =
             pivotKey === '' ? a[columnKey].value : a[columnKey][pivotKey].value;
           const value_2 =
