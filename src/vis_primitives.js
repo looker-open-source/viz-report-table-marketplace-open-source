@@ -31,8 +31,6 @@ class ModelField {
     ? queryResponseField.value_format
     : '';
 
-    console.log('incoming value_format from query', queryResponseField.value_format)
-    console.log('set value_format', this.value_format)
     this.geo_type = '';
     if (
       queryResponseField.type === 'location' ||

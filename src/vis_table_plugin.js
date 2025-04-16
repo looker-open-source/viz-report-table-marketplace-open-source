@@ -1019,11 +1019,9 @@ class VisPluginTableModel {
 */
   formatCellValue(valueFormat, value) {
     if([null, undefined, ""].includes(valueFormat)){
-      console.log('valueformat was not defined')
       valueFormat = '#,##0'
     }
     let return_val = SSF.format(valueFormat, value)
-    console.log({valueFormat, value, return_val})
     return return_val
   }
   /**
@@ -1031,7 +1029,6 @@ class VisPluginTableModel {
    * @param {*} queryResponse
    */
   checkSubtotalsData(queryResponse) {
-    console.log('in check subtotals', {queryResponse})
     if (
       typeof queryResponse.subtotals_data[this.addSubtotalDepth] !== 'undefined'
     ) {
@@ -1634,8 +1631,6 @@ class VisPluginTableModel {
                   ? unit +
                     this.formatCellValue(column.modelField.value_format, subtotal_value)
                   : 0;
-                  // console.log('format5?',this.formatCellValue(column.modelField.value_format, subtotal_value), 'value_format:', column.modelField.value_format, {rendered, subtotal_value})
-
             }
             if (column.modelField.calculation_type === 'string') {
               subtotal_value = '';
@@ -1887,8 +1882,6 @@ class VisPluginTableModel {
           colid: id,
           rowid: row.id,
         })
-        // console.log('in if', this.formatCellValue(value_format, baseline_value - comparison_value), {render_value})
-        ;
       } else {
         var value =
           (baseline_value - comparison_value) / Math.abs(comparison_value);
@@ -1908,7 +1901,6 @@ class VisPluginTableModel {
             colid: id,
             rowid: row.id,
           });
-          // console.log('in else',this.formatCellValue('#0.00%', value) )
         }
       }
       if (row.type == 'total' || row.type == 'subtotal') {
