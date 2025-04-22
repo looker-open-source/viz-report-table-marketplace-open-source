@@ -62,7 +62,7 @@ class ModelField {
     this.heading = '';
     this.short_name = '';
     this.unit = '';
-    if (typeof queryResponseField.tags !== 'undefined') {
+    if (typeof queryResponseField.tags !== 'undefined' && queryResponseField.tags !== null && queryResponseField.tags.length > 0) {
       queryResponseField.tags.forEach(tag => {
         var tags = tag.split(':');
         if (tags[0] === 'vis-tools') {
