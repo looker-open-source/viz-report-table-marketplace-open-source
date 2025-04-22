@@ -1013,6 +1013,17 @@ class VisPluginTableModel {
     this.columns.push(column);
   }
 
+/** Manage formatting in one place
+ * @param {*} valueFormat
+ * @param {*} value
+*/
+  formatCellValue(valueFormat, value) {
+    if([null, undefined, ""].includes(valueFormat)){
+      valueFormat = '#,##0'
+    }
+    let return_val = SSF.format(valueFormat, value)
+    return return_val
+  }
   /**
    * this.subtotals_data
    * @param {*} queryResponse
@@ -1071,7 +1082,7 @@ class VisPluginTableModel {
                   column.modelField.value_format === ''
                     ? cell.value.toString()
                     : unit +
-                      SSF.format(column.modelField.value_format, cell.value);
+                      this.formatCellValue(column.modelField.value_format, cell.value);
               }
             }
           });
@@ -1129,7 +1140,7 @@ class VisPluginTableModel {
           cell.rendered =
             column.modelField.value_format === ''
               ? cell.value.toString()
-              : unit + SSF.format(column.modelField.value_format, cell.value);
+              : unit + this.formatCellValue(column.modelField.value_format, cell.value);
         }
 
         if (column.modelField.is_turtle) {
@@ -1279,7 +1290,7 @@ class VisPluginTableModel {
             column.modelField.value_format === ''
               ? cellValue.value.toString()
               : unit +
-                SSF.format(column.modelField.value_format, cellValue.value);
+                this.formatCellValue(column.modelField.value_format, cellValue.value);
         }
 
         totalsRow.data[column.id] = cellValue;
@@ -1354,10 +1365,10 @@ class VisPluginTableModel {
           var formatted_value =
             column.modelField.value_format === ''
               ? othersValue.toString()
-              : SSF.format(column.modelField.value_format, othersValue);
+              : this.formatCellValue(column.modelField.value_format, othersValue);
           othersRow.data[column.id] = new DataCell({
             value: othersValue,
-            rendered: formatted_value,
+            rendered: this.formatCellValue(column.modelField.value_format, othersValue),
             cell_style: othersStyle,
             align: column.modelField.is_numeric ? 'right' : 'left',
             colid: column.id,
@@ -1618,7 +1629,7 @@ class VisPluginTableModel {
                   ? subtotal_value.toString()
                   : subtotal_value != 0
                   ? unit +
-                    SSF.format(column.modelField.value_format, subtotal_value)
+                    this.formatCellValue(column.modelField.value_format, subtotal_value)
                   : 0;
             }
             if (column.modelField.calculation_type === 'string') {
@@ -1628,7 +1639,7 @@ class VisPluginTableModel {
 
             var cell = new DataCell({
               value: subtotal_value,
-              rendered: rendered,
+              rendered: this.formatCellValue(column.modelField.value_format, subtotal_value),
               cell_style: cell_style,
               align: align,
               colid: column.id,
@@ -1829,10 +1840,11 @@ class VisPluginTableModel {
           rendered:
             subtotalColumn.modelField.value_format === ''
               ? subtotal_value.toString()
-              : SSF.format(
+              : this.formatCellValue(
                   subtotalColumn.modelField.value_format,
                   subtotal_value
                 ),
+          // rendered: this.formatCellValue(subtotalColumn.modelField.value_format, subtotal_value),
           cell_style: cell_style,
           colid: subtotalColumn.id,
           rowid: row.id,
@@ -1859,16 +1871,17 @@ class VisPluginTableModel {
       var baseline_value = row.data[baseline.id].value;
       var comparison_value = row.data[comparison.id].value;
       if (calc === 'absolute') {
+        let render_value = this.formatCellValue(value_format, baseline_value - comparison_value);
         var cell = new DataCell({
           value: baseline_value - comparison_value,
           rendered:
             value_format === ''
               ? (baseline_value - comparison_value).toString()
-              : SSF.format(value_format, baseline_value - comparison_value),
+              : render_value,
           cell_style: ['numeric', 'measure', 'variance', 'varianceAbsolute'],
           colid: id,
           rowid: row.id,
-        });
+        })
       } else {
         var value =
           (baseline_value - comparison_value) / Math.abs(comparison_value);
@@ -1883,7 +1896,7 @@ class VisPluginTableModel {
         } else {
           var cell = new DataCell({
             value: value,
-            rendered: SSF.format('#0.00%', value),
+            rendered: this.formatCellValue('#0.00%', value),
             cell_style: ['numeric', 'measure', 'variance', 'variancePercent'],
             colid: id,
             rowid: row.id,

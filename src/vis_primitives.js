@@ -1,3 +1,4 @@
+import SSF from 'ssf';
 /**
  * Returns an array of given length, all populated with same value
  * Convenience function e.g. to initialise arrays of zeroes or nulls.
@@ -20,15 +21,15 @@ class ModelField {
     this.view = queryResponseField.view_label || '';
     this.label = queryResponseField.label_short || queryResponseField.label;
     this.is_numeric =
-      typeof queryResponseField.is_numeric !== 'undefined'
-        ? queryResponseField.is_numeric
-        : false;
+    typeof queryResponseField.is_numeric !== 'undefined'
+    ? queryResponseField.is_numeric
+    : false;
     this.is_array = ['list', 'number_list', 'location', 'tier'].includes(
       queryResponseField.type
     );
     this.value_format = queryResponseField.value_format
-      ? queryResponseField.value_format
-      : '';
+    ? queryResponseField.value_format
+    : '';
 
     this.geo_type = '';
     if (
