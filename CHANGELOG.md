@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.0...v1.1.1) (2025-04-22)
+
+
+### Bug Fixes
+
+* **bug:** blank screen showing up with merged query value ([#65](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/65)) ([c95212e](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/c95212e0f79ab5811d6caa2fed5f3623954ee4c2))
+* **bug:** Value Format in Table Report Visualization Col and Row Subtotal Issue ([#64](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/64)) ([2600907](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/26009079a546b52407863fc717fd4ab8803b3e16))
+
 ## [1.1.0](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.0.0...v1.1.0) (2024-10-22)
 
 
