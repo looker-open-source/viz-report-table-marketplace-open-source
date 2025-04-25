@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+  mode: 'development',
   entry: './src/report_table.js',
   output: {
     filename: 'bundle.js',
@@ -12,7 +13,7 @@ module.exports = {
       {
         test: /\.css$/i,
         use: [
-          { loader: 'style-loader', options: { injectType: 'lazyStyleTag' } },
+          {loader: 'style-loader', options: {injectType: 'lazyStyleTag'}},
           'css-loader',
         ],
       },
