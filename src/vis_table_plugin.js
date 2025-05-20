@@ -1596,7 +1596,7 @@ class VisPluginTableModel {
             this.data.forEach(data_row => {
               if (data_row.type == 'line_item' && data_row.sort[1].value == s) {
                 // data_row.sort[1].value == s checks whether its part of the current subtotal group
-                var value = this.formatCellValue(column.modelField.value_format, data_row.data[column.id].value)
+                var value = data_row.data[column.id].value;
                 if (Number.isFinite(value)) {
                   subtotal_value += value;
                   subtotal_items++;
