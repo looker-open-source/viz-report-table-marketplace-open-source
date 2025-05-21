@@ -1837,14 +1837,7 @@ class VisPluginTableModel {
         });
         row.data[subtotalColumn.id] = new DataCell({
           value: subtotal_value,
-          rendered:
-            subtotalColumn.modelField.value_format === ''
-              ? subtotal_value.toString()
-              : this.formatCellValue(
-                  subtotalColumn.modelField.value_format,
-                  subtotal_value
-                ),
-          // rendered: this.formatCellValue(subtotalColumn.modelField.value_format, subtotal_value),
+          rendered:this.formatCellValue(subtotalColumn.modelField.value_format, subtotal_value),
           cell_style: cell_style,
           colid: subtotalColumn.id,
           rowid: row.id,
