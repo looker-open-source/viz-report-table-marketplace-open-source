@@ -190,6 +190,10 @@ const tableModelCoreOptions = {
     default: false,
     order: 100,
   },
+  sorting: {
+    type: 'string',
+    default: 'ascending',
+  },
 };
 /**
  * Represents an "enriched data object" with additional methods and properties for data vis
