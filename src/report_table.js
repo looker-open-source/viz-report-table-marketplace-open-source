@@ -35,7 +35,8 @@ const buildReportTable = function (
   config,
   dataTable,
   updateColumnOrder,
-  element
+  element,
+  done
 ) {
   var dropTarget = null;
   const bounds = element.getBoundingClientRect();
@@ -537,6 +538,8 @@ const buildReportTable = function (
       document.getElementById('visSvg').classList.add('hidden');
       document.getElementById('reportTable').style.opacity = 1;
     }
+
+    done();
   });
 };
 
@@ -639,12 +642,10 @@ looker.plugins.visualizations.add({
     // console.log(config)
     var dataTable = new VisPluginTableModel(data, queryResponse, config);
     this.trigger('registerOptions', dataTable.getConfigOptions());
-    buildReportTable(config, dataTable, updateColumnOrder, element);
+    buildReportTable(config, dataTable, updateColumnOrder, element, done);
 
     // DEBUG OUTPUT AND DONE
     // console.log('dataTable', dataTable)
     // console.log('container', document.getElementById('visContainer').parentNode)
-
-    done();
   },
 });
