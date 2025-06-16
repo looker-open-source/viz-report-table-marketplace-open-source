@@ -1862,6 +1862,8 @@ class VisPluginTableModel {
           rowid: row.id,
         });
       } else {
+        // For percentage variances, we need to recalculate based on the actual values
+        // not reuse any precomputed percentages that might have been passed in
         var value =
           (baseline_value - comparison_value) / Math.abs(comparison_value);
         if (!isFinite(value)) {
@@ -1915,6 +1917,8 @@ class VisPluginTableModel {
     var comparison = this.getColumnById(colpair.variance.comparison);
     var column = new Column(id, this, baseline.modelField);
     column.isVariance = true;
+    column.baselineColumn = baseline;
+    column.comparisonColumn = comparison;
 
     if (colpair.calc === 'absolute') {
       column.variance_type = 'absolute';
