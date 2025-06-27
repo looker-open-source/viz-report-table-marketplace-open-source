@@ -31,7 +31,7 @@ const loadStylesheet = function (link) {
   document.getElementsByTagName('head')[0].appendChild(linkElement);
 };
 
-const buildReportTable = function (
+const buildReportTable = async function (
   config,
   dataTable,
   updateColumnOrder,
@@ -42,7 +42,7 @@ const buildReportTable = function (
   const chartCentreX = bounds.x + bounds.width / 2;
   const chartCentreY = bounds.y + bounds.height / 2;
 
-  removeStyles().then(() => {
+  await removeStyles().then(() => {
     if (
       typeof config.customTheme !== 'undefined' &&
       config.customTheme &&
@@ -228,17 +228,17 @@ const buildReportTable = function (
       .style('font-size', config.headerFontSize + 'px')
       .attr('draggable', true)
       .call(drag)
-      .on('mouseover', function(cell) {
+      .on('mouseover', function (cell) {
         d3.select('#tooltip')
-            .style('left', d3.event.x + 'px')
-            .style('top', d3.event.y + 'px')
-            .html(cell.label);
+          .style('left', d3.event.x + 'px')
+          .style('top', d3.event.y + 'px')
+          .html(cell.label);
         d3.select('#tooltip').classed('hidden', false);
-        return dropTarget = cell
+        return (dropTarget = cell);
       })
-      .on('mouseout', function(cell) {
+      .on('mouseout', function (cell) {
         d3.select('#tooltip').classed('hidden', true);
-        return dropTarget = null
+        return (dropTarget = null);
       });
 
     var table_rows = table
@@ -527,7 +527,7 @@ const buildReportTable = function (
       );
   };
 
-  renderTable().then(() => {
+  await renderTable().then(() => {
     document.getElementById('reportTable').classList.add('reveal');
     if (config.customTheme === 'animate') {
       document.getElementById('visSvg').classList.remove('hidden');
@@ -639,12 +639,17 @@ looker.plugins.visualizations.add({
     // console.log(config)
     var dataTable = new VisPluginTableModel(data, queryResponse, config);
     this.trigger('registerOptions', dataTable.getConfigOptions());
-    buildReportTable(config, dataTable, updateColumnOrder, element);
+    buildReportTable(config, dataTable, updateColumnOrder, element)
+      .then(() => {
+        // DEBUG OUTPUT AND DONE
+        // console.log('dataTable', dataTable)
+        // console.log('container', document.getElementById('visContainer').parentNode)
 
-    // DEBUG OUTPUT AND DONE
-    // console.log('dataTable', dataTable)
-    // console.log('container', document.getElementById('visContainer').parentNode)
-
-    done();
+        done();
+      })
+      .catch(error => {
+        console.error(error);
+        done();
+      });
   },
 });
