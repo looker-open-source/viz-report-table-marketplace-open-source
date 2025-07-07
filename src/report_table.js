@@ -42,20 +42,19 @@ const buildReportTable = async function (
   const chartCentreX = bounds.x + bounds.width / 2;
   const chartCentreY = bounds.y + bounds.height / 2;
 
-  await removeStyles().then(() => {
-    if (
-      typeof config.customTheme !== 'undefined' &&
-      config.customTheme &&
-      config.theme === 'custom'
-    ) {
-      loadStylesheet(config.customTheme);
-    } else if (typeof themes[config.theme] !== 'undefined') {
-      themes[config.theme].use();
-    }
-    if (typeof themes[config.layout] !== 'undefined') {
-      themes[config.layout].use();
-    }
-  });
+  await removeStyles();
+  if (
+    typeof config.customTheme !== 'undefined' &&
+    config.customTheme &&
+    config.theme === 'custom'
+  ) {
+    loadStylesheet(config.customTheme);
+  } else if (typeof themes[config.theme] !== 'undefined') {
+    themes[config.theme].use();
+  }
+  if (typeof themes[config.layout] !== 'undefined') {
+    themes[config.layout].use();
+  }
 
   // Sort group based on sort order from looker
   const sortByColumnSeries = function (group) {
@@ -644,11 +643,11 @@ looker.plugins.visualizations.add({
         // DEBUG OUTPUT AND DONE
         // console.log('dataTable', dataTable)
         // console.log('container', document.getElementById('visContainer').parentNode)
-
-        done();
       })
       .catch(error => {
         console.error(error);
+      })
+      .finally(() => {
         done();
       });
   },
