@@ -532,7 +532,6 @@ const buildReportTable = async function (
     if (config.customTheme === 'animate') {
       document.getElementById('visSvg').classList.remove('hidden');
       addOverlay();
-      // setTimeout(addOverlay(), 500)
     } else {
       document.getElementById('visSvg').classList.add('hidden');
       document.getElementById('reportTable').style.opacity = 1;
@@ -639,9 +638,9 @@ looker.plugins.visualizations.add({
     // 3. Build vis
 
     // console.log(config)
-    var dataTable = new VisPluginTableModel(data, queryResponse, config);
-    this.trigger('registerOptions', dataTable.getConfigOptions());
     try{
+      var dataTable = new VisPluginTableModel(data, queryResponse, config);
+      this.trigger('registerOptions', dataTable.getConfigOptions());
       await buildReportTable(config, dataTable, updateColumnOrder, element);
     } finally {
       done();
