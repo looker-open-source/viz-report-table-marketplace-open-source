@@ -531,21 +531,20 @@ const buildReportTable = async function (
       );
   };
 
-  await renderTable().then(async () => {
-    try {
-      document.getElementById('reportTable').classList.add('reveal');
-      if (config.customTheme === 'animate') {
-        document.getElementById('visSvg').classList.remove('hidden');
-        await addOverlay();
-      } else {
-        document.getElementById('visSvg').classList.add('hidden');
-        document.getElementById('reportTable').style.opacity = 1;
-      }
-    } catch (err) {
-      console.error(err);
-      throw err;
+  await renderTable();
+  try {
+    document.getElementById('reportTable').classList.add('reveal');
+    if (config.customTheme === 'animate') {
+      document.getElementById('visSvg').classList.remove('hidden');
+      await addOverlay();
+    } else {
+      document.getElementById('visSvg').classList.add('hidden');
+      document.getElementById('reportTable').style.opacity = 1;
     }
-  });
+    }
+  } catch(err) {
+    console.error(err);
+  }
 };
 
 looker.plugins.visualizations.add({
@@ -566,7 +565,7 @@ looker.plugins.visualizations.add({
       .attr('class', 'hidden');
   },
 
-  updateAsync: function (data, element, config, queryResponse, details, done) {
+  updateAsync: async function (data, element, config, queryResponse, details, done) {
     const updateColumnOrder = newOrder => {
       this.trigger('updateConfig', [{columnOrder: newOrder}]);
     };
@@ -661,22 +660,17 @@ looker.plugins.visualizations.add({
       var dataTable = new VisPluginTableModel(data, queryResponse, config);
       this.trigger('registerOptions', dataTable.getConfigOptions());
 
-      buildReportTable(config, dataTable, updateColumnOrder, element)
-        .then(() => {
-          // DEBUG OUTPUT AND DONE
-          // console.log('dataTable', dataTable)
-          // console.log('container', document.getElementById('visContainer').parentNode)
-        })
-        .catch(error => {
-          console.error('Build Report Table Error:', error);
-          this.addError({
-            title: 'Rendering Error',
-            message: 'Failed to draw the table.',
-          });
-        })
-        .finally(() => {
-          done();
+      try {
+        await buildReportTable(config, dataTable, updateColumnOrder, element);
+      } catch (error) {
+        console.error('Build Report Table Error:', error);
+        this.addError({
+          title: 'Rendering Error',
+          message: 'Failed to draw the table.',
         });
+      } finally {
+        done();
+      }
     } catch (error) {
       console.error('VisPluginTableModel Initialization Error:', error);
       this.addError({
