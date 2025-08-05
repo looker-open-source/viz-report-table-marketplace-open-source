@@ -638,6 +638,7 @@ looker.plugins.visualizations.add({
     // 3. Build vis
 
     // console.log(config)
+
     try{
       var dataTable = new VisPluginTableModel(data, queryResponse, config);
       this.trigger('registerOptions', dataTable.getConfigOptions());
