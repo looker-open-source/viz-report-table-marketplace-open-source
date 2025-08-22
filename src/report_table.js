@@ -643,6 +643,8 @@ looker.plugins.visualizations.add({
       var dataTable = new VisPluginTableModel(data, queryResponse, config);
       this.trigger('registerOptions', dataTable.getConfigOptions());
       await buildReportTable(config, dataTable, updateColumnOrder, element);
+    } catch(err) {
+    console.error(err);
     } finally {
       done();
     }
