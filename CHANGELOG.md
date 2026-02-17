@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.2...v1.1.3) (2026-02-17)
+
+
+### Bug Fixes
+
+* **bug:** visualization not being rendered correctly in PDF delivery schedule fix ([#71](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/71)) ([670585e](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/670585ecbf82d2316e8798624a1f077fadda4bb4))
+
 ## [1.1.2](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.1...v1.1.2) (2025-05-21)
 
 
