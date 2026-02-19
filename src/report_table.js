@@ -526,17 +526,19 @@ const buildReportTable = async function (
       );
   };
 
-  await renderTable().then(() => {
+  await renderTable();
+  try {
     document.getElementById('reportTable').classList.add('reveal');
     if (config.customTheme === 'animate') {
       document.getElementById('visSvg').classList.remove('hidden');
       addOverlay();
-      // setTimeout(addOverlay(), 500)
     } else {
       document.getElementById('visSvg').classList.add('hidden');
       document.getElementById('reportTable').style.opacity = 1;
     }
-  });
+  } catch(err) {
+    console.error(err);
+  }
 };
 
 looker.plugins.visualizations.add({
@@ -557,7 +559,7 @@ looker.plugins.visualizations.add({
       .attr('class', 'hidden');
   },
 
-  updateAsync: function (data, element, config, queryResponse, details, done) {
+  updateAsync: async function (data, element, config, queryResponse, details, done) {
     const updateColumnOrder = newOrder => {
       this.trigger('updateConfig', [{columnOrder: newOrder}]);
     };
@@ -636,19 +638,15 @@ looker.plugins.visualizations.add({
     // 3. Build vis
 
     // console.log(config)
-    var dataTable = new VisPluginTableModel(data, queryResponse, config);
-    this.trigger('registerOptions', dataTable.getConfigOptions());
-    buildReportTable(config, dataTable, updateColumnOrder, element)
-      .then(() => {
-        // DEBUG OUTPUT AND DONE
-        // console.log('dataTable', dataTable)
-        // console.log('container', document.getElementById('visContainer').parentNode)
-      })
-      .catch(error => {
-        console.error(error);
-      })
-      .finally(() => {
-        done();
-      });
+
+    try{
+      var dataTable = new VisPluginTableModel(data, queryResponse, config);
+      this.trigger('registerOptions', dataTable.getConfigOptions());
+      await buildReportTable(config, dataTable, updateColumnOrder, element);
+    } catch(err) {
+    console.error(err);
+    } finally {
+      done();
+    }
   },
 });
