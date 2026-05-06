@@ -526,19 +526,21 @@ const buildReportTable = async function (
       );
   };
 
-  await renderTable();
-  try {
-    document.getElementById('reportTable').classList.add('reveal');
-    if (config.customTheme === 'animate') {
-      document.getElementById('visSvg').classList.remove('hidden');
-      addOverlay();
-    } else {
-      document.getElementById('visSvg').classList.add('hidden');
-      document.getElementById('reportTable').style.opacity = 1;
+  await renderTable().then(async () => {
+    try {
+      document.getElementById('reportTable').classList.add('reveal');
+      if (config.customTheme === 'animate') {
+        document.getElementById('visSvg').classList.remove('hidden');
+        await addOverlay();
+      } else {
+        document.getElementById('visSvg').classList.add('hidden');
+        document.getElementById('reportTable').style.opacity = 1;
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
-  } catch (err) {
-    console.error(err);
-  }
+  });
 };
 
 looker.plugins.visualizations.add({
@@ -603,8 +605,9 @@ looker.plugins.visualizations.add({
 
     // Check for valid fields to prevent TableModel crashes
     if (
-      queryResponse.fields.dimension_like.length === 0 &&
-      queryResponse.fields.measure_like.length === 0
+      !queryResponse.fields ||
+      (queryResponse.fields.dimension_like.length === 0 &&
+        queryResponse.fields.measure_like.length === 0)
     ) {
       this.addError({
         title: 'No Fields',
