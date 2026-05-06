@@ -536,7 +536,7 @@ const buildReportTable = async function (
       document.getElementById('visSvg').classList.add('hidden');
       document.getElementById('reportTable').style.opacity = 1;
     }
-  } catch(err) {
+  } catch (err) {
     console.error(err);
   }
 };
@@ -559,13 +559,12 @@ looker.plugins.visualizations.add({
       .attr('class', 'hidden');
   },
 
-  updateAsync: async function (data, element, config, queryResponse, details, done) {
+  updateAsync: function (data, element, config, queryResponse, details, done) {
     const updateColumnOrder = newOrder => {
       this.trigger('updateConfig', [{columnOrder: newOrder}]);
     };
 
     // ERROR HANDLING
-
     this.clearErrors();
 
     // empty pivot(s)...no measures
@@ -578,6 +577,7 @@ looker.plugins.visualizations.add({
     //     title: 'Empty Pivot(s)',
     //     message: 'Add a measure or table calculation to pivot on.',
     //   });
+    //   done();
     //   return;
     // }
 
@@ -587,17 +587,30 @@ looker.plugins.visualizations.add({
         title: 'Max Two Pivots',
         message: 'This visualization accepts no more than 2 pivot fields.',
       });
+      done();
       return;
     }
 
-    // console.log('queryResponse', queryResponse)
-    // console.log('data', data)
-
     // Check for results
-    if (!data.length) {
+    if (!data || !data.length) {
       this.addError({
         title: 'No Results',
+        message: 'The query returned no data.',
       });
+      done();
+      return;
+    }
+
+    // Check for valid fields to prevent TableModel crashes
+    if (
+      queryResponse.fields.dimension_like.length === 0 &&
+      queryResponse.fields.measure_like.length === 0
+    ) {
+      this.addError({
+        title: 'No Fields',
+        message: 'Please add at least one dimension or measure.',
+      });
+      done();
       return;
     }
 
@@ -605,8 +618,12 @@ looker.plugins.visualizations.add({
 
     try {
       var elem = document.querySelector('#visContainer');
-      elem.parentNode.removeChild(elem);
-    } catch (e) {}
+      if (elem) {
+        elem.parentNode.removeChild(elem);
+      }
+    } catch (e) {
+      console.warn('Could not remove #visContainer', e);
+    }
 
     this.container = d3
       .select(element)
@@ -633,16 +650,32 @@ looker.plugins.visualizations.add({
     }
 
     // BUILD THE VIS
-    // 1. Create object
-    // 2. Register options
-    // 3. Build vis
-
-    // console.log(config)
-    try{
+    try {
       var dataTable = new VisPluginTableModel(data, queryResponse, config);
       this.trigger('registerOptions', dataTable.getConfigOptions());
-      await buildReportTable(config, dataTable, updateColumnOrder, element);
-    } finally {
+
+      buildReportTable(config, dataTable, updateColumnOrder, element)
+        .then(() => {
+          // DEBUG OUTPUT AND DONE
+          // console.log('dataTable', dataTable)
+          // console.log('container', document.getElementById('visContainer').parentNode)
+        })
+        .catch(error => {
+          console.error('Build Report Table Error:', error);
+          this.addError({
+            title: 'Rendering Error',
+            message: 'Failed to draw the table.',
+          });
+        })
+        .finally(() => {
+          done();
+        });
+    } catch (error) {
+      console.error('VisPluginTableModel Initialization Error:', error);
+      this.addError({
+        title: 'Initialization Error',
+        message: 'Failed to parse data for the table.',
+      });
       done();
     }
   },
