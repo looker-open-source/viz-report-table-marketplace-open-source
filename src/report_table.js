@@ -570,21 +570,20 @@ looker.plugins.visualizations.add({
     this.clearErrors();
 
     // empty pivot(s)...no measures
-    // FIXME: temporarily disabled until we test this feature.
-    // if (
-    //   queryResponse.fields.pivots.length > 0 &&
-    //   queryResponse.fields.measures.length === 0
-    // ) {
-    //   this.addError({
-    //     title: 'Empty Pivot(s)',
-    //     message: 'Add a measure or table calculation to pivot on.',
-    //   });
-    //   done();
-    //   return;
-    // }
+    if (
+      queryResponse?.fields?.pivots?.length > 0 &&
+      queryResponse?.fields?.measures?.length === 0
+    ) {
+      this.addError({
+        title: 'Empty Pivot(s)',
+        message: 'Add a measure or table calculation to pivot on.',
+      });
+      done();
+      return;
+    }
 
     // max pivot check
-    if (queryResponse.fields.pivots.length > 2) {
+    if (queryResponse?.fields?.pivots?.length > 2) {
       this.addError({
         title: 'Max Two Pivots',
         message: 'This visualization accepts no more than 2 pivot fields.',
@@ -606,8 +605,8 @@ looker.plugins.visualizations.add({
     // Check for valid fields to prevent TableModel crashes
     if (
       !queryResponse.fields ||
-      (queryResponse.fields.dimension_like.length === 0 &&
-        queryResponse.fields.measure_like.length === 0)
+      (queryResponse.fields.dimension_like?.length === 0 &&
+        queryResponse.fields.measure_like?.length === 0)
     ) {
       this.addError({
         title: 'No Fields',
