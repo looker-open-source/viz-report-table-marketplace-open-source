@@ -6,7 +6,7 @@
 ### Bug Fixes
 
 * blank tiles in pdf mitigation  ([#81](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/81)) ([9b27ca3](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/9b27ca38f4a88b70db55703a4d799c88c365a6db))
-* **bug:** visualization not being rendered correctly in PDF delivery schedule fix ([#71](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/71)) ([670585e](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/670585ecbf82d2316e8798624a1f077fadda4bb4))
+* **fix:** visualization not being rendered correctly in PDF delivery schedule fix ([#71](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/71)) ([670585e](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/670585ecbf82d2316e8798624a1f077fadda4bb4))
 * update manifest.lkml to point to GCP CDN ([#83](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/83)) ([d553943](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/d553943aa48e33089277a4ffa6cdc2ed3b4bebc1))
 
 ## [1.1.2](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.1...v1.1.2) (2025-05-21)
