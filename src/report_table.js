@@ -1,3 +1,8 @@
+// © 2020 Google LLC.  All rights reserved.
+//
+// This software is subject to the Google Cloud Terms of Service, as
+// modified by the "General Software Terms" of the Google Cloud Service Specific Terms, available at: https://cloud.google.com/terms/service-terms.
+
 import {VisPluginTableModel} from './vis_table_plugin';
 import * as d3 from './d3loader';
 
