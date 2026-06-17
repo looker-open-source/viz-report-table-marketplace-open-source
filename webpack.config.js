@@ -3,6 +3,7 @@ const path = require('path');
 module.exports = {
   entry: './src/report_table.js',
   output: {
+    hashFunction: 'sha256',
     filename: 'bundle.js',
     path: path.join(path.resolve(__dirname), '/dist'),
   },

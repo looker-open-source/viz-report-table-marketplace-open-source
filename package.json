@@ -15,7 +15,7 @@
     "style-loader": "^1.2.1",
     "url-loader": "^4.1.0",
     "webpack": "^5.104.1",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
     "d3": "^5.16.0",
@@ -24,7 +24,6 @@
   },
   "scripts": {
     "build": "webpack",
-    "build:legacy": "env NODE_OPTIONS='--openssl-legacy-provider' webpack",
     "watch": "webpack  --watch --progress",
     "test": "jest"
   }
