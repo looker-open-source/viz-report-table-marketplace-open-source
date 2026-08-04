@@ -115,25 +115,25 @@ const buildReportTable = async function (
           var yPosition = parseFloat(d3.event.y);
           var html = source.column.getHeaderCellLabelByType('field');
 
-          d3.select('#tooltip')
+          d3.select(element).select('#tooltip')
             .style('left', xPosition + 'px')
             .style('top', yPosition + 'px')
             .html(html);
 
-          d3.select('#tooltip').classed('hidden', false);
+          d3.select(element).select('#tooltip').classed('hidden', false);
         }
       })
       .on('drag', (source, idx) => {
         // console.log('drag event', source, idx, d3.event.x, d3.event.y)
         if (!dataTable.has_pivots) {
-          d3.select('#tooltip')
+          d3.select(element).select('#tooltip')
             .style('left', d3.event.x + 'px')
             .style('top', d3.event.y + 'px');
         }
       })
       .on('end', (source, idx) => {
         if (!dataTable.has_pivots) {
-          d3.select('#tooltip').classed('hidden', true);
+          d3.select(element).select('#tooltip').classed('hidden', true);
           var movingColumn = source.column;
           var targetColumn = dropTarget.column;
           var movingIdx = Math.floor(movingColumn.pos / 10) * 10;
@@ -233,15 +233,15 @@ const buildReportTable = async function (
       .attr('draggable', true)
       .call(drag)
       .on('mouseover', function (cell) {
-        d3.select('#tooltip')
+        d3.select(element).select('#tooltip')
           .style('left', d3.event.x + 'px')
           .style('top', d3.event.y + 'px')
           .html(cell.label);
-        d3.select('#tooltip').classed('hidden', false);
+        d3.select(element).select('#tooltip').classed('hidden', false);
         return (dropTarget = cell);
       })
       .on('mouseout', function (cell) {
-        d3.select('#tooltip').classed('hidden', true);
+        d3.select(element).select('#tooltip').classed('hidden', true);
         return (dropTarget = null);
       });
 
@@ -325,7 +325,7 @@ const buildReportTable = async function (
             var id = ['col', d.rowid].join('').replace('.', '');
           }
 
-          var colElement = document.getElementById(id);
+          var colElement = element.querySelector('#' + id);
           colElement.classList.toggle('hover');
         }
 
@@ -334,17 +334,17 @@ const buildReportTable = async function (
           var y = d3.event.clientY;
           var html = dataTable.getCellToolTip(d.rowid, d.colid);
 
-          d3.select('#tooltip')
+          d3.select(element).select('#tooltip')
             .style('left', x + 'px')
             .style('top', y + 'px')
             .html(html);
 
-          d3.select('#tooltip').classed('hidden', false);
+          d3.select(element).select('#tooltip').classed('hidden', false);
         }
       })
       .on('mousemove', d => {
         if (dataTable.showTooltip && d.cell_style.includes('measure')) {
-          var tooltip = d3.select('#tooltip');
+          var tooltip = d3.select(element).select('#tooltip');
           var x =
             d3.event.clientX < chartCentreX
               ? d3.event.pageX + 10
@@ -368,12 +368,12 @@ const buildReportTable = async function (
           } else {
             var id = ['col', d.rowid].join('').replace('.', '');
           }
-          var colElement = document.getElementById(id);
+          var colElement = element.querySelector('#' + id);
           colElement.classList.toggle('hover');
         }
 
         if (dataTable.showTooltip && d.cell_style.includes('measure')) {
-          d3.select('#tooltip').classed('hidden', true);
+          d3.select(element).select('#tooltip').classed('hidden', true);
         }
       })
       .on('click', d => {
@@ -442,11 +442,11 @@ const buildReportTable = async function (
   };
 
   const addOverlay = async function () {
-    var viewbox_width = document.getElementById('reportTable').clientWidth;
-    var viewbox_height = document.getElementById('reportTable').clientHeight;
+    var viewbox_width = element.querySelector('#reportTable').clientWidth;
+    var viewbox_height = element.querySelector('#reportTable').clientHeight;
 
     var allRects = [];
-    d3.selectAll('th').select(function (d, i) {
+    d3.select(element).selectAll('th').select(function (d, i) {
       if (typeof d !== 'undefined') {
         var bbox = this.getBoundingClientRect();
         allRects.push({
@@ -464,7 +464,7 @@ const buildReportTable = async function (
       }
     });
 
-    d3.selectAll('td').select(function (d, i) {
+    d3.select(element).selectAll('td').select(function (d, i) {
       if (typeof d !== 'undefined') {
         var bbox = this.getBoundingClientRect();
         allRects.push({
@@ -531,27 +531,27 @@ const buildReportTable = async function (
       );
   };
 
-  await renderTable().then(async () => {
-    try {
-      document.getElementById('reportTable').classList.add('reveal');
-      if (config.customTheme === 'animate') {
-        document.getElementById('visSvg').classList.remove('hidden');
-        await addOverlay();
-      } else {
-        document.getElementById('visSvg').classList.add('hidden');
-        document.getElementById('reportTable').style.opacity = 1;
-      }
-    } catch (err) {
-      console.error(err);
-      throw err;
+  await renderTable();
+  try {
+    element.querySelector('#reportTable').classList.add('reveal');
+    if (config.customTheme === 'animate') {
+      element.querySelector('#visSvg').classList.remove('hidden');
+      await addOverlay();
+    } else {
+      element.querySelector('#visSvg').classList.add('hidden');
+      element.querySelector('#reportTable').style.opacity = 1;
     }
-  });
+  } catch(err) {
+    console.error(err);
+  }
 };
 
 looker.plugins.visualizations.add({
   options: VisPluginTableModel.getCoreConfigOptions(),
 
   create: function (element, config) {
+    element.innerHTML = ''; // Ensure clean slate when Looker re-uses the container
+
     this.svgContainer = d3
       .select(element)
       .append('div')
@@ -566,7 +566,7 @@ looker.plugins.visualizations.add({
       .attr('class', 'hidden');
   },
 
-  updateAsync: function (data, element, config, queryResponse, details, done) {
+  updateAsync: async function (data, element, config, queryResponse, details, done) {
     const updateColumnOrder = newOrder => {
       this.trigger('updateConfig', [{columnOrder: newOrder}]);
     };
@@ -577,7 +577,7 @@ looker.plugins.visualizations.add({
     // empty pivot(s)...no measures
     if (
       queryResponse?.fields?.pivots?.length > 0 &&
-      queryResponse?.fields?.measures?.length === 0
+      queryResponse?.fields?.measure_like?.length === 0
     ) {
       this.addError({
         title: 'Empty Pivot(s)',
@@ -624,7 +624,7 @@ looker.plugins.visualizations.add({
     // INITIALISE THE VIS
 
     try {
-      var elem = document.querySelector('#visContainer');
+      var elem = element.querySelector('#visContainer');
       if (elem) {
         elem.parentNode.removeChild(elem);
       }
@@ -661,22 +661,17 @@ looker.plugins.visualizations.add({
       var dataTable = new VisPluginTableModel(data, queryResponse, config);
       this.trigger('registerOptions', dataTable.getConfigOptions());
 
-      buildReportTable(config, dataTable, updateColumnOrder, element)
-        .then(() => {
-          // DEBUG OUTPUT AND DONE
-          // console.log('dataTable', dataTable)
-          // console.log('container', document.getElementById('visContainer').parentNode)
-        })
-        .catch(error => {
-          console.error('Build Report Table Error:', error);
-          this.addError({
-            title: 'Rendering Error',
-            message: 'Failed to draw the table.',
-          });
-        })
-        .finally(() => {
-          done();
+      try {
+        await buildReportTable(config, dataTable, updateColumnOrder, element);
+      } catch (error) {
+        console.error('Build Report Table Error:', error);
+        this.addError({
+          title: 'Rendering Error',
+          message: 'Failed to draw the table.',
         });
+      } finally {
+        done();
+      }
     } catch (error) {
       console.error('VisPluginTableModel Initialization Error:', error);
       this.addError({
