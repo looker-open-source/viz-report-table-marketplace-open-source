@@ -638,6 +638,7 @@ looker.plugins.visualizations.add({
       .attr('id', 'visContainer');
 
     if (typeof config.columnOrder === 'undefined') {
+      config.columnOrder = {};
       this.trigger('updateConfig', [{columnOrder: {}}]);
     }
 

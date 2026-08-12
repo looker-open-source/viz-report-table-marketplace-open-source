@@ -1952,8 +1952,12 @@ class VisPluginTableModel {
       column.hide = !this.config['var_pct|' + baseline.modelField.name];
     }
 
-    if (typeof this.config.columnOrder[column.id] !== 'undefined') {
-      column.pos = this.config.columnOrder[column.id];
+    try {
+      if (typeof this.config.columnOrder[column.id] !== 'undefined') {
+        column.pos = this.config.columnOrder[column.id];
+      }
+    } catch {
+      // keep existing column.pos
     }
 
     column.pivoted = baseline.pivoted;
