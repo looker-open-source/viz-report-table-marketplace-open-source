@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.4](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.3...v1.1.4) (2026-08-19)
+
+
+### Bug Fixes
+
+* resolve hidden measure pivot check and disappearing viz bug ([#87](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/87)) ([b8ca420](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/b8ca4203d5a18ff23b210189282485caf57768fc))
+* resolve visualization blank screen crash when switching back from other viz ([#90](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/90)) ([315f70e](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/315f70e730bb8676c072c0e60c3b80e22e68e17f))
+
 ## [1.1.3](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.2...v1.1.3) (2026-05-29)
 
 
