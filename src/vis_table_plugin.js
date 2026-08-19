@@ -970,6 +970,9 @@ class VisPluginTableModel {
    * a single column for reporting purposes.
    */
   addIndexColumn() {
+    if (this.dimensions.length === 0) {
+      return;
+    }
     var dimension = this.dimensions[this.dimensions.length - 1];
     var dim_config_setting = this.config['hide|' + dimension.name];
     var column = new Column('$$$_index_$$$', this, dimension);
@@ -1034,6 +1037,9 @@ class VisPluginTableModel {
    * @param {*} queryResponse
    */
   checkSubtotalsData(queryResponse) {
+    if (this.dimensions.length === 0) {
+      return;
+    }
     if (
       typeof queryResponse.subtotals_data[this.addSubtotalDepth] !== 'undefined'
     ) {
@@ -1165,7 +1171,7 @@ class VisPluginTableModel {
         row.data[column.id] = cell;
       });
 
-      if (this.useIndexColumn) {
+      if (this.useIndexColumn && this.dimensions.length > 0) {
         var last_dim = this.dimensions[this.dimensions.length - 1].name;
         var sourceCell = row.data[last_dim];
 
@@ -1494,6 +1500,9 @@ class VisPluginTableModel {
    *            // the string values in the line items.
    */
   addSubTotals() {
+    if (this.dimensions.length === 0) {
+      return;
+    }
     var depth = this.addSubtotalDepth;
 
     // BUILD GROUPINGS / SORT VALUES
@@ -1952,8 +1961,12 @@ class VisPluginTableModel {
       column.hide = !this.config['var_pct|' + baseline.modelField.name];
     }
 
-    if (typeof this.config.columnOrder[column.id] !== 'undefined') {
-      column.pos = this.config.columnOrder[column.id];
+    try {
+      if (typeof this.config.columnOrder[column.id] !== 'undefined') {
+        column.pos = this.config.columnOrder[column.id];
+      }
+    } catch {
+      // keep existing column.pos
     }
 
     column.pivoted = baseline.pivoted;
