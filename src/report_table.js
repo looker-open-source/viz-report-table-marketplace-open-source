@@ -40,7 +40,8 @@ const buildReportTable = async function (
   config,
   dataTable,
   updateColumnOrder,
-  element
+  element,
+  details
 ) {
   var dropTarget = null;
   const bounds = element.getBoundingClientRect();
@@ -100,6 +101,7 @@ const buildReportTable = async function (
     };
 
     var table = d3
+      .select(element)
       .select('#visContainer')
       .append('table')
       .attr('id', 'reportTable')
@@ -108,11 +110,11 @@ const buildReportTable = async function (
 
     var drag = d3
       .drag()
-      .on('start', (source, idx) => {
+      .on('start', (event, source) => {
         if (!dataTable.has_pivots && source.colspan === 1) {
           // if a headercell is a merged cell, can't tell which column its associated with
-          var xPosition = parseFloat(d3.event.x);
-          var yPosition = parseFloat(d3.event.y);
+          var xPosition = parseFloat(event.x);
+          var yPosition = parseFloat(event.y);
           var html = source.column.getHeaderCellLabelByType('field');
 
           d3.select(element).select('#tooltip')
@@ -123,23 +125,23 @@ const buildReportTable = async function (
           d3.select(element).select('#tooltip').classed('hidden', false);
         }
       })
-      .on('drag', (source, idx) => {
-        // console.log('drag event', source, idx, d3.event.x, d3.event.y)
+      .on('drag', (event, source) => {
         if (!dataTable.has_pivots) {
           d3.select(element).select('#tooltip')
-            .style('left', d3.event.x + 'px')
-            .style('top', d3.event.y + 'px');
+            .style('left', event.x + 'px')
+            .style('top', event.y + 'px');
         }
       })
-      .on('end', (source, idx) => {
+      .on('end', (event, source) => {
         if (!dataTable.has_pivots) {
           d3.select(element).select('#tooltip').classed('hidden', true);
-          var movingColumn = source.column;
-          var targetColumn = dropTarget.column;
-          var movingIdx = Math.floor(movingColumn.pos / 10) * 10;
-          var targetIdx = Math.floor(targetColumn.pos / 10) * 10;
-          // console.log('DRAG FROM', movingColumn, movingIdx, 'TO', targetColumn, targetIdx)
-          dataTable.moveColumns(movingIdx, targetIdx, updateColumnOrder);
+          if (dropTarget && dropTarget.column) {
+            var movingColumn = source.column;
+            var targetColumn = dropTarget.column;
+            var movingIdx = Math.floor(movingColumn.pos / 10) * 10;
+            var targetIdx = Math.floor(targetColumn.pos / 10) * 10;
+            dataTable.moveColumns(movingIdx, targetIdx, updateColumnOrder);
+          }
         }
       });
 
@@ -198,6 +200,7 @@ const buildReportTable = async function (
           return '';
         }
       });
+
     var header_rows = table
       .append('thead')
       .selectAll('tr')
@@ -210,9 +213,6 @@ const buildReportTable = async function (
       .data((level, i) =>
         dataTable.getTableHeaderCells(i).map(column => column.levels[i])
       )
-      // FIXME: This breaks a lot of stuff. We need to fix this feature
-      // before making a release.
-      // .data((level, i) => sortByColumnSeries(dataTable.getTableHeaderCells(i)).map( column => column.levels[i]))
       .enter();
 
     header_cells
@@ -232,15 +232,15 @@ const buildReportTable = async function (
       .style('font-size', config.headerFontSize + 'px')
       .attr('draggable', true)
       .call(drag)
-      .on('mouseover', function (cell) {
+      .on('mouseover', (event, cell) => {
         d3.select(element).select('#tooltip')
-          .style('left', d3.event.x + 'px')
-          .style('top', d3.event.y + 'px')
+          .style('left', event.x + 'px')
+          .style('top', event.y + 'px')
           .html(cell.label);
         d3.select(element).select('#tooltip').classed('hidden', false);
         return (dropTarget = cell);
       })
-      .on('mouseout', function (cell) {
+      .on('mouseout', (event, cell) => {
         d3.select(element).select('#tooltip').classed('hidden', true);
         return (dropTarget = null);
       });
@@ -265,11 +265,6 @@ const buildReportTable = async function (
       .data(row =>
         dataTable.getTableRowColumns(row).map(column => row.data[column.id])
       )
-      // .data(row =>
-      //   sortByColumnSeries(dataTable.getTableRowColumns(row)).map(
-      //     column => row.data[column.id]
-      //   )
-      // )
       .enter();
 
     table_rows
@@ -317,7 +312,7 @@ const buildReportTable = async function (
         }
         return classes.join(' ');
       })
-      .on('mouseover', d => {
+      .on('mouseover', (event, d) => {
         if (dataTable.showHighlight) {
           if (!dataTable.transposeTable) {
             var id = ['col', d.colid].join('').replace('.', '');
@@ -326,12 +321,14 @@ const buildReportTable = async function (
           }
 
           var colElement = element.querySelector('#' + id);
-          colElement.classList.toggle('hover');
+          if (colElement) {
+            colElement.classList.toggle('hover');
+          }
         }
 
         if (dataTable.showTooltip && d.cell_style.includes('measure')) {
-          var x = d3.event.clientX;
-          var y = d3.event.clientY;
+          var x = event.clientX;
+          var y = event.clientY;
           var html = dataTable.getCellToolTip(d.rowid, d.colid);
 
           d3.select(element).select('#tooltip')
@@ -342,26 +339,26 @@ const buildReportTable = async function (
           d3.select(element).select('#tooltip').classed('hidden', false);
         }
       })
-      .on('mousemove', d => {
+      .on('mousemove', (event, d) => {
         if (dataTable.showTooltip && d.cell_style.includes('measure')) {
           var tooltip = d3.select(element).select('#tooltip');
           var x =
-            d3.event.clientX < chartCentreX
-              ? d3.event.pageX + 10
-              : d3.event.pageX -
+            event.clientX < chartCentreX
+              ? event.pageX + 10
+              : event.pageX -
                 tooltip.node().getBoundingClientRect().width -
                 10;
           var y =
-            d3.event.clientY < chartCentreY
-              ? d3.event.pageY + 10
-              : d3.event.pageY -
+            event.clientY < chartCentreY
+              ? event.pageY + 10
+              : event.pageY -
                 tooltip.node().getBoundingClientRect().height -
                 10;
 
           tooltip.style('left', x + 'px').style('top', y + 'px');
         }
       })
-      .on('mouseout', d => {
+      .on('mouseout', (event, d) => {
         if (dataTable.showHighlight) {
           if (!dataTable.transposeTable) {
             var id = ['col', d.colid].join('').replace('.', '');
@@ -369,27 +366,28 @@ const buildReportTable = async function (
             var id = ['col', d.rowid].join('').replace('.', '');
           }
           var colElement = element.querySelector('#' + id);
-          colElement.classList.toggle('hover');
+          if (colElement) {
+            colElement.classList.toggle('hover');
+          }
         }
 
         if (dataTable.showTooltip && d.cell_style.includes('measure')) {
           d3.select(element).select('#tooltip').classed('hidden', true);
         }
       })
-      .on('click', d => {
-        // Looker applies padding based on the top of the viz when opening a drill field but
-        // if part of the viz container is hidden underneath the iframe, the drill menu opens off screen
-        // We make a simple copy of the d3.event and account for pageYOffser as MouseEvent attributes are read only.
-        if (d.links !== [] && d.links[0].url) {
-          let event = {
-            metaKey: d3.event.metaKey,
-            pageX: d3.event.pageX,
-            pageY: d3.event.pageY - window.pageYOffset,
+      .on('click', (event, d) => {
+        if (d.links && d.links.length > 0 && d.links[0].url) {
+          let evt = {
+            metaKey: event.metaKey,
+            pageX: event.pageX,
+            pageY: event.pageY - window.pageYOffset,
           };
-          LookerCharts.Utils.openDrillMenu({
-            links: d.links,
-            event: event,
-          });
+          if (typeof LookerCharts !== 'undefined' && LookerCharts.Utils?.openDrillMenu) {
+            LookerCharts.Utils.openDrillMenu({
+              links: d.links,
+              event: evt,
+            });
+          }
         }
       });
 
@@ -404,7 +402,7 @@ const buildReportTable = async function (
         .attr('class', '.cellSeriesChart')
         .selectAll('rect')
         .data(d => {
-          values = [];
+          var values = [];
           for (var i = 0; i < d.value.series.keys.length; i++) {
             values.push({
               idx: i,
@@ -420,16 +418,11 @@ const buildReportTable = async function (
 
       var cellWidth = table.selectAll('.cellSeries')._groups[0][0].clientWidth;
       var barWidth = Math.floor(cellWidth / 10);
-      // console.log('cellWidth', cellWidth)
-      // console.log('barHeight', barHeight)
-      // console.log('barWidth', barWidth)
 
       minicharts
         .append('rect')
         .style('fill', 'steelblue')
-        .attr('x', value => {
-          return value.idx * barWidth;
-        })
+        .attr('x', value => value.idx * barWidth)
         .attr(
           'y',
           value => barHeight - Math.floor((value.value / value.max) * barHeight)
@@ -441,9 +434,13 @@ const buildReportTable = async function (
     }
   };
 
-  const addOverlay = async function () {
-    var viewbox_width = element.querySelector('#reportTable').clientWidth;
-    var viewbox_height = element.querySelector('#reportTable').clientHeight;
+  const addOverlay = async function (details) {
+    const isPrint = Boolean(details?.print);
+    const duration = isPrint ? 0 : 1000;
+
+    const reportTableEl = element.querySelector('#reportTable');
+    var viewbox_width = reportTableEl ? reportTableEl.clientWidth : element.clientWidth;
+    var viewbox_height = reportTableEl ? reportTableEl.clientHeight : element.clientHeight;
 
     var allRects = [];
     d3.select(element).selectAll('th').select(function (d, i) {
@@ -483,6 +480,7 @@ const buildReportTable = async function (
     });
 
     var overlay = d3
+      .select(element)
       .select('#visSvg')
       .attr('width', viewbox_width)
       .attr('height', viewbox_height)
@@ -493,56 +491,92 @@ const buildReportTable = async function (
           enter
             .append('div')
             .attr('class', d => d.class)
-            .style('opacity', 0.2)
+            .style('opacity', isPrint ? 1 : 0.2)
             .style('position', 'absolute')
             .style('left', d => d.x + 'px')
-            .style('top', d => -2000)
+            .style('top', d => (isPrint ? d.y + 'px' : -2000))
             .style('width', d => d.width + 'px')
             .style('height', d => d.height + 'px')
             .style('font-size', d => d.fontSize + 'px')
             .style('text-align', d => d.align)
             .text(d => d.html)
-            .call(enter =>
-              enter
-                .transition()
-                .duration(1000)
-                .style('opacity', 1)
-                .style('top', d => d.y + 'px')
-            ),
+            .call(enter => {
+              if (isPrint) {
+                return enter.style('opacity', 1).style('top', d => d.y + 'px');
+              } else {
+                return enter
+                  .transition()
+                  .duration(duration)
+                  .style('opacity', 1)
+                  .style('top', d => d.y + 'px');
+              }
+            }),
         update =>
-          update.call(update =>
-            update
-              .transition()
-              .duration(1000)
-              .attr('class', d => d.class)
-              .style('opacity', 1)
-              .style('left', d => d.x + 'px')
-              .style('top', d => d.y + 'px')
-              .style('width', d => d.width + 'px')
-              .style('height', d => d.height + 'px')
-              .style('font-size', d => d.fontSize + 'px')
-              .style('text-align', d => d.align)
-              .text(d => d.html)
-          ),
+          update.call(update => {
+            if (isPrint) {
+              return update
+                .attr('class', d => d.class)
+                .style('opacity', 1)
+                .style('left', d => d.x + 'px')
+                .style('top', d => d.y + 'px')
+                .style('width', d => d.width + 'px')
+                .style('height', d => d.height + 'px')
+                .style('font-size', d => d.fontSize + 'px')
+                .style('text-align', d => d.align)
+                .text(d => d.html);
+            } else {
+              return update
+                .transition()
+                .duration(duration)
+                .attr('class', d => d.class)
+                .style('opacity', 1)
+                .style('left', d => d.x + 'px')
+                .style('top', d => d.y + 'px')
+                .style('width', d => d.width + 'px')
+                .style('height', d => d.height + 'px')
+                .style('font-size', d => d.fontSize + 'px')
+                .style('text-align', d => d.align)
+                .text(d => d.html);
+            }
+          }),
         exit =>
-          exit.call(exit =>
-            exit.transition().duration(500).style('opacity', 0).remove()
-          )
+          exit.call(exit => {
+            if (isPrint) {
+              return exit.remove();
+            } else {
+              return exit.transition().duration(500).style('opacity', 0).remove();
+            }
+          })
       );
+
+    if (!isPrint && overlay.transition) {
+      try {
+        if (typeof d3.timerFlush === 'function') {
+          d3.timerFlush();
+        }
+        await overlay.transition().end();
+      } catch (err) {
+        // Transition interrupted or completed
+      }
+    }
   };
 
   await renderTable();
   try {
-    element.querySelector('#reportTable').classList.add('reveal');
-    if (config.customTheme === 'animate') {
-      element.querySelector('#visSvg').classList.remove('hidden');
-      await addOverlay();
-    } else {
-      element.querySelector('#visSvg').classList.add('hidden');
-      element.querySelector('#reportTable').style.opacity = 1;
+    const reportTableEl = element.querySelector('#reportTable');
+    if (reportTableEl) {
+      reportTableEl.classList.add('reveal');
     }
-  } catch(err) {
-    console.error(err);
+    const visSvgEl = element.querySelector('#visSvg');
+    if (config.customTheme === 'animate') {
+      if (visSvgEl) visSvgEl.classList.remove('hidden');
+      await addOverlay(details);
+    } else {
+      if (visSvgEl) visSvgEl.classList.add('hidden');
+      if (reportTableEl) reportTableEl.style.opacity = 1;
+    }
+  } catch (err) {
+    console.error('Error revealing report table:', err);
   }
 };
 
@@ -571,115 +605,103 @@ looker.plugins.visualizations.add({
       this.trigger('updateConfig', [{columnOrder: newOrder}]);
     };
 
-    // ERROR HANDLING
-    this.clearErrors();
-
-    // empty pivot(s)...no measures
-    if (
-      queryResponse?.fields?.pivots?.length > 0 &&
-      queryResponse?.fields?.measure_like?.length === 0
-    ) {
-      this.addError({
-        title: 'Empty Pivot(s)',
-        message: 'Add a measure or table calculation to pivot on.',
-      });
-      done();
-      return;
-    }
-
-    // max pivot check
-    if (queryResponse?.fields?.pivots?.length > 2) {
-      this.addError({
-        title: 'Max Two Pivots',
-        message: 'This visualization accepts no more than 2 pivot fields.',
-      });
-      done();
-      return;
-    }
-
-    // Check for results
-    if (!data || !data.length) {
-      this.addError({
-        title: 'No Results',
-        message: 'The query returned no data.',
-      });
-      done();
-      return;
-    }
-
-    // Check for valid fields to prevent TableModel crashes
-    if (
-      !queryResponse.fields ||
-      (queryResponse.fields.dimension_like?.length === 0 &&
-        queryResponse.fields.measure_like?.length === 0)
-    ) {
-      this.addError({
-        title: 'No Fields',
-        message: 'Please add at least one dimension or measure.',
-      });
-      done();
-      return;
-    }
-
-    // INITIALISE THE VIS
-
     try {
-      var elem = element.querySelector('#visContainer');
-      if (elem) {
-        elem.parentNode.removeChild(elem);
+      // ERROR HANDLING
+      this.clearErrors();
+
+      // empty pivot(s)...no measures
+      if (
+        queryResponse?.fields?.pivots?.length > 0 &&
+        queryResponse?.fields?.measure_like?.length === 0
+      ) {
+        this.addError({
+          title: 'Empty Pivot(s)',
+          message: 'Add a measure or table calculation to pivot on.',
+        });
+        return;
       }
-    } catch (e) {
-      console.warn('Could not remove #visContainer', e);
-    }
 
-    this.container = d3
-      .select(element)
-      .append('div')
-      .attr('id', 'visContainer');
+      // max pivot check
+      if (queryResponse?.fields?.pivots?.length > 2) {
+        this.addError({
+          title: 'Max Two Pivots',
+          message: 'This visualization accepts no more than 2 pivot fields.',
+        });
+        return;
+      }
 
-    if (typeof config.columnOrder === 'undefined') {
-      config.columnOrder = {};
-      this.trigger('updateConfig', [{columnOrder: {}}]);
-    }
+      // Check for results
+      if (!data || !data.length) {
+        this.addError({
+          title: 'No Results',
+          message: 'The query returned no data.',
+        });
+        return;
+      }
 
-    // Dashboard-next fails to register config if no one has touched it
-    // Check to reapply default settings to the config object
-    if (typeof config.theme === 'undefined') {
-      config = Object.assign(
-        {
-          bodyFontSize: 12,
-          headerFontSize: 12,
-          theme: 'traditional',
-          showHighlight: true,
-          showTooltip: true,
-        },
-        config
-      );
-    }
+      // Check for valid fields to prevent TableModel crashes
+      if (
+        !queryResponse.fields ||
+        (queryResponse.fields.dimension_like?.length === 0 &&
+          queryResponse.fields.measure_like?.length === 0)
+      ) {
+        this.addError({
+          title: 'No Fields',
+          message: 'Please add at least one dimension or measure.',
+        });
+        return;
+      }
 
-    // BUILD THE VIS
-    try {
+      // INITIALISE THE VIS
+      try {
+        var elem = element.querySelector('#visContainer');
+        if (elem) {
+          elem.parentNode.removeChild(elem);
+        }
+      } catch (e) {
+        console.warn('Could not remove #visContainer', e);
+      }
+
+      this.container = d3
+        .select(element)
+        .append('div')
+        .attr('id', 'visContainer');
+
+      if (typeof config.columnOrder === 'undefined') {
+        config.columnOrder = {};
+        this.trigger('updateConfig', [{columnOrder: {}}]);
+      }
+
+      // Dashboard-next fails to register config if no one has touched it
+      // Check to reapply default settings to the config object
+      if (typeof config.theme === 'undefined') {
+        config = Object.assign(
+          {
+            bodyFontSize: 12,
+            headerFontSize: 12,
+            theme: 'traditional',
+            showHighlight: true,
+            showTooltip: true,
+          },
+          config
+        );
+      }
+
+      // BUILD THE VIS
       var dataTable = new VisPluginTableModel(data, queryResponse, config);
       this.trigger('registerOptions', dataTable.getConfigOptions());
 
-      try {
-        await buildReportTable(config, dataTable, updateColumnOrder, element);
-      } catch (error) {
-        console.error('Build Report Table Error:', error);
-        this.addError({
-          title: 'Rendering Error',
-          message: 'Failed to draw the table.',
-        });
-      } finally {
+      await buildReportTable(config, dataTable, updateColumnOrder, element, details);
+    } catch (error) {
+      console.error('Visualization Update Error:', error);
+      this.addError({
+        title: 'Rendering Error',
+        message: 'Failed to draw the table.',
+      });
+    } finally {
+      if (typeof done === 'function') {
         done();
       }
-    } catch (error) {
-      console.error('VisPluginTableModel Initialization Error:', error);
-      this.addError({
-        title: 'Initialization Error',
-        message: 'Failed to parse data for the table.',
-      });
-      done();
     }
   },
 });
