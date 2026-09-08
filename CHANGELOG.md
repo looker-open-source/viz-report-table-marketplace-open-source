@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.5](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.4...v1.1.5) (2026-09-08)
+
+
+### Bug Fixes
+
+* resolve PDF export rendering hangups, scope selectors, upgrade dependencies and add unit test ([#93](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/93)) ([9d6081b](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/9d6081b1a5affd8cca7ab3ba4db76520677561c9))
+
 ## [1.1.4](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.3...v1.1.4) (2026-08-19)
 
 
