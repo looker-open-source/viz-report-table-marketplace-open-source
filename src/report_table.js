@@ -115,7 +115,8 @@ const buildReportTable = async function (
           var yPosition = parseFloat(d3.event.y);
           var html = source.column.getHeaderCellLabelByType('field');
 
-          d3.select(element).select('#tooltip')
+          d3.select(element)
+            .select('#tooltip')
             .style('left', xPosition + 'px')
             .style('top', yPosition + 'px')
             .html(html);
@@ -126,7 +127,8 @@ const buildReportTable = async function (
       .on('drag', (source, idx) => {
         // console.log('drag event', source, idx, d3.event.x, d3.event.y)
         if (!dataTable.has_pivots) {
-          d3.select(element).select('#tooltip')
+          d3.select(element)
+            .select('#tooltip')
             .style('left', d3.event.x + 'px')
             .style('top', d3.event.y + 'px');
         }
@@ -233,7 +235,8 @@ const buildReportTable = async function (
       .attr('draggable', true)
       .call(drag)
       .on('mouseover', function (cell) {
-        d3.select(element).select('#tooltip')
+        d3.select(element)
+          .select('#tooltip')
           .style('left', d3.event.x + 'px')
           .style('top', d3.event.y + 'px')
           .html(cell.label);
@@ -334,7 +337,8 @@ const buildReportTable = async function (
           var y = d3.event.clientY;
           var html = dataTable.getCellToolTip(d.rowid, d.colid);
 
-          d3.select(element).select('#tooltip')
+          d3.select(element)
+            .select('#tooltip')
             .style('left', x + 'px')
             .style('top', y + 'px')
             .html(html);
@@ -446,41 +450,45 @@ const buildReportTable = async function (
     var viewbox_height = element.querySelector('#reportTable').clientHeight;
 
     var allRects = [];
-    d3.select(element).selectAll('th').select(function (d, i) {
-      if (typeof d !== 'undefined') {
-        var bbox = this.getBoundingClientRect();
-        allRects.push({
-          index: i,
-          data: d,
-          x: bbox.x - BBOX_X_ADJUST,
-          y: bbox.y - BBOX_Y_ADJUST,
-          width: bbox.width,
-          height: bbox.height,
-          html: this.innerHTML,
-          class: this.className + ' rectElem animated',
-          fontSize: config.headerFontSize,
-          align: this.style.textAlign,
-        });
-      }
-    });
+    d3.select(element)
+      .selectAll('th')
+      .select(function (d, i) {
+        if (typeof d !== 'undefined') {
+          var bbox = this.getBoundingClientRect();
+          allRects.push({
+            index: i,
+            data: d,
+            x: bbox.x - BBOX_X_ADJUST,
+            y: bbox.y - BBOX_Y_ADJUST,
+            width: bbox.width,
+            height: bbox.height,
+            html: this.innerHTML,
+            class: this.className + ' rectElem animated',
+            fontSize: config.headerFontSize,
+            align: this.style.textAlign,
+          });
+        }
+      });
 
-    d3.select(element).selectAll('td').select(function (d, i) {
-      if (typeof d !== 'undefined') {
-        var bbox = this.getBoundingClientRect();
-        allRects.push({
-          index: i,
-          data: d,
-          x: bbox.x - BBOX_X_ADJUST,
-          y: bbox.y - BBOX_Y_ADJUST,
-          width: bbox.width,
-          height: bbox.height,
-          html: this.innerHTML,
-          class: this.className + ' rectElem animated',
-          fontSize: config.bodyFontSize,
-          align: this.style.textAlign,
-        });
-      }
-    });
+    d3.select(element)
+      .selectAll('td')
+      .select(function (d, i) {
+        if (typeof d !== 'undefined') {
+          var bbox = this.getBoundingClientRect();
+          allRects.push({
+            index: i,
+            data: d,
+            x: bbox.x - BBOX_X_ADJUST,
+            y: bbox.y - BBOX_Y_ADJUST,
+            width: bbox.width,
+            height: bbox.height,
+            html: this.innerHTML,
+            class: this.className + ' rectElem animated',
+            fontSize: config.bodyFontSize,
+            align: this.style.textAlign,
+          });
+        }
+      });
 
     var overlay = d3
       .select('#visSvg')
@@ -541,7 +549,7 @@ const buildReportTable = async function (
       element.querySelector('#visSvg').classList.add('hidden');
       element.querySelector('#reportTable').style.opacity = 1;
     }
-  } catch(err) {
+  } catch (err) {
     console.error(err);
   }
 };
@@ -566,7 +574,14 @@ looker.plugins.visualizations.add({
       .attr('class', 'hidden');
   },
 
-  updateAsync: async function (data, element, config, queryResponse, details, done) {
+  updateAsync: async function (
+    data,
+    element,
+    config,
+    queryResponse,
+    details,
+    done
+  ) {
     const updateColumnOrder = newOrder => {
       this.trigger('updateConfig', [{columnOrder: newOrder}]);
     };
