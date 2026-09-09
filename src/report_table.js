@@ -117,7 +117,8 @@ const buildReportTable = async function (
           var yPosition = parseFloat(event.y);
           var html = source.column.getHeaderCellLabelByType('field');
 
-          d3.select(element).select('#tooltip')
+          d3.select(element)
+            .select('#tooltip')
             .style('left', xPosition + 'px')
             .style('top', yPosition + 'px')
             .html(html);
@@ -127,7 +128,8 @@ const buildReportTable = async function (
       })
       .on('drag', (event, source) => {
         if (!dataTable.has_pivots) {
-          d3.select(element).select('#tooltip')
+          d3.select(element)
+            .select('#tooltip')
             .style('left', event.x + 'px')
             .style('top', event.y + 'px');
         }
@@ -233,7 +235,8 @@ const buildReportTable = async function (
       .attr('draggable', true)
       .call(drag)
       .on('mouseover', (event, cell) => {
-        d3.select(element).select('#tooltip')
+        d3.select(element)
+          .select('#tooltip')
           .style('left', event.x + 'px')
           .style('top', event.y + 'px')
           .html(cell.label);
@@ -331,7 +334,8 @@ const buildReportTable = async function (
           var y = event.clientY;
           var html = dataTable.getCellToolTip(d.rowid, d.colid);
 
-          d3.select(element).select('#tooltip')
+          d3.select(element)
+            .select('#tooltip')
             .style('left', x + 'px')
             .style('top', y + 'px')
             .html(html);
@@ -345,9 +349,7 @@ const buildReportTable = async function (
           var x =
             event.clientX < chartCentreX
               ? event.pageX + 10
-              : event.pageX -
-                tooltip.node().getBoundingClientRect().width -
-                10;
+              : event.pageX - tooltip.node().getBoundingClientRect().width - 10;
           var y =
             event.clientY < chartCentreY
               ? event.pageY + 10
@@ -382,7 +384,10 @@ const buildReportTable = async function (
             pageX: event.pageX,
             pageY: event.pageY - window.pageYOffset,
           };
-          if (typeof LookerCharts !== 'undefined' && LookerCharts.Utils?.openDrillMenu) {
+          if (
+            typeof LookerCharts !== 'undefined' &&
+            LookerCharts.Utils?.openDrillMenu
+          ) {
             LookerCharts.Utils.openDrillMenu({
               links: d.links,
               event: evt,
@@ -439,45 +444,53 @@ const buildReportTable = async function (
     const duration = isPrint ? 0 : 1000;
 
     const reportTableEl = element.querySelector('#reportTable');
-    var viewbox_width = reportTableEl ? reportTableEl.clientWidth : element.clientWidth;
-    var viewbox_height = reportTableEl ? reportTableEl.clientHeight : element.clientHeight;
+    var viewbox_width = reportTableEl
+      ? reportTableEl.clientWidth
+      : element.clientWidth;
+    var viewbox_height = reportTableEl
+      ? reportTableEl.clientHeight
+      : element.clientHeight;
 
     var allRects = [];
-    d3.select(element).selectAll('th').select(function (d, i) {
-      if (typeof d !== 'undefined') {
-        var bbox = this.getBoundingClientRect();
-        allRects.push({
-          index: i,
-          data: d,
-          x: bbox.x - BBOX_X_ADJUST,
-          y: bbox.y - BBOX_Y_ADJUST,
-          width: bbox.width,
-          height: bbox.height,
-          html: this.innerHTML,
-          class: this.className + ' rectElem animated',
-          fontSize: config.headerFontSize,
-          align: this.style.textAlign,
-        });
-      }
-    });
+    d3.select(element)
+      .selectAll('th')
+      .select(function (d, i) {
+        if (typeof d !== 'undefined') {
+          var bbox = this.getBoundingClientRect();
+          allRects.push({
+            index: i,
+            data: d,
+            x: bbox.x - BBOX_X_ADJUST,
+            y: bbox.y - BBOX_Y_ADJUST,
+            width: bbox.width,
+            height: bbox.height,
+            html: this.innerHTML,
+            class: this.className + ' rectElem animated',
+            fontSize: config.headerFontSize,
+            align: this.style.textAlign,
+          });
+        }
+      });
 
-    d3.select(element).selectAll('td').select(function (d, i) {
-      if (typeof d !== 'undefined') {
-        var bbox = this.getBoundingClientRect();
-        allRects.push({
-          index: i,
-          data: d,
-          x: bbox.x - BBOX_X_ADJUST,
-          y: bbox.y - BBOX_Y_ADJUST,
-          width: bbox.width,
-          height: bbox.height,
-          html: this.innerHTML,
-          class: this.className + ' rectElem animated',
-          fontSize: config.bodyFontSize,
-          align: this.style.textAlign,
-        });
-      }
-    });
+    d3.select(element)
+      .selectAll('td')
+      .select(function (d, i) {
+        if (typeof d !== 'undefined') {
+          var bbox = this.getBoundingClientRect();
+          allRects.push({
+            index: i,
+            data: d,
+            x: bbox.x - BBOX_X_ADJUST,
+            y: bbox.y - BBOX_Y_ADJUST,
+            width: bbox.width,
+            height: bbox.height,
+            html: this.innerHTML,
+            class: this.className + ' rectElem animated',
+            fontSize: config.bodyFontSize,
+            align: this.style.textAlign,
+          });
+        }
+      });
 
     var overlay = d3
       .select(element)
@@ -544,7 +557,11 @@ const buildReportTable = async function (
             if (isPrint) {
               return exit.remove();
             } else {
-              return exit.transition().duration(500).style('opacity', 0).remove();
+              return exit
+                .transition()
+                .duration(500)
+                .style('opacity', 0)
+                .remove();
             }
           })
       );
@@ -600,7 +617,14 @@ looker.plugins.visualizations.add({
       .attr('class', 'hidden');
   },
 
-  updateAsync: async function (data, element, config, queryResponse, details, done) {
+  updateAsync: async function (
+    data,
+    element,
+    config,
+    queryResponse,
+    details,
+    done
+  ) {
     const updateColumnOrder = newOrder => {
       this.trigger('updateConfig', [{columnOrder: newOrder}]);
     };
@@ -691,7 +715,13 @@ looker.plugins.visualizations.add({
       var dataTable = new VisPluginTableModel(data, queryResponse, config);
       this.trigger('registerOptions', dataTable.getConfigOptions());
 
-      await buildReportTable(config, dataTable, updateColumnOrder, element, details);
+      await buildReportTable(
+        config,
+        dataTable,
+        updateColumnOrder,
+        element,
+        details
+      );
     } catch (error) {
       console.error('Visualization Update Error:', error);
       this.addError({
