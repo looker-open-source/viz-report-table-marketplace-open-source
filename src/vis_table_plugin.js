@@ -569,7 +569,8 @@ class VisPluginTableModel {
    * @param {*} col_idx
    */
   addDimensions(queryResponse, col_idx) {
-    queryResponse.fields.dimension_like.forEach(dimension => {
+    const visibleDimensions = queryResponse.fields.dimension_like.filter(d => !d.hidden);
+    visibleDimensions.forEach(dimension => {
       var newDimension = new ModelDimension({
         vis: this,
         queryResponseField: dimension,
@@ -644,7 +645,8 @@ class VisPluginTableModel {
    */
   addMeasures(queryResponse, col_idx) {
     // add measures, list of ids
-    queryResponse.fields.measure_like.forEach(measure => {
+    const visibleMeasures = queryResponse.fields.measure_like.filter(m => !m.hidden);
+    visibleMeasures.forEach(measure => {
       var newMeasure = new ModelMeasure({
         vis: this,
         queryResponseField: measure,
@@ -1117,7 +1119,7 @@ class VisPluginTableModel {
       this.columns.forEach(column => {
         var cellValue =
           column.pivoted || column.isRowTotal
-            ? lookerRow[column.modelField.name][column.pivot_key]
+            ? lookerRow[column.modelField.name]?.[column.pivot_key]
             : lookerRow[column.id];
         var cell = new DataCell({
           ...cellValue,
