@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+  mode: 'production',
   entry: './src/report_table.js',
   output: {
     hashFunction: 'sha256',
@@ -19,7 +20,7 @@ module.exports = {
       },
       {
         test: /\.(woff|woff2|ttf|otf)$/,
-        loader: 'url-loader',
+        type: 'asset/inline',
       },
     ],
   },
