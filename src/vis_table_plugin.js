@@ -569,10 +569,7 @@ class VisPluginTableModel {
    * @param {*} col_idx
    */
   addDimensions(queryResponse, col_idx) {
-    const visibleDimensions = queryResponse.fields.dimension_like.filter(
-      d => !d.hidden
-    );
-    visibleDimensions.forEach(dimension => {
+    queryResponse.fields.dimension_like.forEach(dimension => {
       var newDimension = new ModelDimension({
         vis: this,
         queryResponseField: dimension,
@@ -647,10 +644,7 @@ class VisPluginTableModel {
    */
   addMeasures(queryResponse, col_idx) {
     // add measures, list of ids
-    const visibleMeasures = queryResponse.fields.measure_like.filter(
-      m => !m.hidden
-    );
-    visibleMeasures.forEach(measure => {
+    queryResponse.fields.measure_like.forEach(measure => {
       var newMeasure = new ModelMeasure({
         vis: this,
         queryResponseField: measure,
@@ -1610,7 +1604,7 @@ class VisPluginTableModel {
             : ['total', 'subtotal', 'nonNumeric', 'measure'];
           var align = column.modelField.is_numeric ? 'right' : 'left';
           if (
-            Object.entries(this.subtotals_data).length > 0 &&
+            this.subtotals_data[subtotalRow.id]?.data?.[column.id] !== undefined &&
             !subtotalRow.id.startsWith('Subtotal|Others')
           ) {
             // if subtotals already provided in Looker's queryResponse

@@ -6,13 +6,15 @@
 import {VisPluginTableModel} from './vis_table_plugin';
 import * as d3 from './d3loader';
 
-const themes = {
-  traditional: require('./theme_traditional.css'),
-  looker: require('./theme_looker.css'),
-  contemporary: require('./theme_contemporary.css'),
+const lazyStyle = mod => (mod && mod.default) || mod;
 
-  fixed: require('./layout_fixed.css'),
-  auto: require('./layout_auto.css'),
+const themes = {
+  traditional: lazyStyle(require('./theme_traditional.css')),
+  looker: lazyStyle(require('./theme_looker.css')),
+  contemporary: lazyStyle(require('./theme_contemporary.css')),
+
+  fixed: lazyStyle(require('./layout_fixed.css')),
+  auto: lazyStyle(require('./layout_auto.css')),
 };
 
 const BBOX_X_ADJUST = 10;
