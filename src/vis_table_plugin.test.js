@@ -15,6 +15,8 @@ describe('VisPluginTableModel', () => {
       },
       sorts: [],
     };
+    mockLookerData = [];
+    mockConfig = {};
   });
 
   test('should render table calculations under pivot when all raw measures are hidden (b/539669056)', () => {
@@ -168,8 +170,8 @@ describe('VisPluginTableModel', () => {
     expect(model.data[1].id).toBe('2024-02');
     
     // As transposed, columns should match the row IDs instead of defaulting to ""
-    const col01 = model.columns.find(c => c.id === '2024-01');
-    const col02 = model.columns.find(c => c.id === '2024-02');
+    const col01 = model.transposed_columns.find(c => c.id === '2024-01');
+    const col02 = model.transposed_columns.find(c => c.id === '2024-02');
     expect(col01).toBeDefined();
     expect(col02).toBeDefined();
   });
@@ -229,8 +231,8 @@ describe('VisPluginTableModel', () => {
     expect(model.data[0].id).toBe('>= 100');
     expect(model.data[1].id).toBe('0 to 49');
     
-    const col1 = model.columns.find(c => c.id === '>= 100');
-    const col2 = model.columns.find(c => c.id === '0 to 49');
+    const col1 = model.transposed_columns.find(c => c.id === '>= 100');
+    const col2 = model.transposed_columns.find(c => c.id === '0 to 49');
     expect(col1).toBeDefined();
     expect(col2).toBeDefined();
   });
@@ -269,5 +271,95 @@ describe('VisPluginTableModel', () => {
     expect(model).toBeDefined();
     // 2022 should just be undefined or empty in the model, not crash
     expect(model.data[0].data['table_calc_1|2022']).toBeUndefined();
+  });
+
+  test('should correctly generate subtotals when a dimension is LookML-hidden (b/568550506)', () => {
+    delete mockQueryResponse.pivots;
+    mockConfig.rowSubtotals = true;
+
+    mockQueryResponse.fields.dimension_like = [
+      {name: 'dim_hidden', label: 'Hidden Dimension', type: 'string', hidden: true},
+      {name: 'dim_visible', label: 'Visible Dimension', type: 'string'},
+    ];
+    mockQueryResponse.fields.measure_like = [
+      {name: 'measure_1', label: 'M1', type: 'number', is_numeric: true},
+    ];
+
+    mockLookerData = [
+      { dim_hidden: {value: 'Group1'}, dim_visible: {value: 'A'}, measure_1: {value: 10} },
+      { dim_hidden: {value: 'Group1'}, dim_visible: {value: 'B'}, measure_1: {value: 20} },
+      { dim_hidden: {value: 'Group2'}, dim_visible: {value: 'C'}, measure_1: {value: 30} },
+    ];
+
+    const model = new VisPluginTableModel(
+      mockLookerData,
+      mockQueryResponse,
+      mockConfig
+    );
+
+    expect(model).toBeDefined();
+    expect(model.dimensions.length).toBe(2);
+    const subtotalRows = model.data.filter(r => r.type === 'subtotal');
+    expect(subtotalRows.length).toBe(2);
+    expect(subtotalRows[0].id).toContain('Group1');
+    expect(subtotalRows[1].id).toContain('Group2');
+  });
+
+  test('should preserve LookML-hidden measures in table model (b/568569628, b/568326626)', () => {
+    delete mockQueryResponse.pivots;
+
+    mockQueryResponse.fields.dimension_like = [
+      {name: 'dim_1', label: 'Dimension 1', type: 'string'},
+    ];
+    mockQueryResponse.fields.measure_like = [
+      {name: 'measure_hidden', label: 'Hidden Measure', type: 'number', is_numeric: true, hidden: true},
+      {name: 'measure_visible', label: 'Visible Measure', type: 'number', is_numeric: true},
+    ];
+
+    mockLookerData = [
+      { dim_1: {value: 'Val1'}, measure_hidden: {value: 100}, measure_visible: {value: 200} },
+    ];
+
+    const model = new VisPluginTableModel(
+      mockLookerData,
+      mockQueryResponse,
+      mockConfig
+    );
+
+    expect(model).toBeDefined();
+    expect(model.measures.length).toBe(2);
+    const hiddenMeasure = model.measures.find(m => m.name === 'measure_hidden');
+    expect(hiddenMeasure).toBeDefined();
+    const hiddenCol = model.columns.find(c => c.id === 'measure_hidden');
+    expect(hiddenCol).toBeDefined();
+    expect(model.data[0].data['measure_hidden'].value).toBe(100);
+  });
+
+  test('should safely handle rows with missing dimension keys without throwing', () => {
+    delete mockQueryResponse.pivots;
+
+    mockQueryResponse.fields.dimension_like = [
+      {name: 'dim_1', label: 'Dimension 1', type: 'string'},
+      {name: 'dim_2', label: 'Dimension 2', type: 'string'},
+    ];
+    mockQueryResponse.fields.measure_like = [
+      {name: 'measure_1', label: 'M1', type: 'number', is_numeric: true},
+    ];
+
+    mockLookerData = [
+      { dim_1: {value: 'A'}, measure_1: {value: 10} },
+      { dim_2: {value: 'B'}, measure_1: {value: 20} },
+    ];
+
+    const model = new VisPluginTableModel(
+      mockLookerData,
+      mockQueryResponse,
+      mockConfig
+    );
+
+    expect(model).toBeDefined();
+    expect(model.data.length).toBe(2);
+    expect(model.data[0].id).toBe('A|');
+    expect(model.data[1].id).toBe('|B');
   });
 });
