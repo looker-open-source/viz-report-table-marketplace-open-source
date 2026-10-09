@@ -3622,8 +3622,8 @@ slash@^3.0.0:
   resolved "https://registry.npmjs.org/slash/-/slash-3.0.0.tgz"
 
 source-map-js@^1.2.1:
-  version "1.2.1"
-  resolved "http://airlock-proxy.uplink.goog:999/npm/artifact-foundry-prod/ah-3p-staging-npm/source-map-js/-/source-map-js-1.2.1.tgz"
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.2.2.tgz#79fb88d97535a21cb27162cb05d211b67acea4ab"
 
 source-map-support@0.5.13:
   version "0.5.13"
