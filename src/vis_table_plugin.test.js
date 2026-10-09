@@ -19,7 +19,7 @@ describe('VisPluginTableModel', () => {
     mockConfig = {};
   });
 
-  test('should render table calculations under pivot when all raw measures are hidden (b/539669056)', () => {
+  test('should render table calculations under pivot when all raw measures are hidden', () => {
     mockQueryResponse.fields.dimension_like = [
       {name: 'dim_1', label: 'Dimension 1', type: 'string'},
     ];
@@ -138,7 +138,7 @@ describe('VisPluginTableModel', () => {
     expect(absVarCol.pos).toBeDefined();
   });
 
-  test('should preserve LookML-hidden dimensions in table model to construct correct transposed row IDs (b/568342728)', () => {
+  test('should preserve LookML-hidden dimensions in table model to construct correct transposed row IDs', () => {
     delete mockQueryResponse.pivots; // Force flat table initially
     mockConfig.transposeTable = true;
     
@@ -273,7 +273,7 @@ describe('VisPluginTableModel', () => {
     expect(model.data[0].data['table_calc_1|2022']).toBeUndefined();
   });
 
-  test('should correctly generate subtotals when a dimension is LookML-hidden (b/568550506)', () => {
+  test('should correctly generate subtotals when a dimension is LookML-hidden', () => {
     delete mockQueryResponse.pivots;
     mockConfig.rowSubtotals = true;
 
@@ -305,7 +305,7 @@ describe('VisPluginTableModel', () => {
     expect(subtotalRows[1].id).toContain('Group2');
   });
 
-  test('should preserve LookML-hidden measures in table model (b/568569628, b/568326626)', () => {
+  test('should preserve LookML-hidden measures in table model', () => {
     delete mockQueryResponse.pivots;
 
     mockQueryResponse.fields.dimension_like = [
