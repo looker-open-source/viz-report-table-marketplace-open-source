@@ -139,3 +139,27 @@ describe('VisPluginTableModel', () => {
     expect(absVarCol.pos).toBeDefined();
   });
 });
+
+describe('subtotalDrillLinks', () => {
+  const subtotalDrillLinks = VisPluginTableModel.prototype.subtotalDrillLinks;
+  const lineItem = level2 => ({
+    links: [
+      {
+        type: 'measure_default',
+        label_prefix: 'Show All',
+        url: `/explore/m/v?fields=a,b&f[level_1]=Rent&f[level_2]=${level2}&f[period]=202606&limit=500`,
+      },
+    ],
+  });
+
+  test('drills into every line item the subtotal adds up', () => {
+    const [link] = subtotalDrillLinks([lineItem('Rent'), lineItem('Back+Rent')], '£3.0');
+
+    expect(link.url).toBe('/explore/m/v?fields=a,b&f[level_1]=Rent&f[period]=202606&limit=500');
+    expect(link.label).toBe('Show All £3.0');
+  });
+
+  test('offers no drill when the line items have none', () => {
+    expect(subtotalDrillLinks([{links: []}, {}], '£0.0')).toEqual([]);
+  });
+});

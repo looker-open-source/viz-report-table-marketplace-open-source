@@ -1629,9 +1629,11 @@ class VisPluginTableModel {
             var subtotal_value = 0;
             var subtotal_items = 0;
             var rendered = '';
+            var member_cells = [];
             this.data.forEach(data_row => {
               if (data_row.type == 'line_item' && data_row.sort[1].value == s) {
                 // data_row.sort[1].value == s checks whether its part of the current subtotal group
+                member_cells.push(data_row.data[column.id]);
                 var value = data_row.data[column.id].value;
                 if (Number.isFinite(value)) {
                   subtotal_value += value;
@@ -1687,6 +1689,7 @@ class VisPluginTableModel {
               colid: column.id,
               rowid: subtotalRow.id,
             });
+            cell.links = this.subtotalDrillLinks(member_cells, cell.rendered);
             subtotalRow.data[column.id] = cell;
           }
         }
@@ -1700,6 +1703,37 @@ class VisPluginTableModel {
     });
     this.sortData();
     this.hasSubtotals = true;
+  }
+
+  /**
+   * Drill link for a subtotal the vis calculated itself, so Looker supplied none.
+   * Built from the members' default drill links, keeping only the URL parameters
+   * every member shares: the filters on dimensions that vary within the group drop
+   * out, so the drill covers exactly the line items the subtotal adds up.
+   * @param {DataCell[]} memberCells - the line item cells summed into the subtotal
+   * @param {string} rendered - the subtotal's formatted value, for the menu label
+   */
+  subtotalDrillLinks(memberCells, rendered) {
+    const links = memberCells
+      .map(cell => (cell.links || []).find(link => link.type === 'measure_default'))
+      .filter(link => link && link.url);
+    if (links.length === 0) {
+      return [];
+    }
+    const [path] = links[0].url.split('?');
+    const paramsOf = link => (link.url.split('?')[1] || '').split('&');
+    const memberParams = links.map(paramsOf);
+    const shared = memberParams[0].filter(param =>
+      memberParams.every(params => params.includes(param))
+    );
+    return [
+      {
+        ...links[0],
+        label: [links[0].label_prefix || 'Show All', rendered].join(' '),
+        label_value: rendered,
+        url: [path, shared.join('&')].join('?'),
+      },
+    ];
   }
 
   /**

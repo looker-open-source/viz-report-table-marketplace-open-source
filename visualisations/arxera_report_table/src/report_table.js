@@ -5,14 +5,19 @@
 
 import {VisPluginTableModel} from './vis_table_plugin';
 import * as d3 from './d3loader';
+import themeTraditional from './theme_traditional.css';
+import themeLooker from './theme_looker.css';
+import themeContemporary from './theme_contemporary.css';
+import layoutFixed from './layout_fixed.css';
+import layoutAuto from './layout_auto.css';
 
 const themes = {
-  traditional: require('./theme_traditional.css'),
-  looker: require('./theme_looker.css'),
-  contemporary: require('./theme_contemporary.css'),
+  traditional: themeTraditional,
+  looker: themeLooker,
+  contemporary: themeContemporary,
 
-  fixed: require('./layout_fixed.css'),
-  auto: require('./layout_auto.css'),
+  fixed: layoutFixed,
+  auto: layoutAuto,
 };
 
 const BBOX_X_ADJUST = 10;
