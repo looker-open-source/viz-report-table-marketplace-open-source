@@ -188,6 +188,13 @@ const tableModelCoreOptions = {
     default: '',
     order: 11.5,
   },
+  totalLabel: {
+    section: 'Table',
+    type: 'string',
+    label: "Total row label (default 'TOTAL')",
+    default: '',
+    order: 11.6,
+  },
   runningTotals: {
     section: 'Table',
     type: 'string',
@@ -268,6 +275,7 @@ class VisPluginTableModel {
     this.showHighlight = config.showHighlight || false;
     this.genericLabelForSubtotals = config.genericLabelForSubtotals || false;
     this.subtotalLabelSuffix = config.subtotalLabelSuffix || '';
+    this.totalLabel = config.totalLabel || 'TOTAL';
     this.runningTotals = VisPluginTableModel.parseRunningTotals(
       config.runningTotals
     );
@@ -1357,14 +1365,14 @@ class VisPluginTableModel {
     });
 
     if (this.useIndexColumn) {
-      totalsRow.data['$$$_index_$$$'].value = 'TOTAL';
+      totalsRow.data['$$$_index_$$$'].value = this.totalLabel;
       totalsRow.data['$$$_index_$$$'].align = 'left';
       totalsRow.data['$$$_index_$$$'].colspan = this.dimensions.filter(
         d => !d.hide
       ).length;
     } else {
       if (this.firstVisibleDimension) {
-        totalsRow.data[this.firstVisibleDimension].value = 'TOTAL';
+        totalsRow.data[this.firstVisibleDimension].value = this.totalLabel;
         totalsRow.data[this.firstVisibleDimension].align = 'left';
       }
     }

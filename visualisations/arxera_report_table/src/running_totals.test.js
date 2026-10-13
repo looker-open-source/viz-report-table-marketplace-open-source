@@ -275,4 +275,19 @@ describe('addRunningTotals', () => {
       {type: 'running_total', label: 'Net Property Income', amount: 80},
     ]);
   });
+
+  test('labels the Looker Totals row when a total label is set', () => {
+    const query = {
+      ...flatQuery(),
+      totals_data: {'pl.amount': {value: 80, rendered: '80'}},
+    };
+    const labelled = new VisPluginTableModel(flatData(), query, {
+      ...config(''),
+      totalLabel: 'Net Result',
+    });
+    const unlabelled = new VisPluginTableModel(flatData(), query, config(''));
+    const totalOf = model => model.data.find(row => row.type === 'total');
+    expect(totalOf(labelled).data['pl.section'].value).toBe('Net Result');
+    expect(totalOf(unlabelled).data['pl.section'].value).toBe('TOTAL');
+  });
 });
