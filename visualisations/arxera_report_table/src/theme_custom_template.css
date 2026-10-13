@@ -111,3 +111,9 @@ modified by the "General Software Terms" of the Google Cloud Service Specific Te
 
   /* Add customization here  */
 }
+
+.running_total {
+  font-style: normal;
+  font-weight: bold !important;
+  border-top: 1px solid #000000;
+}

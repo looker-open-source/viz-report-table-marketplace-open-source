@@ -148,3 +148,9 @@ th.headerCell {
   padding: 5px;
   box-sizing: border-box;
 }
+
+.running_total {
+  font-style: normal;
+  font-weight: bold !important;
+  border-top: 1px solid #000000;
+}

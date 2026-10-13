@@ -181,6 +181,21 @@ const tableModelCoreOptions = {
     default: false,
     order: 11,
   },
+  subtotalLabelSuffix: {
+    section: 'Table',
+    type: 'string',
+    label: "Subtotal label suffix (e.g. ' Total')",
+    default: '',
+    order: 11.5,
+  },
+  runningTotals: {
+    section: 'Table',
+    type: 'string',
+    label:
+      'Running totals: Label > after subtotal group; ... (e.g. NOI > Direct Costs)',
+    default: '',
+    order: 12,
+  },
   indexColumn: {
     section: 'Dimensions',
     type: 'boolean',
@@ -252,6 +267,11 @@ class VisPluginTableModel {
     this.showTooltip = config.showTooltip || false;
     this.showHighlight = config.showHighlight || false;
     this.genericLabelForSubtotals = config.genericLabelForSubtotals || false;
+    this.subtotalLabelSuffix = config.subtotalLabelSuffix || '';
+    this.runningTotals = VisPluginTableModel.parseRunningTotals(
+      config.runningTotals
+    );
+    this.subTotalGroups = [];
 
     this.sorts = queryResponse.sorts;
     this.hasTotals =
@@ -295,6 +315,9 @@ class VisPluginTableModel {
     }
     if (this.addRowSubtotals) {
       this.addSubTotals();
+      if (this.runningTotals.length > 0) {
+        this.addRunningTotals();
+      }
     }
     // console.log('table in progress', this)
     if (this.addColSubtotals && this.pivot_fields.length === 2) {
@@ -1553,6 +1576,8 @@ class VisPluginTableModel {
       }
     });
 
+    this.subTotalGroups = subTotalGroups;
+
     // GENERATE DATA ROWS FOR SUBTOTALS
     subTotalGroups.forEach((subTotalGroup, s) => {
       var subtotalRow = new Row('subtotal');
@@ -1593,7 +1618,9 @@ class VisPluginTableModel {
               cell.rendered = 'Subtotal';
             } else {
               const subTotalJoin = subTotalGroup.join(' | ');
-              cell.value = subTotalJoin ? subTotalJoin : 'Others';
+              cell.value = subTotalJoin
+                ? subTotalJoin + this.subtotalLabelSuffix
+                : 'Others';
               cell.rendered = cell.value
                 ? cell.value
                 : column.modelField.is_numeric
@@ -1703,6 +1730,142 @@ class VisPluginTableModel {
     });
     this.sortData();
     this.hasSubtotals = true;
+  }
+
+  /**
+   * Parses the runningTotals option: entries separated by ';' or new lines,
+   * each 'Label > after group', where the group is a row subtotal group (the
+   * value of the first dimension, or all subtotal dimensions joined by ' | ').
+   * @param {string} option - the runningTotals config value
+   * @returns {{label: string, after: string}[]}
+   */
+  static parseRunningTotals(option) {
+    if (typeof option !== 'string' || option.trim() === '') {
+      return [];
+    }
+    return option
+      .split(/[;\n]/)
+      .map(entry => entry.split('>'))
+      .filter(parts => parts.length === 2)
+      .map(([label, after]) => ({label: label.trim(), after: after.trim()}))
+      .filter(entry => entry.label !== '' && entry.after !== '');
+  }
+
+  /**
+   * Adds running total rows after row subtotal groups (e.g. NOI after the
+   * Direct Costs subtotal). Each running total is the sum of the line items in
+   * its group and every group above it, so it is the cumulative total of all
+   * subtotals so far. Calculated per measure column (each pivot and row total
+   * column separately) from the line items, never from displayed subtotal or
+   * running total rows, so nothing is counted twice. Text, average and
+   * percentage measures are left blank. Running total rows have no drill.
+   */
+  addRunningTotals() {
+    this.runningTotals.forEach(runningTotal => {
+      var groupIndex = -1;
+      this.subTotalGroups.forEach((group, g) => {
+        if (
+          group[0] === runningTotal.after ||
+          group.join(' | ') === runningTotal.after
+        ) {
+          groupIndex = g;
+        }
+      });
+      if (groupIndex === -1) {
+        console.warn(
+          'Running total "' +
+            runningTotal.label +
+            '": no subtotal group "' +
+            runningTotal.after +
+            '" in the data, so it is not shown.'
+        );
+        return;
+      }
+
+      var runningTotalRow = new Row('subtotal');
+      runningTotalRow.runningTotal = true;
+      runningTotalRow.id = ['RunningTotal', runningTotal.label].join('|');
+
+      this.columns.forEach(column => {
+        var numeric = column.modelField.is_numeric;
+        if (column.modelField.type === 'dimension') {
+          var isLabelColumn = [
+            this.firstVisibleDimension,
+            '$$$_index_$$$',
+          ].includes(column.id);
+          var cell = new DataCell({
+            cell_style: [
+              'total',
+              'running_total',
+              numeric ? 'numeric' : 'nonNumeric',
+              'dimension',
+            ],
+            align: numeric ? 'right' : 'left',
+            value: isLabelColumn ? runningTotal.label : null,
+            rendered: isLabelColumn ? runningTotal.label : '',
+            rowspan: isLabelColumn ? 1 : -1,
+            colspan: isLabelColumn
+              ? this.useIndexColumn
+                ? 1
+                : this.dimensions.filter(d => !d.hide).length
+              : -1,
+            colid: column.id,
+            rowid: runningTotalRow.id,
+          });
+          runningTotalRow.data[column.id] = cell;
+        }
+
+        if (column.modelField.type === 'measure') {
+          var additive =
+            numeric &&
+            column.modelField.calculation_type !== 'string' &&
+            column.modelField.calculation_type !== 'average' &&
+            !(column.modelField.value_format || '').includes('%');
+          var value = null;
+          if (additive) {
+            value = 0;
+            this.data.forEach(row => {
+              if (
+                row.type === 'line_item' &&
+                row.sort.length > 1 &&
+                row.sort[1].value <= groupIndex
+              ) {
+                var cellValue = row.data[column.id]
+                  ? row.data[column.id].value
+                  : null;
+                if (Number.isFinite(cellValue)) {
+                  value += cellValue;
+                }
+              }
+            });
+          }
+          runningTotalRow.data[column.id] = new DataCell({
+            value: value,
+            rendered:
+              value === null
+                ? ''
+                : this.formatCellValue(column.modelField.value_format, value),
+            cell_style: [
+              'total',
+              'running_total',
+              numeric ? 'numeric' : 'nonNumeric',
+              'measure',
+            ],
+            align: numeric ? 'right' : 'left',
+            colid: column.id,
+            rowid: runningTotalRow.id,
+          });
+        }
+      });
+
+      runningTotalRow.sort = [
+        {name: 'section', value: 0},
+        {name: 'subtotal', value: groupIndex},
+        {name: 'original_row', value: 10000},
+      ];
+      this.data.push(runningTotalRow);
+    });
+    this.sortData();
   }
 
   /**
@@ -1981,7 +2144,9 @@ class VisPluginTableModel {
       if (row.type == 'total' || row.type == 'subtotal') {
         cell.cell_style.push('total');
       }
-      if (row.type === 'subtotal') {
+      if (row.runningTotal) {
+        cell.cell_style.push('running_total');
+      } else if (row.type === 'subtotal') {
         cell.cell_style.push('subtotal');
       }
       if (cell.value < 0) {
@@ -2846,7 +3011,7 @@ class VisPluginTableModel {
         '</span></td></tr>',
       ].join('');
     } else if (row.type === 'subtotal') {
-      var label = 'SUBTOTAL';
+      var label = row.runningTotal ? 'RUNNING TOTAL' : 'SUBTOTAL';
       var rowClass = 'focus';
       var subtotalColumn = this.columns
         .filter(c => !c.hide)

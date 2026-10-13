@@ -197,3 +197,9 @@ th.headerCell {
   font-family: Open Sans, Helvetica, Arial, sans-serif;
   margin: 4px;
 }
+
+.running_total {
+  font-style: normal;
+  font-weight: bold !important;
+  border-top: 1px solid #000000;
+}

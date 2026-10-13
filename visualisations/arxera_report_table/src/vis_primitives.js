@@ -286,6 +286,7 @@ class Row {
     // this.modelField = null
     this.hide = false;
     this.type = type; // line_item | subtotal | total
+    this.runningTotal = false; // subtotal rows added by addRunningTotals()
     this.sort = []; // [ section, subtotal group, row number ]
     this.data = {}; // Indexed by Column.id
     // { value: any, rendered: string, html?: string, links?: array }
