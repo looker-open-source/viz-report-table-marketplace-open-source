@@ -192,7 +192,7 @@ const tableModelCoreOptions = {
     section: 'Table',
     type: 'string',
     label:
-      'Running totals: Label > after subtotal group; ... (e.g. NOI > Direct Costs)',
+      'Running totals: Label > after group[, later groups]; ... (e.g. NOI > Direct Costs)',
     default: '',
     order: 12,
   },
@@ -1734,10 +1734,12 @@ class VisPluginTableModel {
 
   /**
    * Parses the runningTotals option: entries separated by ';' or new lines,
-   * each 'Label > after group', where the group is a row subtotal group (the
-   * value of the first dimension, or all subtotal dimensions joined by ' | ').
+   * each 'Label > group, group, ...'. The groups are row subtotal groups (the
+   * value of the first dimension, or all subtotal dimensions joined by ' | ')
+   * in report order; the running total goes after whichever is last in the
+   * data, so groups with no rows (e.g. a section with no postings) are skipped.
    * @param {string} option - the runningTotals config value
-   * @returns {{label: string, after: string}[]}
+   * @returns {{label: string, after: string[]}[]}
    */
   static parseRunningTotals(option) {
     if (typeof option !== 'string' || option.trim() === '') {
@@ -1747,8 +1749,14 @@ class VisPluginTableModel {
       .split(/[;\n]/)
       .map(entry => entry.split('>'))
       .filter(parts => parts.length === 2)
-      .map(([label, after]) => ({label: label.trim(), after: after.trim()}))
-      .filter(entry => entry.label !== '' && entry.after !== '');
+      .map(([label, after]) => ({
+        label: label.trim(),
+        after: after
+          .split(',')
+          .map(group => group.trim())
+          .filter(group => group !== ''),
+      }))
+      .filter(entry => entry.label !== '' && entry.after.length > 0);
   }
 
   /**
@@ -1761,12 +1769,12 @@ class VisPluginTableModel {
    * percentage measures are left blank. Running total rows have no drill.
    */
   addRunningTotals() {
-    this.runningTotals.forEach(runningTotal => {
+    this.runningTotals.forEach((runningTotal, r) => {
       var groupIndex = -1;
       this.subTotalGroups.forEach((group, g) => {
         if (
-          group[0] === runningTotal.after ||
-          group.join(' | ') === runningTotal.after
+          runningTotal.after.includes(group[0]) ||
+          runningTotal.after.includes(group.join(' | '))
         ) {
           groupIndex = g;
         }
@@ -1775,9 +1783,9 @@ class VisPluginTableModel {
         console.warn(
           'Running total "' +
             runningTotal.label +
-            '": no subtotal group "' +
-            runningTotal.after +
-            '" in the data, so it is not shown.'
+            '": none of the subtotal groups "' +
+            runningTotal.after.join(', ') +
+            '" are in the data, so it is not shown.'
         );
         return;
       }
@@ -1861,7 +1869,7 @@ class VisPluginTableModel {
       runningTotalRow.sort = [
         {name: 'section', value: 0},
         {name: 'subtotal', value: groupIndex},
-        {name: 'original_row', value: 10000},
+        {name: 'original_row', value: 10000 + r},
       ];
       this.data.push(runningTotalRow);
     });

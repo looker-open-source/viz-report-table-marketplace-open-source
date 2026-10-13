@@ -75,8 +75,8 @@ describe('parseRunningTotals', () => {
         'Gross Operating Income > Other Property Income;\nNOI > Direct Costs'
       )
     ).toEqual([
-      {label: 'Gross Operating Income', after: 'Other Property Income'},
-      {label: 'NOI', after: 'Direct Costs'},
+      {label: 'Gross Operating Income', after: ['Other Property Income']},
+      {label: 'NOI', after: ['Direct Costs']},
     ]);
   });
 
@@ -256,5 +256,23 @@ describe('addRunningTotals', () => {
     expect(noi.data['pl.budget'].value).toBe(60);
     expect(noi.data[varianceColumn.id].value).toBe(20);
     expect(noi.data[varianceColumn.id].cell_style).toContain('running_total');
+  });
+
+  test('goes after the last of its groups present, skipping groups with no rows', () => {
+    // Refurbishments has no rows, so Net Property Income goes after Direct
+    // Costs, after NOI, with the same cumulative value.
+    const model = new VisPluginTableModel(
+      flatData(),
+      flatQuery(),
+      config(
+        'NOI > Direct Costs; Net Property Income > Direct Costs, Other Income / Costs, Refurbishments'
+      )
+    );
+    const tail = rowsOf(model).slice(-3);
+    expect(tail).toEqual([
+      {type: 'subtotal', label: 'Direct Costs', amount: -48},
+      {type: 'running_total', label: 'NOI', amount: 80},
+      {type: 'running_total', label: 'Net Property Income', amount: 80},
+    ]);
   });
 });
