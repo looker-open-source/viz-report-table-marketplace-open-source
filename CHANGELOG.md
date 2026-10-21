@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.6](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.5...v1.1.6) (2026-10-21)
+
+
+### Bug Fixes
+
+* preserve LookML-hidden fields, fix transpose/subtotal regressions, and add defensive fallbacks (b/568342728) ([#98](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/98)) ([871286b](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/871286bd7768928f88648cb2524a62eeaa74a3a3))
+
 ## [1.1.5](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.4...v1.1.5) (2026-09-23)
 
 
