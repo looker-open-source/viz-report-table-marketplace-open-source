@@ -240,8 +240,6 @@ class VisPluginTableModel {
     this.useShortName = config.useShortName || false;
     this.useViewName = config.useViewName || false;
     this.addRowSubtotals = config.rowSubtotals || false;
-    this.addSubtotalDepth =
-      parseInt(config.subtotalDepth) || this.dimensions.length - 1;
     this.addColSubtotals = config.colSubtotals || false;
     this.spanRows = false || config.spanRows;
     this.spanCols = false || config.spanCols;
@@ -274,6 +272,8 @@ class VisPluginTableModel {
     var col_idx = 0;
     this.addPivotsAndHeaders(queryResponse);
     this.addDimensions(queryResponse, col_idx);
+    this.addSubtotalDepth =
+      parseInt(config.subtotalDepth) || this.dimensions.length - 1;
     this.addMeasures(queryResponse, col_idx);
 
     this.checkVarianceCalculations();
@@ -569,10 +569,7 @@ class VisPluginTableModel {
    * @param {*} col_idx
    */
   addDimensions(queryResponse, col_idx) {
-    const visibleDimensions = queryResponse.fields.dimension_like.filter(
-      d => !d.hidden
-    );
-    visibleDimensions.forEach(dimension => {
+    queryResponse.fields.dimension_like.forEach(dimension => {
       var newDimension = new ModelDimension({
         vis: this,
         queryResponseField: dimension,
@@ -647,10 +644,7 @@ class VisPluginTableModel {
    */
   addMeasures(queryResponse, col_idx) {
     // add measures, list of ids
-    const visibleMeasures = queryResponse.fields.measure_like.filter(
-      m => !m.hidden
-    );
-    visibleMeasures.forEach(measure => {
+    queryResponse.fields.measure_like.forEach(measure => {
       var newMeasure = new ModelMeasure({
         vis: this,
         queryResponseField: measure,
@@ -1120,7 +1114,7 @@ class VisPluginTableModel {
     lookerData.forEach((lookerRow, i) => {
       var row = new Row('line_item');
       row.id = this.dimensions
-        .map(dimension => lookerRow[dimension.name].value)
+        .map(dimension => lookerRow[dimension.name]?.value ?? '')
         .join('|');
 
       this.columns.forEach(column => {
@@ -1535,7 +1529,7 @@ class VisPluginTableModel {
         var group = [];
         for (var g = 0; g < depth; g++) {
           var dim = this.dimensions[g].name;
-          group.push(row.data[dim].value);
+          group.push(row.data[dim]?.value ?? '');
         }
         if (group.join('|') !== latest_group.join('|')) {
           subTotalGroups.push(group);
@@ -1610,7 +1604,7 @@ class VisPluginTableModel {
             : ['total', 'subtotal', 'nonNumeric', 'measure'];
           var align = column.modelField.is_numeric ? 'right' : 'left';
           if (
-            Object.entries(this.subtotals_data).length > 0 &&
+            this.subtotals_data[subtotalRow.id]?.data?.[column.id] !== undefined &&
             !subtotalRow.id.startsWith('Subtotal|Others')
           ) {
             // if subtotals already provided in Looker's queryResponse
@@ -1632,7 +1626,7 @@ class VisPluginTableModel {
             this.data.forEach(data_row => {
               if (data_row.type == 'line_item' && data_row.sort[1].value == s) {
                 // data_row.sort[1].value == s checks whether its part of the current subtotal group
-                var value = data_row.data[column.id].value;
+                var value = data_row.data[column.id]?.value;
                 if (Number.isFinite(value)) {
                   subtotal_value += value;
                   subtotal_items++;
