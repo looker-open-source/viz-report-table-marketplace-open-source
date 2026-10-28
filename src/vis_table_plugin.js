@@ -261,7 +261,10 @@ class VisPluginTableModel {
     this.hasSubtotals =
       typeof queryResponse.subtotals_data !== 'undefined' ? true : false;
     this.hasRowTotals = queryResponse.has_row_totals || false;
-    this.hasPivots = typeof queryResponse.pivots !== 'undefined' ? true : false;
+    this.hasPivots = Boolean(
+      typeof queryResponse.pivots !== 'undefined' &&
+        queryResponse.fields?.measure_like?.length > 0
+    );
     this.hasSupers =
       typeof queryResponse.fields.supermeasure_like !== 'undefined'
         ? Boolean(queryResponse.fields.supermeasure_like.length)
@@ -516,14 +519,16 @@ class VisPluginTableModel {
    * @param {*} queryResponse
    */
   addPivotsAndHeaders(queryResponse) {
-    queryResponse.fields.pivots.forEach((pivot, i) => {
-      var pivot_field = new ModelPivot({
-        vis: this,
-        queryResponseField: pivot,
+    if (this.hasPivots) {
+      queryResponse.fields.pivots.forEach((pivot, i) => {
+        var pivot_field = new ModelPivot({
+          vis: this,
+          queryResponseField: pivot,
+        });
+        this.pivot_fields.push(pivot_field);
+        this.headers.push({type: 'pivot' + i, modelField: pivot_field});
       });
-      this.pivot_fields.push(pivot_field);
-      this.headers.push({type: 'pivot' + i, modelField: pivot_field});
-    });
+    }
 
     var measureHeaders = this.useHeadings
       ? [
@@ -1051,14 +1056,14 @@ class VisPluginTableModel {
             lookerSubtotal['$$$__grouping__$$$'];
           var groups = ['Subtotal'];
           visSubtotal['$$$__grouping__$$$'].forEach(group => {
-            groups.push(lookerSubtotal[group].value);
+            groups.push(lookerSubtotal[group]?.value ?? '');
           });
           visSubtotal.id = groups.join('|');
 
           this.columns.forEach(column => {
             visSubtotal.data[column.id] =
               column.pivoted || column.isRowTotal
-                ? lookerSubtotal[column.modelField.name][column.pivot_key]
+                ? lookerSubtotal[column.modelField.name]?.[column.pivot_key]
                 : lookerSubtotal[column.id];
             var cell = visSubtotal.data[column.id];
 
@@ -1271,8 +1276,8 @@ class VisPluginTableModel {
           : ['total', 'nonNumeric', 'measure'];
         var cellValue =
           column.pivoted || column.isRowTotal
-            ? totals_[column.modelField.name][column.pivot_key]
-            : totals_[column.id];
+            ? totals_?.[column.modelField.name]?.[column.pivot_key]
+            : totals_?.[column.id];
 
         cellValue = new DataCell({
           ...cellValue,
@@ -1327,7 +1332,7 @@ class VisPluginTableModel {
       }
     });
 
-    if (this.useIndexColumn) {
+    if (this.useIndexColumn && totalsRow.data['$$$_index_$$$']) {
       totalsRow.data['$$$_index_$$$'].value = 'TOTAL';
       totalsRow.data['$$$_index_$$$'].align = 'left';
       totalsRow.data['$$$_index_$$$'].colspan = this.dimensions.filter(
@@ -1365,10 +1370,10 @@ class VisPluginTableModel {
               column.modelField.calculation_type
             ))
           ) {
-            othersValue = totalValue.value - column.series.series.sum;
+            othersValue = (totalValue?.value ?? 0) - column.series.series.sum;
             othersStyle.push('measure');
           } else {
-            othersValue = (totalValue.value + column.series.series.avg) / 2;
+            othersValue = ((totalValue?.value ?? 0) + column.series.series.avg) / 2;
             othersStyle = othersStyle.concat(['estimate', 'measure']);
             if (
               ['count', 'count_distinct'].includes(
@@ -1411,7 +1416,7 @@ class VisPluginTableModel {
         }
       });
 
-      if (this.useIndexColumn) {
+      if (this.useIndexColumn && othersRow.data['$$$_index_$$$']) {
         othersRow.data['$$$_index_$$$'].value = 'Others';
         othersRow.data['$$$_index_$$$'].rendered = 'Others';
         othersRow.data['$$$_index_$$$'].align = 'left';
@@ -1969,6 +1974,9 @@ class VisPluginTableModel {
     ].join('|');
     var baseline = this.getColumnById(colpair.variance.baseline);
     var comparison = this.getColumnById(colpair.variance.comparison);
+    if (!baseline.id || !comparison.id) {
+      return;
+    }
     var column = new Column(id, this, baseline.modelField);
     column.isVariance = true;
 
@@ -2079,11 +2087,35 @@ class VisPluginTableModel {
       var variance = this.variances[v];
       if (variance.comparison !== 'no_variance') {
         if (variance.type === 'vs_measure') {
-          if (!this.hasPivots) {
+          var baselineMeasure = this.getMeasureByName(variance.baseline);
+          var comparisonMeasure = this.getMeasureByName(variance.comparison);
+          if (
+            !this.hasPivots ||
+            (!baselineMeasure.can_pivot && !comparisonMeasure.can_pivot)
+          ) {
             calcs.forEach(calc => {
               variance_colpairs.push({
                 variance: variance,
                 calc: calc,
+              });
+            });
+          } else if (
+            this.hasRowTotals &&
+            baselineMeasure.can_pivot !== comparisonMeasure.can_pivot
+          ) {
+            calcs.forEach(calc => {
+              variance_colpairs.push({
+                calc: calc,
+                variance: {
+                  baseline: baselineMeasure.can_pivot
+                    ? ['$$$_row_total_$$$', variance.baseline].join('.')
+                    : variance.baseline,
+                  comparison: comparisonMeasure.can_pivot
+                    ? ['$$$_row_total_$$$', variance.comparison].join('.')
+                    : variance.comparison,
+                  reverse: variance.reverse,
+                  type: variance.type,
+                },
               });
             });
           } else {
@@ -2811,8 +2843,11 @@ class VisPluginTableModel {
       var subtotalColumn = this.columns
         .filter(c => !c.hide)
         .filter(c => c.modelField.type === 'dimension')[0];
-      var value =
-        row.data[subtotalColumn.id].render || row.data[subtotalColumn.id].value;
+      var value = subtotalColumn
+        ? row.data[subtotalColumn.id]?.rendered ||
+          row.data[subtotalColumn.id]?.render ||
+          row.data[subtotalColumn.id]?.value
+        : '';
       tipHTML += [
         '<tr class="',
         rowClass,

@@ -638,7 +638,9 @@ looker.plugins.visualizations.add({
       // empty pivot(s)...no measures
       if (
         queryResponse?.fields?.pivots?.length > 0 &&
-        queryResponse?.fields?.measure_like?.length === 0
+        queryResponse?.fields?.measure_like?.length === 0 &&
+        !queryResponse?.fields?.supermeasure_like?.length &&
+        !queryResponse?.fields?.dimension_like?.length
       ) {
         this.addError({
           title: 'Empty Pivot(s)',
@@ -669,7 +671,8 @@ looker.plugins.visualizations.add({
       if (
         !queryResponse.fields ||
         (queryResponse.fields.dimension_like?.length === 0 &&
-          queryResponse.fields.measure_like?.length === 0)
+          queryResponse.fields.measure_like?.length === 0 &&
+          !queryResponse.fields.supermeasure_like?.length)
       ) {
         this.addError({
           title: 'No Fields',

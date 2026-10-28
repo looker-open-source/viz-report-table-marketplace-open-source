@@ -54,12 +54,12 @@ describe('report_table visualization plugin', () => {
   });
 
   describe('defensive done() callback execution', () => {
-    test('should call done() when queryResponse has pivots but no measures', async () => {
+    test('should call done() when queryResponse has pivots but no measures, supermeasures, or dimensions', async () => {
       const queryResponse = {
         fields: {
           pivots: [{ name: 'p1' }],
           measure_like: [],
-          dimension_like: [{ name: 'd1' }],
+          dimension_like: [],
         },
       };
       const data = [{ 'd1': { value: 'val1' } }];
@@ -70,6 +70,41 @@ describe('report_table visualization plugin', () => {
         expect.objectContaining({ title: 'Empty Pivot(s)' })
       );
       expect(mockDone).toHaveBeenCalledTimes(1);
+    });
+
+    test('should render visible dimensions and call done() when queryResponse has pivots and dimensions but all measures and table calculations are hidden', async () => {
+      const queryResponse = {
+        fields: {
+          pivots: [{ name: 'user.created_year', label: 'User Created Year' }],
+          dimension_like: [
+            { name: 'role.name', label: 'User Role Name', type: 'string' },
+            { name: 'folders.name', label: 'Folders Name', type: 'string' },
+          ],
+          measure_like: [],
+          supermeasure_like: [],
+        },
+        sorts: [],
+        pivots: [{ key: '2021', data: {} }],
+      };
+      const data = [
+        {
+          'role.name': { value: 'Admin', rendered: 'Admin' },
+          'folders.name': { value: 'Martino Buffolino', rendered: 'Martino Buffolino' },
+        },
+      ];
+
+      await vizPlugin.updateAsync(
+        data,
+        element,
+        { theme: 'traditional' },
+        queryResponse,
+        {},
+        mockDone
+      );
+
+      expect(vizPlugin.addError).not.toHaveBeenCalled();
+      expect(mockDone).toHaveBeenCalledTimes(1);
+      expect(element.querySelector('#reportTable')).not.toBeNull();
     });
 
     test('should call done() when pivots count exceeds 2', async () => {
@@ -219,6 +254,149 @@ describe('report_table visualization plugin', () => {
         mockDone
       );
 
+      expect(mockDone).toHaveBeenCalledTimes(1);
+      expect(element.querySelector('#reportTable')).not.toBeNull();
+    });
+
+    test('should render and call done() when pivoted measures are hidden (measure_like is empty) but supermeasure_like table calculations exist (b/539669056)', async () => {
+      const queryResponse = {
+        fields: {
+          pivots: [{ name: 'transactions.transaction_quarter', label: 'Transaction Quarter' }],
+          dimension_like: [
+            { name: 'products.brand', label: 'Brand', type: 'string' },
+          ],
+          measure_like: [],
+          supermeasure_like: [
+            {
+              name: 'profit_calc',
+              label: 'Profit Calc',
+              type: 'number',
+              is_numeric: true,
+              is_table_calculation: true,
+              can_pivot: false,
+            },
+          ],
+        },
+        sorts: [],
+        pivots: [{ key: '2024-Q1', data: {} }],
+      };
+      const data = [
+        {
+          'products.brand': { value: 'Acme', rendered: 'Acme' },
+          profit_calc: { value: 42.5, rendered: '$42.5K' },
+        },
+      ];
+
+      await vizPlugin.updateAsync(
+        data,
+        element,
+        { theme: 'traditional' },
+        queryResponse,
+        {},
+        mockDone
+      );
+
+      expect(vizPlugin.addError).not.toHaveBeenCalled();
+      expect(mockDone).toHaveBeenCalledTimes(1);
+      expect(element.querySelector('#reportTable')).not.toBeNull();
+    });
+
+    test('should render and call done() when dimension_like and measure_like are empty but supermeasure_like has fields', async () => {
+      const queryResponse = {
+        fields: {
+          pivots: [],
+          dimension_like: [],
+          measure_like: [],
+          supermeasure_like: [
+            {
+              name: 'super_calc',
+              label: 'Super Calc',
+              type: 'number',
+              is_numeric: true,
+              is_table_calculation: true,
+            },
+          ],
+        },
+        sorts: [],
+        pivots: [],
+      };
+      const data = [
+        {
+          super_calc: { value: 99, rendered: '99' },
+        },
+      ];
+
+      await vizPlugin.updateAsync(
+        data,
+        element,
+        { theme: 'traditional' },
+        queryResponse,
+        {},
+        mockDone
+      );
+
+      expect(vizPlugin.addError).not.toHaveBeenCalled();
+      expect(mockDone).toHaveBeenCalledTimes(1);
+      expect(element.querySelector('#reportTable')).not.toBeNull();
+    });
+
+    test('should render and call done() when both measure_like and supermeasure_like coexist on a pivoted query (b/539669056)', async () => {
+      const queryResponse = {
+        fields: {
+          pivots: [{ name: 'transactions.transaction_quarter', label: 'Transaction Quarter' }],
+          dimension_like: [
+            { name: 'products.brand', label: 'Brand', type: 'string' },
+          ],
+          measure_like: [
+            {
+              name: 'transactions.total_profit',
+              label: 'Total Profit',
+              type: 'number',
+              is_numeric: true,
+              can_pivot: true,
+            },
+          ],
+          supermeasure_like: [
+            {
+              name: 'profit_calc',
+              label: 'Profit Calc',
+              type: 'number',
+              is_numeric: true,
+              is_table_calculation: true,
+              can_pivot: false,
+            },
+          ],
+        },
+        sorts: [],
+        pivots: [
+          {
+            key: '2024-Q1',
+            metadata: { 'transactions.transaction_quarter': { value: '2024-Q1', rendered: '2024-Q1' } },
+            sort_values: { 'transactions.transaction_quarter': '2024-Q1' },
+            data: {},
+          },
+        ],
+      };
+      const data = [
+        {
+          'products.brand': { value: 'Acme', rendered: 'Acme' },
+          'transactions.total_profit': {
+            '2024-Q1': { value: 100, rendered: '$100' },
+          },
+          profit_calc: { value: 42.5, rendered: '$42.5K' },
+        },
+      ];
+
+      await vizPlugin.updateAsync(
+        data,
+        element,
+        { theme: 'traditional' },
+        queryResponse,
+        {},
+        mockDone
+      );
+
+      expect(vizPlugin.addError).not.toHaveBeenCalled();
       expect(mockDone).toHaveBeenCalledTimes(1);
       expect(element.querySelector('#reportTable')).not.toBeNull();
     });
