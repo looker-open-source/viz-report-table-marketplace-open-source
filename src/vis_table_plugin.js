@@ -1671,7 +1671,7 @@ class VisPluginTableModel {
                   ? column.modelField.unit
                   : '';
               rendered =
-                (subtotal_value != 0 ? unit : '') +
+                unit +
                 this.formatCellValue(
                   column.modelField.value_format,
                   subtotal_value
@@ -1892,7 +1892,7 @@ class VisPluginTableModel {
             ? subtotalColumn.modelField.unit
             : '';
         var rendered =
-          (subtotal_value != 0 ? unit : '') +
+          unit +
           this.formatCellValue(
             subtotalColumn.modelField.value_format,
             subtotal_value
@@ -2872,9 +2872,10 @@ class VisPluginTableModel {
         .filter(c => !c.hide)
         .filter(c => c.modelField.type === 'dimension')[0];
       var value = subtotalColumn
-        ? row.data[subtotalColumn.id]?.rendered ||
-          row.data[subtotalColumn.id]?.render ||
-          row.data[subtotalColumn.id]?.value
+        ? (row.data[subtotalColumn.id]?.rendered ||
+            row.data[subtotalColumn.id]?.render ||
+            row.data[subtotalColumn.id]?.value) ??
+          ''
         : '';
       tipHTML += [
         '<tr class="',
