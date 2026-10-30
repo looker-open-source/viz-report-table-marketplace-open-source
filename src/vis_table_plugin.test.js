@@ -729,4 +729,260 @@ describe('VisPluginTableModel', () => {
     expect(model.columns.length).toBe(2);
     expect(model.data.length).toBe(1);
   });
+
+  test('should not crash in addColumnSubTotals when 2-pivot query also has Row Totals (is_total: true)', () => {
+    mockQueryResponse.fields.dimension_like = [
+      {name: 'dim_1', label: 'Department', type: 'string'},
+    ];
+    mockQueryResponse.fields.pivots = [
+      {name: 'piv_1', label: 'Year'},
+      {name: 'piv_2', label: 'Quarter'},
+    ];
+    mockQueryResponse.pivots = [
+      {
+        key: '2024|Q1',
+        data: {piv_1: '2024', piv_2: 'Q1'},
+        metadata: {piv_1: {value: '2024'}, piv_2: {value: 'Q1'}},
+        sort_values: {piv_1: '2024', piv_2: 'Q1'},
+      },
+      {
+        key: '2024|Q2',
+        data: {piv_1: '2024', piv_2: 'Q2'},
+        metadata: {piv_1: {value: '2024'}, piv_2: {value: 'Q2'}},
+        sort_values: {piv_1: '2024', piv_2: 'Q2'},
+      },
+      {
+        key: '$$$_row_total_$$$',
+        is_total: true,
+        data: {},
+        metadata: {},
+        sort_values: {},
+      },
+    ];
+    mockQueryResponse.has_row_totals = true;
+    mockQueryResponse.fields.measure_like = [
+      {name: 'meas_1', label: 'Sales', type: 'number', is_numeric: true},
+    ];
+
+    mockLookerData = [
+      {
+        dim_1: {value: 'Apparel', rendered: 'Apparel'},
+        meas_1: {
+          '2024|Q1': {value: 100, rendered: '100'},
+          '2024|Q2': {value: 150, rendered: '150'},
+          $$$_row_total_$$$: {value: 250, rendered: '250'},
+        },
+      },
+    ];
+
+    const model = new VisPluginTableModel(
+      mockLookerData,
+      mockQueryResponse,
+      {colSubtotals: true}
+    );
+
+    const subtotalCols = model.columns.filter(c => c.subtotal);
+    expect(subtotalCols.length).toBe(1);
+    expect(subtotalCols[0].id).toBe('$$$_subtotal_$$$.2024.meas_1');
+    expect(model.data[0].data['$$$_subtotal_$$$.2024.meas_1'].value).toBe(250);
+  });
+
+  test('should clamp subtotalDepth when it exceeds dimensions.length or when single dimension has undefined subtotalDepth', () => {
+    delete mockQueryResponse.pivots;
+    mockQueryResponse.fields.dimension_like = [
+      {name: 'dim_1', label: 'Category', type: 'string'},
+    ];
+    mockQueryResponse.fields.measure_like = [
+      {name: 'meas_1', label: 'Count', type: 'number', is_numeric: true},
+    ];
+
+    mockLookerData = [
+      {
+        dim_1: {value: 'A', rendered: 'A'},
+        meas_1: {value: 100, rendered: '100'},
+      },
+      {
+        dim_1: {value: 'B', rendered: 'B'},
+        meas_1: {value: 200, rendered: '200'},
+      },
+    ];
+
+    // Stale subtotalDepth ('3') > dimensions.length (1) should clamp to 1 without crashing
+    const staleDepthModel = new VisPluginTableModel(
+      mockLookerData,
+      mockQueryResponse,
+      {rowSubtotals: true, subtotalDepth: '3'}
+    );
+    expect(staleDepthModel.addSubtotalDepth).toBe(1);
+    expect(
+      staleDepthModel.data.filter(r => r.type === 'subtotal').length
+    ).toBe(2);
+
+    // Undefined subtotalDepth on 1-dimension query should default to 1
+    const defaultSingleDimModel = new VisPluginTableModel(
+      mockLookerData,
+      mockQueryResponse,
+      {rowSubtotals: true}
+    );
+    expect(defaultSingleDimModel.addSubtotalDepth).toBe(1);
+    expect(
+      defaultSingleDimModel.data.filter(r => r.type === 'subtotal').length
+    ).toBe(2);
+  });
+
+  test('should not merge a line_item row upward into a preceding subtotal row in setRowSpans', () => {
+    delete mockQueryResponse.pivots;
+    mockQueryResponse.fields.dimension_like = [
+      {name: 'dim_1', label: 'Department', type: 'string'},
+      {name: 'dim_2', label: 'Category', type: 'string'},
+    ];
+    mockQueryResponse.fields.measure_like = [
+      {name: 'meas_1', label: 'Sales', type: 'number', is_numeric: true},
+    ];
+
+    // Non-contiguous 'Apparel' groups (e.g. when sorted by measure)
+    mockLookerData = [
+      {
+        dim_1: {value: 'Apparel', rendered: 'Apparel'},
+        dim_2: {value: 'Shirts', rendered: 'Shirts'},
+        meas_1: {value: 300, rendered: '300'},
+      },
+      {
+        dim_1: {value: 'Footwear', rendered: 'Footwear'},
+        dim_2: {value: 'Boots', rendered: 'Boots'},
+        meas_1: {value: 200, rendered: '200'},
+      },
+      {
+        dim_1: {value: 'Footwear', rendered: 'Footwear'},
+        message_only: true,
+        meas_1: {value: 100, rendered: '100'},
+      },
+    ];
+
+    const model = new VisPluginTableModel(
+      mockLookerData,
+      mockQueryResponse,
+      {rowSubtotals: true, spanRows: true, subtotalDepth: '1'}
+    );
+
+    const lineItems = model.data.filter(r => r.type === 'line_item');
+    lineItems.forEach(row => {
+      // Top row of each subtotal group must remain visible (rowspan >= 1)
+      if (row.data.dim_2.value === 'Boots' || row.data.dim_2.value === 'Shirts') {
+        expect(row.data.dim_1.rowspan).toBeGreaterThanOrEqual(1);
+        expect(row.data.dim_2.rowspan).toBeGreaterThanOrEqual(1);
+      }
+    });
+  });
+
+  test('should use visible dimension header cell and hide hidden Others column when transposing table', () => {
+    delete mockQueryResponse.pivots;
+    mockQueryResponse.truncated = true;
+    mockQueryResponse.totals_data = {
+      meas_1: {value: 500, rendered: '500'},
+    };
+    mockQueryResponse.fields.dimension_like = [
+      {name: 'dim_1', label: 'Hidden Dept', type: 'string'},
+      {name: 'dim_2', label: 'Visible Category', type: 'string'},
+    ];
+    mockQueryResponse.fields.measure_like = [
+      {
+        name: 'meas_1',
+        label: 'Sales',
+        type: 'number',
+        is_numeric: true,
+        calculation_type: 'sum',
+      },
+    ];
+
+    mockLookerData = [
+      {
+        dim_1: {value: 'Apparel', rendered: 'Apparel'},
+        dim_2: {value: 'Shoes', rendered: 'Shoes'},
+        meas_1: {value: 300, rendered: '300'},
+      },
+    ];
+
+    const model = new VisPluginTableModel(
+      mockLookerData,
+      mockQueryResponse,
+      {
+        'hide|dim_1': true,
+        transposeTable: true,
+        calculateOthers: true,
+        rowSubtotals: true,
+        subtotalDepth: '1',
+      }
+    );
+
+    // Top-left transposed index header cell should use dim_2 ('Visible Category'), not hidden dim_1
+    const indexCol = model.transposed_columns.find(
+      c => c.modelField.type === 'transposed_table_index'
+    );
+    expect(indexCol.levels[0].label).toBe('Visible Category');
+
+    // Hidden 'Others' line_item row should also be marked hidden in transposed_columns
+    const hiddenOthersCol = model.transposed_columns.find(
+      c => c.id === 'Others'
+    );
+    expect(hiddenOthersCol.hide).toBe(true);
+    expect(
+      model.getTableHeaderCells(0).some(c => c.id === 'Others')
+    ).toBe(false);
+    const colGroups = model.getTableColumnGroups();
+    const allGroupedColIds = colGroups.flat().map(c => c.id);
+    expect(allGroupedColIds).not.toContain('Others');
+  });
+
+  test('should preserve useUnit prefix and blank string measures in client-calculated subtotals, set fieldLevel, and guard black_red formatting', () => {
+    delete mockQueryResponse.pivots;
+    delete mockQueryResponse.subtotals_data;
+    mockQueryResponse.fields.dimension_like = [
+      {name: 'dim_1', label: 'Department', type: 'string'},
+      {name: 'dim_2', label: 'Brand', type: 'string'},
+    ];
+    mockQueryResponse.fields.measure_like = [
+      {
+        name: 'rev_meas',
+        label: 'Revenue',
+        type: 'sum',
+        is_numeric: true,
+        value_format: '#,##0',
+        tags: ['vis-tools:unit:$'],
+      },
+      {
+        name: 'note_meas',
+        label: 'Note',
+        type: 'string',
+        is_numeric: false,
+      },
+    ];
+
+    mockLookerData = [
+      {
+        dim_1: {value: 'Apparel', rendered: 'Apparel'},
+        dim_2: {value: 'Brand A', rendered: 'Brand A'},
+        rev_meas: {value: -150, rendered: '-$150'},
+        note_meas: {value: 'Sample note', rendered: 'Sample note'},
+      },
+    ];
+
+    const model = new VisPluginTableModel(
+      mockLookerData,
+      mockQueryResponse,
+      {
+        rowSubtotals: true,
+        useUnit: true,
+        useHeadings: true,
+        'style|rev_meas': 'black_red',
+      }
+    );
+
+    expect(model.fieldLevel).toBe(1);
+    const subtotalRow = model.data.find(r => r.type === 'subtotal');
+    expect(subtotalRow).toBeDefined();
+    expect(subtotalRow.data.rev_meas.rendered).toBe('$-150');
+    expect(subtotalRow.data.rev_meas.cell_style).toContain('negative');
+    expect(subtotalRow.data.note_meas.rendered).toBe('');
+  });
 });

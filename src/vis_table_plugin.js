@@ -276,7 +276,15 @@ class VisPluginTableModel {
     this.addPivotsAndHeaders(queryResponse);
     this.addDimensions(queryResponse, col_idx);
     this.addSubtotalDepth =
-      parseInt(config.subtotalDepth) || this.dimensions.length - 1;
+      this.dimensions.length > 0
+        ? Math.min(
+            Math.max(
+              parseInt(config.subtotalDepth) || this.dimensions.length - 1,
+              1
+            ),
+            this.dimensions.length
+          )
+        : 0;
     this.addMeasures(queryResponse, col_idx);
 
     this.checkVarianceCalculations();
@@ -293,11 +301,11 @@ class VisPluginTableModel {
     if (this.hasTotals) {
       this.buildTotals(queryResponse);
     }
-    if (this.spanRows) {
-      this.setRowSpans();
-    }
     if (this.addRowSubtotals) {
       this.addSubTotals();
+    }
+    if (this.spanRows) {
+      this.setRowSpans();
     }
     // console.log('table in progress', this)
     if (this.addColSubtotals && this.pivot_fields.length === 2) {
@@ -560,7 +568,7 @@ class VisPluginTableModel {
     }
 
     for (var i = 0; i < this.headers.length; i++) {
-      if (!this.headers[i] === 'field') {
+      if (this.headers[i].type === 'field') {
         this.fieldLevel = i;
         break;
       }
@@ -1388,19 +1396,19 @@ class VisPluginTableModel {
         }
 
         if (othersValue) {
+          var unit =
+            this.config.useUnit && column.modelField.unit !== '#'
+              ? column.modelField.unit
+              : '';
           var formatted_value =
-            column.modelField.value_format === ''
-              ? othersValue.toString()
-              : this.formatCellValue(
-                  column.modelField.value_format,
-                  othersValue
-                );
-          othersRow.data[column.id] = new DataCell({
-            value: othersValue,
-            rendered: this.formatCellValue(
+            unit +
+            this.formatCellValue(
               column.modelField.value_format,
               othersValue
-            ),
+            );
+          othersRow.data[column.id] = new DataCell({
+            value: othersValue,
+            rendered: formatted_value,
             cell_style: othersStyle,
             align: column.modelField.is_numeric ? 'right' : 'left',
             colid: column.id,
@@ -1466,8 +1474,8 @@ class VisPluginTableModel {
     for (var l = leaves.length - 1; l >= 0; l--) {
       var leaf = leaves[l];
 
-      // Totals/subtotals rows: full reset and continue
-      if (leaf.type !== 'line_item') {
+      // Totals/subtotals/hidden rows: full reset and continue
+      if (leaf.type !== 'line_item' || leaf.hide) {
         tiers.forEach(tier => {
           span_tracker[tier.name] = 1;
         });
@@ -1478,11 +1486,14 @@ class VisPluginTableModel {
       for (var t = 0; t < tiers.length; t++) {
         var tier = tiers[t];
         var this_tier_value = leaf.data[tier.name].value;
-        var neighbour_value =
-          l > 0 ? leaves[l - 1].data[tier.name].value : null;
+        var can_merge_with_neighbour =
+          l > 0 && leaves[l - 1].type === 'line_item' && !leaves[l - 1].hide;
+        var neighbour_value = can_merge_with_neighbour
+          ? leaves[l - 1].data[tier.name].value
+          : null;
 
         // Match: mark invisible (span_value = -1). Increment the span_tracker.
-        if (l > 0 && this_tier_value === neighbour_value) {
+        if (can_merge_with_neighbour && this_tier_value === neighbour_value) {
           leaf.data[tier.name].rowspan = -1;
           leaf.data[tier.name].colspan = -1;
           span_tracker[tier.name] += 1;
@@ -1660,15 +1671,11 @@ class VisPluginTableModel {
                   ? column.modelField.unit
                   : '';
               rendered =
-                column.modelField.value_format === ''
-                  ? subtotal_value.toString()
-                  : subtotal_value != 0
-                  ? unit +
-                    this.formatCellValue(
-                      column.modelField.value_format,
-                      subtotal_value
-                    )
-                  : 0;
+                (subtotal_value != 0 ? unit : '') +
+                this.formatCellValue(
+                  column.modelField.value_format,
+                  subtotal_value
+                );
             }
             if (column.modelField.calculation_type === 'string') {
               subtotal_value = '';
@@ -1677,10 +1684,7 @@ class VisPluginTableModel {
 
             var cell = new DataCell({
               value: subtotal_value,
-              rendered: this.formatCellValue(
-                column.modelField.value_format,
-                subtotal_value
-              ),
+              rendered: rendered,
               cell_style: cell_style,
               align: align,
               colid: column.id,
@@ -1716,9 +1720,11 @@ class VisPluginTableModel {
     var pivots = [];
     var pivot_dimension = this.pivot_fields[0].name;
     this.pivot_values.forEach(pivot_value => {
-      var p_value = pivot_value['data'][pivot_dimension];
-      if (p_value !== null) {
-        pivots.push(p_value);
+      if (!pivot_value.is_total && pivot_value.data) {
+        var p_value = pivot_value['data'][pivot_dimension];
+        if (p_value !== null && typeof p_value !== 'undefined') {
+          pivots.push(p_value);
+        }
       }
     });
     pivots = [...new Set(pivots)];
@@ -1760,7 +1766,9 @@ class VisPluginTableModel {
               }
             }
           });
-          subtotalColumns.push(subtotalColumn);
+          if (subtotalColumn.subtotal_data.columns.length > 0) {
+            subtotalColumns.push(subtotalColumn);
+          }
         }
       });
     });
@@ -1874,14 +1882,24 @@ class VisPluginTableModel {
         var subtotal_value = 0;
         subtotalColumn.subtotal_data.columns.forEach(column => {
           // subtotalColumn.columns i.e. the individual columns that are aggregated into a single subtotal columns
-          subtotal_value += row.data[column.id].value;
+          var value = row.data[column.id]?.value;
+          if (Number.isFinite(value)) {
+            subtotal_value += value;
+          }
         });
-        row.data[subtotalColumn.id] = new DataCell({
-          value: subtotal_value,
-          rendered: this.formatCellValue(
+        var unit =
+          this.config.useUnit && subtotalColumn.modelField.unit !== '#'
+            ? subtotalColumn.modelField.unit
+            : '';
+        var rendered =
+          (subtotal_value != 0 ? unit : '') +
+          this.formatCellValue(
             subtotalColumn.modelField.value_format,
             subtotal_value
-          ),
+          );
+        row.data[subtotalColumn.id] = new DataCell({
+          value: subtotal_value,
+          rendered: rendered,
           cell_style: cell_style,
           colid: subtotalColumn.id,
           rowid: row.id,
@@ -2347,7 +2365,7 @@ class VisPluginTableModel {
         switch (config_setting) {
           case 'black_red':
             this.data.forEach(row => {
-              if (row.data[column.id].value < 0) {
+              if (row.data[column.id]?.value < 0) {
                 row.data[column.id].cell_style.push('negative');
               }
             });
@@ -2379,12 +2397,16 @@ class VisPluginTableModel {
       is_table_calculation: false,
     };
 
+    var visibleDimensionColumns = this.columns
+      .filter(c => c.modelField.type === 'dimension')
+      .filter(c => !c.hide);
+
     // One "index column" per header row from original table
     this.headers.forEach((indexColumn, i) => {
       var transposedColumn = new Column(indexColumn.type, this, index_parent);
 
       this.transposed_headers.forEach((header, h) => {
-        var sourceCell = this.columns[h].levels[i];
+        var sourceCell = visibleDimensionColumns[h].levels[i];
         var headerCell = new HeaderCell({
           column: transposedColumn,
           type: sourceCell.type,
@@ -2417,6 +2439,7 @@ class VisPluginTableModel {
     // One column per data row (line items, subtotals, totals)
     this.data.forEach(sourceRow => {
       var transposedColumn = new Column(sourceRow.id, this, measure_parent);
+      transposedColumn.hide = Boolean(sourceRow.hide);
 
       this.transposed_headers.forEach(header => {
         var cellRef =
@@ -2653,7 +2676,9 @@ class VisPluginTableModel {
         .filter(c => !c.hide)
         .filter(c => c.levels[i].colspan > 0);
     } else {
-      return this.transposed_columns.filter(c => c.levels[i].colspan > 0);
+      return this.transposed_columns
+        .filter(c => !c.hide)
+        .filter(c => c.levels[i].colspan > 0);
     }
   }
 
@@ -2774,6 +2799,9 @@ class VisPluginTableModel {
       });
     } else {
       this.transposed_columns.forEach(column => {
+        if (column.hide) {
+          return;
+        }
         if (column.modelField.type === 'transposed_table_index') {
           indexColumns.push({id: column.id, type: 'index'});
         } else if (

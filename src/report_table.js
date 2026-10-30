@@ -96,7 +96,10 @@ const buildReportTable = async function (
       var canvas =
         getTextWidth.canvas ||
         (getTextWidth.canvas = document.createElement('canvas'));
-      var context = canvas.getContext('2d');
+      var context = canvas.getContext && canvas.getContext('2d');
+      if (!context) {
+        return String(text ?? '').length * 8;
+      }
       context.font = font || config.bodyFontSize + 'pt arial';
       var metrics = context.measureText(text);
       return metrics.width;
@@ -157,8 +160,9 @@ const buildReportTable = async function (
           .filter(cs => !cs.column.hide)
           .filter(cs => cs.column.modelField.type === 'dimension')
           .forEach(cs => {
-            var maxLength = cs.series.values.reduce((a, b) =>
-              Math.max(getTextWidth(a), getTextWidth(b))
+            var maxLength = cs.series.values.reduce(
+              (max, val) => Math.max(max, getTextWidth(val)),
+              0
             );
             var columnId = cs.column.modelField.name;
             if (dataTable.useIndexColumn) {
@@ -171,9 +175,10 @@ const buildReportTable = async function (
         dataTable.headers.forEach(header => {
           var fontSize = 'bold ' + config.bodyFontSize + 'pt arial';
           var maxLength = dataTable.transposed_data
-            .map(row => row.data[header.type].rendered)
-            .reduce((a, b) =>
-              Math.max(getTextWidth(a, fontSize), getTextWidth(b, fontSize))
+            .map(row => row.data[header.type]?.rendered ?? '')
+            .reduce(
+              (max, val) => Math.max(max, getTextWidth(val, fontSize)),
+              0
             );
           columnTextWidths[header.type] = Math.ceil(maxLength);
         });

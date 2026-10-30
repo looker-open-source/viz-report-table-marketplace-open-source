@@ -400,5 +400,57 @@ describe('report_table visualization plugin', () => {
       expect(mockDone).toHaveBeenCalledTimes(1);
       expect(element.querySelector('#reportTable')).not.toBeNull();
     });
+
+    test('should compute valid numeric col widths (not NaNpx) when minWidthForIndexColumns is enabled for 1-row and transposed tables', async () => {
+      const queryResponse = {
+        fields: {
+          pivots: [],
+          dimension_like: [
+            { name: 'dim1', label: 'Dimension 1', type: 'string' },
+          ],
+          measure_like: [
+            { name: 'meas1', label: 'Measure 1', type: 'number', is_numeric: true },
+          ],
+        },
+        sorts: [],
+        pivots: [],
+      };
+      const singleRowData = [
+        {
+          dim1: { value: 'Single Row Category', rendered: 'Single Row Category' },
+          meas1: { value: 100, rendered: '$100' },
+        },
+      ];
+
+      await vizPlugin.updateAsync(
+        singleRowData,
+        element,
+        { theme: 'traditional', minWidthForIndexColumns: true },
+        queryResponse,
+        {},
+        mockDone
+      );
+
+      const flatCol = element.querySelector('#coldim1');
+      expect(flatCol).not.toBeNull();
+      expect(flatCol.style.width).not.toContain('NaN');
+
+      await vizPlugin.updateAsync(
+        singleRowData,
+        element,
+        {
+          theme: 'traditional',
+          minWidthForIndexColumns: true,
+          transposeTable: true,
+        },
+        queryResponse,
+        {},
+        mockDone
+      );
+
+      const transposedCol = element.querySelector('#colfield');
+      expect(transposedCol).not.toBeNull();
+      expect(transposedCol.style.width).not.toContain('NaN');
+    });
   });
 });
