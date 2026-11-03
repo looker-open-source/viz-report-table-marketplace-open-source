@@ -258,7 +258,7 @@ describe('report_table visualization plugin', () => {
       expect(element.querySelector('#reportTable')).not.toBeNull();
     });
 
-    test('should render and call done() when pivoted measures are hidden (measure_like is empty) but supermeasure_like table calculations exist (b/539669056)', async () => {
+    test('should render and call done() when pivoted measures are hidden (measure_like is empty) but supermeasure_like table calculations exist', async () => {
       const queryResponse = {
         fields: {
           pivots: [{ name: 'transactions.transaction_quarter', label: 'Transaction Quarter' }],
@@ -340,7 +340,7 @@ describe('report_table visualization plugin', () => {
       expect(element.querySelector('#reportTable')).not.toBeNull();
     });
 
-    test('should render and call done() when both measure_like and supermeasure_like coexist on a pivoted query (b/539669056)', async () => {
+    test('should render and call done() when both measure_like and supermeasure_like coexist on a pivoted query', async () => {
       const queryResponse = {
         fields: {
           pivots: [{ name: 'transactions.transaction_quarter', label: 'Transaction Quarter' }],
