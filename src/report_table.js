@@ -91,12 +91,20 @@ const buildReportTable = async function (
   };
 
   const renderTable = async function () {
+    const escapeSelector = id =>
+      typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+        ? CSS.escape(id)
+        : String(id).replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, '\\$1');
+
     const getTextWidth = function (text, font = '') {
       // re-use canvas object for better performance
       var canvas =
         getTextWidth.canvas ||
         (getTextWidth.canvas = document.createElement('canvas'));
-      var context = canvas.getContext('2d');
+      var context = canvas.getContext && canvas.getContext('2d');
+      if (!context) {
+        return String(text ?? '').length * 8;
+      }
       context.font = font || config.bodyFontSize + 'pt arial';
       var metrics = context.measureText(text);
       return metrics.width;
@@ -157,8 +165,9 @@ const buildReportTable = async function (
           .filter(cs => !cs.column.hide)
           .filter(cs => cs.column.modelField.type === 'dimension')
           .forEach(cs => {
-            var maxLength = cs.series.values.reduce((a, b) =>
-              Math.max(getTextWidth(a), getTextWidth(b))
+            var maxLength = cs.series.values.reduce(
+              (max, val) => Math.max(max, getTextWidth(val)),
+              0
             );
             var columnId = cs.column.modelField.name;
             if (dataTable.useIndexColumn) {
@@ -171,9 +180,10 @@ const buildReportTable = async function (
         dataTable.headers.forEach(header => {
           var fontSize = 'bold ' + config.bodyFontSize + 'pt arial';
           var maxLength = dataTable.transposed_data
-            .map(row => row.data[header.type].rendered)
-            .reduce((a, b) =>
-              Math.max(getTextWidth(a, fontSize), getTextWidth(b, fontSize))
+            .map(row => row.data[header.type]?.rendered ?? '')
+            .reduce(
+              (max, val) => Math.max(max, getTextWidth(val, fontSize)),
+              0
             );
           columnTextWidths[header.type] = Math.ceil(maxLength);
         });
@@ -191,7 +201,7 @@ const buildReportTable = async function (
       .data(d => d)
       .enter()
       .append('col')
-      .attr('id', d => ['col', d.id].join('').replace('.', ''))
+      .attr('id', d => ['col', d.id].join('').replace(/\./g, ''))
       .attr('span', 1)
       .style('width', d => {
         if (
@@ -320,12 +330,12 @@ const buildReportTable = async function (
       .on('mouseover', (event, d) => {
         if (dataTable.showHighlight) {
           if (!dataTable.transposeTable) {
-            var id = ['col', d.colid].join('').replace('.', '');
+            var id = ['col', d.colid].join('').replace(/\./g, '');
           } else {
-            var id = ['col', d.rowid].join('').replace('.', '');
+            var id = ['col', d.rowid].join('').replace(/\./g, '');
           }
 
-          var colElement = element.querySelector('#' + id);
+          var colElement = element.querySelector('#' + escapeSelector(id));
           if (colElement) {
             colElement.classList.toggle('hover');
           }
@@ -365,11 +375,11 @@ const buildReportTable = async function (
       .on('mouseout', (event, d) => {
         if (dataTable.showHighlight) {
           if (!dataTable.transposeTable) {
-            var id = ['col', d.colid].join('').replace('.', '');
+            var id = ['col', d.colid].join('').replace(/\./g, '');
           } else {
-            var id = ['col', d.rowid].join('').replace('.', '');
+            var id = ['col', d.rowid].join('').replace(/\./g, '');
           }
-          var colElement = element.querySelector('#' + id);
+          var colElement = element.querySelector('#' + escapeSelector(id));
           if (colElement) {
             colElement.classList.toggle('hover');
           }
@@ -638,7 +648,9 @@ looker.plugins.visualizations.add({
       // empty pivot(s)...no measures
       if (
         queryResponse?.fields?.pivots?.length > 0 &&
-        queryResponse?.fields?.measure_like?.length === 0
+        queryResponse?.fields?.measure_like?.length === 0 &&
+        !queryResponse?.fields?.supermeasure_like?.length &&
+        !queryResponse?.fields?.dimension_like?.length
       ) {
         this.addError({
           title: 'Empty Pivot(s)',
@@ -669,7 +681,8 @@ looker.plugins.visualizations.add({
       if (
         !queryResponse.fields ||
         (queryResponse.fields.dimension_like?.length === 0 &&
-          queryResponse.fields.measure_like?.length === 0)
+          queryResponse.fields.measure_like?.length === 0 &&
+          !queryResponse.fields.supermeasure_like?.length)
       ) {
         this.addError({
           title: 'No Fields',
