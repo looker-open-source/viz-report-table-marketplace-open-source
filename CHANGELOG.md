@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.7](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.6...v1.1.7) (2026-11-04)
+
+
+### Bug Fixes
+
+* support hidden pivoted measures with supermeasures and resolve subtotal, row-span, and transpose edge cases  ([#103](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/issues/103)) ([acd2ae3](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/commit/acd2ae3389009df98ea15ddda09f7a3ea9f90463))
+
 ## [1.1.6](https://github.com/looker-open-source/viz-report-table-marketplace-open-source/compare/v1.1.5...v1.1.6) (2026-10-21)
 
 
