@@ -262,8 +262,12 @@ class VisPluginTableModel {
       typeof queryResponse.subtotals_data !== 'undefined' ? true : false;
     this.hasRowTotals = queryResponse.has_row_totals || false;
     this.hasPivots = Boolean(
-      typeof queryResponse.pivots !== 'undefined' &&
-        queryResponse.fields?.measure_like?.length > 0
+      Array.isArray(queryResponse.pivots) &&
+        queryResponse.pivots.length > 0 &&
+        queryResponse.fields?.pivots?.length > 0 &&
+        queryResponse.fields?.measure_like?.some(
+          m => this.config['style|' + m.name] !== 'hide'
+        )
     );
     this.hasSupers =
       typeof queryResponse.fields.supermeasure_like !== 'undefined'
@@ -282,7 +286,7 @@ class VisPluginTableModel {
               parseInt(config.subtotalDepth) || this.dimensions.length - 1,
               1
             ),
-            this.dimensions.length
+            Math.max(this.dimensions.length - 1, 1)
           )
         : 0;
     this.addMeasures(queryResponse, col_idx);
@@ -470,9 +474,10 @@ class VisPluginTableModel {
 
       // measures, row totals and supermeasures
       this.measures.forEach((comparisonMeasure, j) => {
+        const pivotedMeasure = measure.can_pivot ? measure : comparisonMeasure;
         var includeMeasure =
           measure.can_pivot === comparisonMeasure.can_pivot ||
-          (this.hasRowTotals && !comparisonMeasure.is_table_calculation);
+          (this.hasRowTotals && !pivotedMeasure.is_table_calculation);
         if (i != j && includeMeasure) {
           var option = {};
           option['Vs. ' + comparisonMeasure.label] = comparisonMeasure.name;
@@ -1094,7 +1099,8 @@ class VisPluginTableModel {
                 this.config['reportIn|' + column.modelField.name];
               if (
                 typeof reportInSetting !== 'undefined' &&
-                reportInSetting !== '1'
+                reportInSetting !== '1' &&
+                Number.isFinite(cell.value)
               ) {
                 var unit =
                   this.config.useUnit && column.modelField.unit !== '#'
@@ -1157,7 +1163,11 @@ class VisPluginTableModel {
         }
 
         var reportInSetting = this.config['reportIn|' + column.modelField.name];
-        if (typeof reportInSetting !== 'undefined' && reportInSetting !== '1') {
+        if (
+          typeof reportInSetting !== 'undefined' &&
+          reportInSetting !== '1' &&
+          Number.isFinite(cell.value)
+        ) {
           var unit =
             this.config.useUnit && column.modelField.unit !== '#'
               ? column.modelField.unit
@@ -1308,7 +1318,11 @@ class VisPluginTableModel {
         }
 
         var reportInSetting = this.config['reportIn|' + column.modelField.name];
-        if (typeof reportInSetting !== 'undefined' && reportInSetting !== '1') {
+        if (
+          typeof reportInSetting !== 'undefined' &&
+          reportInSetting !== '1' &&
+          Number.isFinite(cellValue.value)
+        ) {
           var unit =
             this.config.useUnit && column.modelField.unit !== '#'
               ? column.modelField.unit
@@ -1374,14 +1388,16 @@ class VisPluginTableModel {
 
         if (column.modelField.type === 'measure') {
           if (
-            (othersValue = ['sum', 'count'].includes(
+            ['sum', 'count'].includes(
               column.modelField.calculation_type
-            ))
+            )
           ) {
-            othersValue = (totalValue?.value ?? 0) - column.series.series.sum;
-            othersStyle.push('measure');
-          } else {
-            othersValue = ((totalValue?.value ?? 0) + column.series.series.avg) / 2;
+            if (Number.isFinite(totalValue?.value)) {
+              othersValue = totalValue.value - column.series.series.sum;
+              othersStyle.push('measure');
+            }
+          } else if (Number.isFinite(totalValue?.value)) {
+            othersValue = (totalValue.value + column.series.series.avg) / 2;
             othersStyle = othersStyle.concat(['estimate', 'measure']);
             if (
               ['count', 'count_distinct'].includes(
@@ -1395,7 +1411,7 @@ class VisPluginTableModel {
           othersStyle.push('dimension');
         }
 
-        if (othersValue) {
+        if (othersValue !== null && Number.isFinite(othersValue)) {
           var unit =
             this.config.useUnit && column.modelField.unit !== '#'
               ? column.modelField.unit
@@ -1502,8 +1518,15 @@ class VisPluginTableModel {
           for (var t_ = t; t_ < tiers.length; t_++) {
             var tier_ = tiers[t_];
             leaf.data[tier_.name].rowspan = span_tracker[tier_.name];
+            leaf.data[tier_.name].colspan = 1;
             if (leaf.data[tier_.name].rowspan > 1) {
-              leaf.data[tier_.name].cell_style.push('merged');
+              if (!leaf.data[tier_.name].cell_style.includes('merged')) {
+                leaf.data[tier_.name].cell_style.push('merged');
+              }
+            } else {
+              leaf.data[tier_.name].cell_style = leaf.data[
+                tier_.name
+              ].cell_style.filter(c => c !== 'merged');
             }
             span_tracker[tier_.name] = 1;
           }
@@ -1539,15 +1562,22 @@ class VisPluginTableModel {
 
     // BUILD GROUPINGS / SORT VALUES
     var subTotalGroups = [];
-    var latest_group = [];
+    var latest_group = null;
     this.data.forEach((row, i) => {
       if (row.type !== 'total') {
         var group = [];
-        for (var g = 0; g < depth; g++) {
-          var dim = this.dimensions[g].name;
-          group.push(row.data[dim]?.value ?? '');
+        if (row.id === 'Others') {
+          group = ['Others'];
+        } else {
+          for (var g = 0; g < depth; g++) {
+            var dim = this.dimensions[g].name;
+            group.push(row.data[dim]?.value ?? '');
+          }
         }
-        if (group.join('|') !== latest_group.join('|')) {
+        if (
+          latest_group === null ||
+          group.join('|') !== latest_group.join('|')
+        ) {
           subTotalGroups.push(group);
           latest_group = group;
         }
@@ -1566,7 +1596,9 @@ class VisPluginTableModel {
     // GENERATE DATA ROWS FOR SUBTOTALS
     subTotalGroups.forEach((subTotalGroup, s) => {
       var subtotalRow = new Row('subtotal');
-      var dims = subTotalGroup.join('|') ? subTotalGroup.join('|') : 'Others';
+      var isOthersGroup =
+        subTotalGroup.length === 1 && subTotalGroup[0] === 'Others';
+      var dims = isOthersGroup ? 'Others' : subTotalGroup.join('|');
       subtotalRow.id = ['Subtotal', dims].join('|');
 
       this.columns.forEach(column => {
@@ -1602,8 +1634,10 @@ class VisPluginTableModel {
               cell.value = 'Subtotal';
               cell.rendered = 'Subtotal';
             } else {
-              const subTotalJoin = subTotalGroup.join(' | ');
-              cell.value = subTotalJoin ? subTotalJoin : 'Others';
+              const subTotalJoin = isOthersGroup
+                ? 'Others'
+                : subTotalGroup.map(g => (g === '' ? '∅' : g)).join(' | ');
+              cell.value = subTotalJoin;
               cell.rendered = cell.value
                 ? cell.value
                 : column.modelField.is_numeric
@@ -1781,16 +1815,21 @@ class VisPluginTableModel {
         switch (header.type) {
           case 'pivot0':
             // console.log('subtotalColumn:', subtotalColumn) // TODO: REMOVE
+            var pivotData =
+              subtotalColumn.subtotal_data.columns[0].levels[i].pivotData;
             var sortValueFromColumn =
-              subtotalColumn.subtotal_data.columns[0].levels[i].pivotData
-                .sort_values[header.modelField.name];
+              pivotData.sort_values[header.modelField.name];
+            var pivotLabel =
+              pivotData.metadata?.[header.modelField.name]?.rendered ||
+              pivotData.metadata?.[header.modelField.name]?.value ||
+              subtotalColumn.subtotal_data.pivot;
             subtotalColumn.levels.push(
               new HeaderCell({
                 column: subtotalColumn,
                 type: header.type,
                 modelField: {
                   name: header.modelField.name,
-                  label: subtotalColumn.subtotal_data.pivot,
+                  label: pivotLabel,
                 },
               })
             );
@@ -1801,7 +1840,6 @@ class VisPluginTableModel {
             break;
 
           case 'pivot1':
-            console.log('line1453');
             subtotalColumn.levels.push(
               new HeaderCell({
                 column: subtotalColumn,
@@ -1880,23 +1918,40 @@ class VisPluginTableModel {
           ? ['subtotal', 'numeric', 'measure']
           : ['subtotal', 'nonNumeric', 'measure'];
         var subtotal_value = 0;
+        var valid_count = 0;
         subtotalColumn.subtotal_data.columns.forEach(column => {
           // subtotalColumn.columns i.e. the individual columns that are aggregated into a single subtotal columns
           var value = row.data[column.id]?.value;
           if (Number.isFinite(value)) {
             subtotal_value += value;
+            valid_count += 1;
           }
         });
-        var unit =
-          this.config.useUnit && subtotalColumn.modelField.unit !== '#'
-            ? subtotalColumn.modelField.unit
-            : '';
-        var rendered =
-          unit +
-          this.formatCellValue(
-            subtotalColumn.modelField.value_format,
-            subtotal_value
-          );
+        var rendered = '';
+        if (subtotalColumn.modelField.calculation_type === 'string') {
+          subtotal_value = '';
+        } else if (valid_count === 0) {
+          subtotal_value = null;
+          rendered = '∅';
+        } else {
+          if (
+            (subtotalColumn.modelField.value_format &&
+              subtotalColumn.modelField.value_format.includes('%')) ||
+            subtotalColumn.modelField.calculation_type === 'average'
+          ) {
+            subtotal_value = subtotal_value / valid_count;
+          }
+          var unit =
+            this.config.useUnit && subtotalColumn.modelField.unit !== '#'
+              ? subtotalColumn.modelField.unit
+              : '';
+          rendered =
+            unit +
+            this.formatCellValue(
+              subtotalColumn.modelField.value_format,
+              subtotal_value
+            );
+        }
         row.data[subtotalColumn.id] = new DataCell({
           value: subtotal_value,
           rendered: rendered,
@@ -2024,10 +2079,11 @@ class VisPluginTableModel {
     }
 
     column.pivoted = baseline.pivoted;
+    column.isRowTotal = Boolean(baseline.isRowTotal);
     column.super = baseline.super;
     column.pivot_key = baseline.pivot_key;
 
-    if (this.groupVarianceColumns) {
+    if (this.groupVarianceColumns && !column.isRowTotal && !column.super) {
       column.sort[0].value = 1.5;
     }
 
@@ -2443,7 +2499,9 @@ class VisPluginTableModel {
 
       this.transposed_headers.forEach(header => {
         var cellRef =
-          this.useIndexColumn && ['subtotal', 'total'].includes(sourceRow.type)
+          this.useIndexColumn &&
+          (['subtotal', 'total'].includes(sourceRow.type) ||
+            sourceRow.id === 'Others')
             ? '$$$_index_$$$'
             : header.modelField.name;
         var sourceCell = sourceRow.data[cellRef];
@@ -2833,6 +2891,14 @@ class VisPluginTableModel {
   }
 
   getCellToolTip(rowid, colid) {
+    const escapeHtml = val =>
+      String(val ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
     var tipHTML = '<table><tbody>';
 
     var row = this.getRowById(rowid);
@@ -2881,9 +2947,9 @@ class VisPluginTableModel {
         '<tr class="',
         rowClass,
         '"><td><span style="float:left"><em>',
-        label,
+        escapeHtml(label),
         ':</em></td><td></span><span style="float:left"> ',
-        value,
+        escapeHtml(value),
         '</span></td></tr>',
       ].join('');
     } else {
@@ -2893,15 +2959,16 @@ class VisPluginTableModel {
 
       dimensionColumns.forEach(column => {
         var label = column.getHeaderCellLabelByType('field');
-        var value = row.data[column.id].rendered || row.data[column.id].value;
+        var value =
+          (row.data[column.id]?.rendered || row.data[column.id]?.value) ?? '';
         var rowClass = column.id === focusColumn.id ? 'focus' : '';
         tipHTML += [
           '<tr class="',
           rowClass,
           '"><td><span style="float:left"><em>',
-          label,
+          escapeHtml(label),
           ':</em></td><td></span><span style="float:left"> ',
-          value,
+          escapeHtml(value),
           '</span></td></tr>',
         ].join('');
       });
@@ -2928,14 +2995,14 @@ class VisPluginTableModel {
         var rowClass = column.id === focusColumn.id ? 'focus' : '';
 
         var cell = row.data[column.id];
-        var value = cell.rendered || cell.value;
-        if (cell.html) {
+        var value = (cell?.rendered || cell?.value) ?? '';
+        if (cell?.html) {
           var parser = new DOMParser();
           var parsed_html = parser.parseFromString(cell.html, 'text/html');
           value = parsed_html.documentElement.textContent;
         }
 
-        if (cell.cell_style.includes('estimate')) {
+        if (cell?.cell_style?.includes('estimate')) {
           isEstimate = true;
         }
 
@@ -2943,9 +3010,9 @@ class VisPluginTableModel {
           '<tr class="',
           rowClass,
           '"><td><span style="float:left"><em>',
-          label,
+          escapeHtml(label),
           ':</em></td><td></span><span style="float:right"> ',
-          value,
+          escapeHtml(value),
           '</span></td></tr>',
         ].join('');
       }
@@ -2971,7 +3038,7 @@ class VisPluginTableModel {
     if (isReportedIn) {
       tipHTML +=
         '<tr><td colspan=2><span style="color:darkgrey">' +
-        isReportedIn +
+        escapeHtml(isReportedIn) +
         '.</span></td></tr>';
     }
 

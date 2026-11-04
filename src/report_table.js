@@ -91,6 +91,11 @@ const buildReportTable = async function (
   };
 
   const renderTable = async function () {
+    const escapeSelector = id =>
+      typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+        ? CSS.escape(id)
+        : String(id).replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, '\\$1');
+
     const getTextWidth = function (text, font = '') {
       // re-use canvas object for better performance
       var canvas =
@@ -196,7 +201,7 @@ const buildReportTable = async function (
       .data(d => d)
       .enter()
       .append('col')
-      .attr('id', d => ['col', d.id].join('').replace('.', ''))
+      .attr('id', d => ['col', d.id].join('').replace(/\./g, ''))
       .attr('span', 1)
       .style('width', d => {
         if (
@@ -325,12 +330,12 @@ const buildReportTable = async function (
       .on('mouseover', (event, d) => {
         if (dataTable.showHighlight) {
           if (!dataTable.transposeTable) {
-            var id = ['col', d.colid].join('').replace('.', '');
+            var id = ['col', d.colid].join('').replace(/\./g, '');
           } else {
-            var id = ['col', d.rowid].join('').replace('.', '');
+            var id = ['col', d.rowid].join('').replace(/\./g, '');
           }
 
-          var colElement = element.querySelector('#' + id);
+          var colElement = element.querySelector('#' + escapeSelector(id));
           if (colElement) {
             colElement.classList.toggle('hover');
           }
@@ -370,11 +375,11 @@ const buildReportTable = async function (
       .on('mouseout', (event, d) => {
         if (dataTable.showHighlight) {
           if (!dataTable.transposeTable) {
-            var id = ['col', d.colid].join('').replace('.', '');
+            var id = ['col', d.colid].join('').replace(/\./g, '');
           } else {
-            var id = ['col', d.rowid].join('').replace('.', '');
+            var id = ['col', d.rowid].join('').replace(/\./g, '');
           }
-          var colElement = element.querySelector('#' + id);
+          var colElement = element.querySelector('#' + escapeSelector(id));
           if (colElement) {
             colElement.classList.toggle('hover');
           }

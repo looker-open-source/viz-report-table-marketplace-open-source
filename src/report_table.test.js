@@ -451,6 +451,10 @@ describe('report_table visualization plugin', () => {
       const transposedCol = element.querySelector('#colfield');
       expect(transposedCol).not.toBeNull();
       expect(transposedCol.style.width).not.toContain('NaN');
+      expect(
+        element.querySelectorAll('#reportTable tbody tr').length
+      ).toBe(1);
+      expect(parseInt(transposedCol.style.width, 10)).toBeGreaterThan(25);
     });
   });
 });

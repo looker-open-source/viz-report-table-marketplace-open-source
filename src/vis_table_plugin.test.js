@@ -627,6 +627,8 @@ describe('VisPluginTableModel', () => {
     const othersRow = model.data.find(r => r.id === 'Others');
     expect(totalRow).toBeDefined();
     expect(othersRow).toBeDefined();
+    expect(othersRow.data.super_sum.value).toBeUndefined();
+    expect(othersRow.data.super_avg.value).toBeUndefined();
   });
 
   test('should generate subtotal cell tooltips cleanly both with visible dimensions and when all dimensions are hidden', () => {
@@ -984,5 +986,394 @@ describe('VisPluginTableModel', () => {
     expect(subtotalRow.data.rev_meas.rendered).toBe('$-150');
     expect(subtotalRow.data.rev_meas.cell_style).toContain('negative');
     expect(subtotalRow.data.note_meas.rendered).toBe('');
+  });
+
+  describe('adversarial logic regression gates', () => {
+    test('Gate #1: empty pivots array [] should not set hasPivots=true or drop measure_like columns', () => {
+      mockQueryResponse.pivots = [];
+      mockQueryResponse.fields.pivots = [];
+      mockQueryResponse.fields.dimension_like = [
+        {name: 'dim_1', label: 'Dim 1', type: 'string'},
+      ];
+      mockQueryResponse.fields.measure_like = [
+        {name: 'meas_1', label: 'Meas 1', type: 'number', is_numeric: true},
+      ];
+      mockLookerData = [
+        {
+          dim_1: {value: 'A', rendered: 'A'},
+          meas_1: {value: 42, rendered: '42'},
+        },
+      ];
+
+      const model = new VisPluginTableModel(
+        mockLookerData,
+        mockQueryResponse,
+        {transposeTable: true}
+      );
+
+      expect(model.hasPivots).toBe(false);
+      expect(model.columns.map(c => c.id)).toContain('meas_1');
+      expect(model.transposed_data.length).toBe(1);
+    });
+
+    test('Gate #2: subtotalDepth on multi-dimension query should clamp to dimensions.length - 1', () => {
+      delete mockQueryResponse.pivots;
+      mockQueryResponse.fields.dimension_like = [
+        {name: 'dim_1', label: 'Dept', type: 'string'},
+        {name: 'dim_2', label: 'Category', type: 'string'},
+      ];
+      mockQueryResponse.fields.measure_like = [
+        {name: 'meas_1', label: 'Sales', type: 'number', is_numeric: true},
+      ];
+      mockLookerData = [
+        {
+          dim_1: {value: 'Apparel', rendered: 'Apparel'},
+          dim_2: {value: 'Shirts', rendered: 'Shirts'},
+          meas_1: {value: 100, rendered: '100'},
+        },
+        {
+          dim_1: {value: 'Apparel', rendered: 'Apparel'},
+          dim_2: {value: 'Pants', rendered: 'Pants'},
+          meas_1: {value: 200, rendered: '200'},
+        },
+      ];
+
+      const model = new VisPluginTableModel(
+        mockLookerData,
+        mockQueryResponse,
+        {rowSubtotals: true, subtotalDepth: '3'}
+      );
+
+      expect(model.addSubtotalDepth).toBe(1);
+      expect(model.data.filter(r => r.type === 'subtotal').length).toBe(1);
+    });
+
+    test('Gate #3: setRowSpans should reset colspan=1 and remove stale merged class when buildTotals runs before addSubTotals', () => {
+      delete mockQueryResponse.pivots;
+      mockQueryResponse.totals_data = {
+        meas_1: {value: 300, rendered: '300'},
+      };
+      mockQueryResponse.fields.dimension_like = [
+        {name: 'dim_1', label: 'Dept', type: 'string'},
+        {name: 'dim_2', label: 'Category', type: 'string'},
+        {name: 'dim_3', label: 'Item', type: 'string'},
+      ];
+      mockQueryResponse.fields.measure_like = [
+        {name: 'meas_1', label: 'Sales', type: 'number', is_numeric: true},
+      ];
+      mockLookerData = [
+        {
+          dim_1: {value: 'Apparel', rendered: 'Apparel'},
+          dim_2: {value: 'Shirts', rendered: 'Shirts'},
+          dim_3: {value: 'Tee', rendered: 'Tee'},
+          meas_1: {value: 100, rendered: '100'},
+        },
+        {
+          dim_1: {value: 'Apparel', rendered: 'Apparel'},
+          dim_2: {value: 'Pants', rendered: 'Pants'},
+          dim_3: {value: 'Jeans', rendered: 'Jeans'},
+          meas_1: {value: 200, rendered: '200'},
+        },
+      ];
+
+      const model = new VisPluginTableModel(
+        mockLookerData,
+        mockQueryResponse,
+        {rowSubtotals: true, subtotalDepth: '2', spanRows: true}
+      );
+
+      const lineItems = model.data.filter(r => r.type === 'line_item');
+      lineItems.forEach(row => {
+        expect(row.data.dim_1.rowspan).toBe(1);
+        expect(row.data.dim_1.colspan).toBe(1);
+        expect(row.data.dim_1.cell_style).not.toContain('merged');
+      });
+    });
+
+    test('Gate #4b & #5: zero Others value is preserved, and null dimension group matches subtotals_data without colliding with Others', () => {
+      delete mockQueryResponse.pivots;
+      mockQueryResponse.truncated = true;
+      mockQueryResponse.totals_data = {
+        meas_1: {value: 300, rendered: '300'},
+      };
+      mockQueryResponse.subtotals_data = {
+        1: [
+          {
+            $$$__grouping__$$$: ['dim_1'],
+            dim_1: {value: null, rendered: '∅'},
+            meas_1: {value: 100, rendered: '100'},
+          },
+          {
+            $$$__grouping__$$$: ['dim_1'],
+            dim_1: {value: 'Apparel', rendered: 'Apparel'},
+            meas_1: {value: 200, rendered: '200'},
+          },
+        ],
+      };
+      mockQueryResponse.fields.dimension_like = [
+        {name: 'dim_1', label: 'Dept', type: 'string'},
+        {name: 'dim_2', label: 'Category', type: 'string'},
+      ];
+      mockQueryResponse.fields.measure_like = [
+        {
+          name: 'meas_1',
+          label: 'Sales',
+          type: 'sum',
+          is_numeric: true,
+        },
+      ];
+      mockLookerData = [
+        {
+          dim_1: {value: null, rendered: '∅'},
+          dim_2: {value: 'Unassigned', rendered: 'Unassigned'},
+          meas_1: {value: 100, rendered: '100'},
+        },
+        {
+          dim_1: {value: 'Apparel', rendered: 'Apparel'},
+          dim_2: {value: 'Shirts', rendered: 'Shirts'},
+          meas_1: {value: 200, rendered: '200'},
+        },
+      ];
+
+      const model = new VisPluginTableModel(
+        mockLookerData,
+        mockQueryResponse,
+        {rowSubtotals: true, subtotalDepth: '1', calculateOthers: true}
+      );
+
+      const nullSubtotal = model.data.find(r => r.id === 'Subtotal|');
+      const othersSubtotal = model.data.find(r => r.id === 'Subtotal|Others');
+      expect(nullSubtotal).toBeDefined();
+      expect(nullSubtotal.data.dim_1.rendered).toBe('∅');
+      expect(nullSubtotal.data.meas_1.value).toBe(100);
+      expect(othersSubtotal).toBeDefined();
+      expect(othersSubtotal.data.dim_1.rendered).toBe('Others');
+      expect(othersSubtotal.data.meas_1.value).toBe(0);
+    });
+
+    test('Gate #6: addColumnSubTotals averages average/% measures, blanks string measures, and renders null for all-null groups', () => {
+      mockQueryResponse.fields.dimension_like = [
+        {name: 'dim_1', label: 'Dept', type: 'string'},
+      ];
+      mockQueryResponse.fields.pivots = [
+        {name: 'piv_1', label: 'Year'},
+        {name: 'piv_2', label: 'Quarter'},
+      ];
+      mockQueryResponse.pivots = [
+        {
+          key: '2024|Q1',
+          data: {piv_1: '2024', piv_2: 'Q1'},
+          metadata: {
+            piv_1: {value: '2024', rendered: 'FY2024'},
+            piv_2: {value: 'Q1', rendered: 'Q1'},
+          },
+          sort_values: {piv_1: '2024', piv_2: 'Q1'},
+        },
+        {
+          key: '2024|Q2',
+          data: {piv_1: '2024', piv_2: 'Q2'},
+          metadata: {
+            piv_1: {value: '2024', rendered: 'FY2024'},
+            piv_2: {value: 'Q2', rendered: 'Q2'},
+          },
+          sort_values: {piv_1: '2024', piv_2: 'Q2'},
+        },
+      ];
+      mockQueryResponse.fields.measure_like = [
+        {
+          name: 'avg_meas',
+          label: 'Avg Price',
+          type: 'average',
+          is_numeric: true,
+          value_format: '#,##0',
+        },
+        {
+          name: 'str_meas',
+          label: 'Note',
+          type: 'string',
+          is_numeric: false,
+        },
+        {
+          name: 'null_meas',
+          label: 'Empty Metric',
+          type: 'sum',
+          is_numeric: true,
+        },
+      ];
+      mockLookerData = [
+        {
+          dim_1: {value: 'Apparel', rendered: 'Apparel'},
+          avg_meas: {
+            '2024|Q1': {value: 100, rendered: '100'},
+            '2024|Q2': {value: 200, rendered: '200'},
+          },
+          str_meas: {
+            '2024|Q1': {value: 'A', rendered: 'A'},
+            '2024|Q2': {value: 'B', rendered: 'B'},
+          },
+          null_meas: {
+            '2024|Q1': {value: null, rendered: '∅'},
+            '2024|Q2': {value: null, rendered: '∅'},
+          },
+        },
+      ];
+
+      const model = new VisPluginTableModel(
+        mockLookerData,
+        mockQueryResponse,
+        {colSubtotals: true, spanCols: true}
+      );
+
+      const row = model.data[0];
+      expect(row.data['$$$_subtotal_$$$.2024.avg_meas'].value).toBe(150);
+      expect(row.data['$$$_subtotal_$$$.2024.str_meas'].value).toBe('');
+      expect(row.data['$$$_subtotal_$$$.2024.str_meas'].rendered).toBe('');
+      expect(row.data['$$$_subtotal_$$$.2024.null_meas'].value).toBeNull();
+      expect(row.data['$$$_subtotal_$$$.2024.null_meas'].rendered).toBe('∅');
+      const avgSubCol = model.getColumnById('$$$_subtotal_$$$.2024.avg_meas');
+      expect(avgSubCol.getHeaderCellLabelByType('pivot0')).toBe('FY2024');
+    });
+
+    test('Gate #7: getConfigOptions allows pivoted measure vs supermeasure with Row Totals and aligns colgroup with columns', () => {
+      mockQueryResponse.fields.dimension_like = [
+        {name: 'dim_1', label: 'Dim 1', type: 'string'},
+      ];
+      mockQueryResponse.fields.pivots = [{name: 'pivot_1', label: 'Pivot 1'}];
+      mockQueryResponse.pivots = [
+        {
+          key: '2025-Q1',
+          is_total: false,
+          metadata: {pivot_1: {value: '2025-Q1', rendered: '2025-Q1'}},
+          sort_values: {pivot_1: '2025-Q1'},
+        },
+        {
+          key: '$$$_row_total_$$$',
+          is_total: true,
+          metadata: {pivot_1: {value: 'Row Total', rendered: 'Row Total'}},
+          sort_values: {pivot_1: 'zzz'},
+        },
+      ];
+      mockQueryResponse.has_row_totals = true;
+      mockQueryResponse.fields.measure_like = [
+        {
+          name: 'pivoted_sales',
+          label: 'Pivoted Sales',
+          type: 'number',
+          is_numeric: true,
+          can_pivot: true,
+          is_table_calculation: false,
+        },
+      ];
+      mockQueryResponse.fields.supermeasure_like = [
+        {
+          name: 'target_calc',
+          label: 'Target Calc',
+          type: 'number',
+          is_numeric: true,
+          is_table_calculation: true,
+          can_pivot: false,
+        },
+      ];
+      mockLookerData = [
+        {
+          dim_1: {value: 'Brand A', rendered: 'Brand A'},
+          pivoted_sales: {
+            '2025-Q1': {value: 100, rendered: '100'},
+            $$$_row_total_$$$: {value: 100, rendered: '100'},
+          },
+          target_calc: {value: 80, rendered: '80'},
+        },
+      ];
+
+      const model = new VisPluginTableModel(
+        mockLookerData,
+        mockQueryResponse,
+        {
+          'comparison|pivoted_sales': 'target_calc',
+          'var_num|pivoted_sales': true,
+        }
+      );
+
+      const comparisonValues = model.config_options
+        ? model.config_options['comparison|pivoted_sales'].values
+        : model.getConfigOptions()['comparison|pivoted_sales'].values;
+      expect(comparisonValues).toEqual(
+        expect.arrayContaining([{'Vs. Target Calc': 'target_calc'}])
+      );
+
+      const visibleColIds = model.columns.filter(c => !c.hide).map(c => c.id);
+      const colGroupIds = model.getTableColumnGroups().flat().map(c => c.id);
+      expect(colGroupIds).toEqual(visibleColIds);
+    });
+
+    test('Gate #8: transposed table with indexColumn=true and calculateOthers=true preserves Others column header', () => {
+      delete mockQueryResponse.pivots;
+      mockQueryResponse.truncated = true;
+      mockQueryResponse.totals_data = {
+        meas_1: {value: 500, rendered: '500'},
+      };
+      mockQueryResponse.fields.dimension_like = [
+        {name: 'dim_1', label: 'Dept', type: 'string'},
+        {name: 'dim_2', label: 'Brand', type: 'string'},
+      ];
+      mockQueryResponse.fields.measure_like = [
+        {
+          name: 'meas_1',
+          label: 'Sales',
+          type: 'sum',
+          is_numeric: true,
+        },
+      ];
+      mockLookerData = [
+        {
+          dim_1: {value: 'Apparel', rendered: 'Apparel'},
+          dim_2: {value: 'Acme', rendered: 'Acme'},
+          meas_1: {value: 300, rendered: '300'},
+        },
+      ];
+
+      const model = new VisPluginTableModel(
+        mockLookerData,
+        mockQueryResponse,
+        {
+          indexColumn: true,
+          calculateOthers: true,
+          transposeTable: true,
+        }
+      );
+
+      const othersCol = model.transposed_columns.find(c => c.id === 'Others');
+      expect(othersCol).toBeDefined();
+      expect(othersCol.levels[0].label).toBe('Others');
+    });
+
+    test('Gate #9: getCellToolTip escapes HTML characters in labels and values', () => {
+      delete mockQueryResponse.pivots;
+      mockQueryResponse.fields.dimension_like = [
+        {name: 'dim_1', label: 'Brand <script>', type: 'string'},
+      ];
+      mockQueryResponse.fields.measure_like = [
+        {name: 'meas_1', label: 'Sales & Tax', type: 'number', is_numeric: true},
+      ];
+      mockLookerData = [
+        {
+          dim_1: {value: '<img onerror=alert(1)>', rendered: '<img onerror=alert(1)>'},
+          meas_1: {value: 100, rendered: '$100 <raw>'},
+        },
+      ];
+
+      const model = new VisPluginTableModel(
+        mockLookerData,
+        mockQueryResponse,
+        {showTooltip: true}
+      );
+
+      const tip = model.getCellToolTip(model.data[0].id, 'meas_1');
+      expect(tip).not.toContain('<script>');
+      expect(tip).not.toContain('<img');
+      expect(tip).toContain('&lt;script&gt;');
+      expect(tip).toContain('&lt;img onerror=alert(1)&gt;');
+      expect(tip).toContain('Sales &amp; Tax');
+    });
   });
 });
